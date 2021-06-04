@@ -1,8 +1,10 @@
 from backend.models import Producto
 from .serializers import ProductoModalSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 
 @api_view(['GET', 'POST'])
@@ -23,6 +25,8 @@ def listar_productos(request):
 
 
 @api_view(['GET',  'PUT', 'DELETE'])
+@authentication_classes((SessionAuthentication, BasicAuthentication,))
+@permission_classes((IsAuthenticated,))
 def ver_producto(request, id):
     try:
         producto = Producto.objects.get(pk=id)
