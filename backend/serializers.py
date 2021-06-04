@@ -20,4 +20,5 @@ class ProductoSerializer(serializers.Serializer):
 class ProductoModalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
-        fields = ('id', 'nombre', 'precio')
+        #fields = ('id', 'nombre', 'precio')
+        fields = '__all__'

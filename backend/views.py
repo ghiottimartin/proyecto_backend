@@ -1,48 +1,46 @@
-from django.http.response import JsonResponse, HttpResponse
 from backend.models import Producto
 from .serializers import ProductoModalSerializer
-from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
 
-@csrf_exempt
+@api_view(['GET', 'POST'])
 def listar_productos(request):
 
     if request.method == "GET":
         productos = Producto.objects.all()
         serializer = ProductoModalSerializer(productos, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
 
     elif request.method == "POST":
-        data = JSONParser().parse(request)
-        serializer = ProductoModalSerializer(data=data)
+        serializer = ProductoModalSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
+@api_view(['GET',  'PUT', 'DELETE'])
 def ver_producto(request, id):
     try:
         producto = Producto.objects.get(pk=id)
     except Producto.DoesNotExist:
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == "GET":
         serializer = ProductoModalSerializer(producto)
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
 
+    # Si la request tiene id actualiza la entidad
     if request.method == "PUT":
-        data = JSONParser().parse(request)
-        serializer = ProductoModalSerializer(producto, data=data)
-
+        serializer = ProductoModalSerializer(producto, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == "DELETE":
         producto.delete()
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
