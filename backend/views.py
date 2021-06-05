@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from .serializers import UsuarioSerializer, ProductoSerializer
 from .models import Producto
 
-# Registro
+# Alta de usuario sin autorización
 @api_view(['POST'])
 def registro(request):
     if request.method == "POST":
@@ -22,18 +22,12 @@ def registro(request):
             return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Obtener un usuario o todos los usuarios
-@authentication_classes((TokenAuthentication))
-@permission_classes((IsAuthenticated))
-class UsuarioApiView(APIView):
-    def get(self, request, id=None):
-        if id == None:
-            usuarios = User.objects.all()
-            serializer = UsuarioSerializer(usuarios, many=True)
-            return Response(serializer.data)
-        usuario = get_object_or_404(User, pk=id)
-        serializer = UsuarioSerializer(usuario)
-        return Response(serializer.data)
+# Abm de usuarios con autorización
+class ABMUsuarioViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsuarioSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 # Obtención de productos sin autorización
 class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
