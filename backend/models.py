@@ -8,6 +8,15 @@ class Usuario(AbstractUser):
     token_email = models.CharField(max_length=191, null=True)
     fecha_token_reset = models.DateTimeField(null=True)
 
+    roles = models.ManyToManyField(
+        to='Rol', related_name="usuarios_roles", blank=True)
+
+class Rol(models.Model):
+    nombre =  models.CharField(max_length=50)
+    legible =  models.CharField(max_length=50)
+    descripcion =  models.CharField(max_length=250)
+    root = models.BooleanField(default=False)
+
 class Producto(models.Model):
     nombre = models.CharField(max_length=30)
     precio = models.FloatField()
