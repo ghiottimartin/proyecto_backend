@@ -4,11 +4,15 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import UsuarioSerializer, ProductoSerializer
 from .models import Producto, Usuario
+from . import repository
 
 # Alta de usuario sin autorización  
 class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-    aueryset = Usuario.objects.all()
+    queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
+
+    def create(self, request, *args, **kwargs):
+        return repository.crear_usuario(first_name=request.data['nombre'], username=request.data['username'], password=request.data['password'], email=request.data['email'], rol=None)
 
 # Abm de usuarios con autorización
 class ABMUsuarioViewSet(viewsets.ModelViewSet):

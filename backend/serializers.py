@@ -1,13 +1,12 @@
 from rest_framework import serializers
 from rest_framework.authtoken.views import Token
-from .models import Producto, Usuario
+from .models import Producto, Usuario, Rol
 
 
 class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
         fields = '__all__'
-
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:

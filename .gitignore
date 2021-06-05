@@ -1,3 +1,4 @@
 db_proyecto.sqlite3
-/backend/migrations/*
 /proyecto_backend/__pycache__/*
+/backend/__pycache__/*
+/backend/migrations/__pycache__/*
