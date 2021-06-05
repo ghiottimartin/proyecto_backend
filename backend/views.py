@@ -1,19 +1,18 @@
-from django.contrib.auth.models import User
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import UsuarioSerializer, ProductoSerializer
-from .models import Producto
+from .models import Producto, Usuario
 
 # Alta de usuario sin autorización  
 class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-    aueryset = User.objects.all()
+    aueryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
 # Abm de usuarios con autorización
 class ABMUsuarioViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
