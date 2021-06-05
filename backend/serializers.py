@@ -25,17 +25,32 @@ class ProductoModalSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UsuarioSerializer(serializers.ModelSerializer):
+class UsuarioSerializer(serializers.Serializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'first_name']
+        fields = ['id', 'username', 'password', 'first_name', 'email']
 
         extra_kwargs = {
             'password': {
-                'write_only': True,
                 'required': True,
             }
         }
+
+    def to_internal_value(self, data):
+        internal_value = super(
+            UsuarioSerializer, self).to_internal_value(data)
+        del data['tipoRegistro']
+        del data['password_confirmation']
+        for key, value in data.items():
+            internal_value.update({key: value})
+        return internal_value
+
+    extra_kwargs = {
+        'password': {
+            'write_only': True,
+            'required': True,
+        }
+    }
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)

@@ -10,4 +10,5 @@ router.register('productos', views.ProductoViewSet, basename="productos")
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('registro/', views.registro, name="registro")
 ]
