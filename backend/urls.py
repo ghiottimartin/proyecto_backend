@@ -15,7 +15,7 @@ router.register('abm/producto', views.ABMProductoViewSet, basename="abm-producto
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('validar-email/<str:token>', views.activar_cuenta, name="activar-cuenta"),
+    path('validar-email/<str:token>', views.validar_token_email, name="activar-cuenta"),
     path('olvido-password/', views.olvido_password, name="olvido-password"),
     path('validar-token/<str:token>', views.validar_token_password, name="validar-token-password"),
     path('cambiar-password/', views.cambiar_password, name="cambiar-password"),

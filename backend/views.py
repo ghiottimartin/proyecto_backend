@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .email import enviar_email_registro
 from .models import Producto, Usuario
+from . import respuestas
 from .serializers import UsuarioSerializer, ProductoSerializer
 import secrets
 import datetime
@@ -55,14 +56,12 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-def activar_cuenta(request, token):
+def validar_token_email(request, token):
     if request.method == "POST":
         try:
             usuario = buscar_usuario("token_email", token)
             if usuario is None:
-                return Response(
-                    "El token ingresado no es válido o ha caducado. Comuníquese con nosotros mediante la sección.",
-                    status=status.HTTP_400_BAD_REQUEST)
+                return respuestas.validar_token_email_error_token_invalido()
             usuario.habilitado = True
             usuario.token_email = None
             usuario.save()
@@ -72,12 +71,10 @@ def activar_cuenta(request, token):
                 'idUsuario': usuario.pk,
                 'nombre': usuario.first_name
             }
-            return Response(data, status=status.HTTP_200_OK)
-        except:
-            return Response("Hubo un error al activar su cuenta. Intente de nuevo más tarde.",
-                            status=status.HTTP_400_BAD_REQUEST)
-    return Response("Hubo un error al activar su cuenta. Intente de nuevo más tarde.",
-                    status=status.HTTP_400_BAD_REQUEST)
+            return respuestas.get_respuesta(exito=True, mensaje="", codigo=None, datos=data)
+        except Exception as ex:
+            return respuestas.validar_token_email_error_general()
+    return respuestas.validar_token_email_error_general()
 
 
 @api_view(['POST'])
