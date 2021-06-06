@@ -97,17 +97,15 @@ def olvido_password(request):
 
 @api_view(['POST'])
 def validar_token_password(request, token):
-    error = {"message": "Hubo un error intentar validar el link. Intente de nuevo más tarde."}
     if request.method == "POST":
         try:
             usuario = buscar_usuario_token_reset(token)
             if usuario is None:
-                return Response({"message": "El link ingresado no es válido o ha caducado. Vuelva a solicitar el "
-                                            "cambio de contraseña."}, status=status.HTTP_400_BAD_REQUEST)
-            return Response({"message": "Ahora puede cambiar su contraseña."}, status=status.HTTP_200_OK)
+                return respuestas.validar_token_password_error_link_invalido()
+            return respuestas.exito()
         except:
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
-    return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            return respuestas.validar_token_password_error_general()
+    return respuestas.validar_token_password_error_general()
 
 
 @api_view(['POST'])
