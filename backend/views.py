@@ -21,7 +21,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = UsuarioSerializer
 
     def create(self, request, *args, **kwargs):
-        return crear_usuario_view(True, request)
+        return crear_usuario(True, request)
 
 
 # Abm de usuarios con autorización
@@ -32,21 +32,46 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        return crear_usuario_view(False, request)
+        return crear_usuario(False, request)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        if request.data["password"] == "":
+            request.data["password"] = instance.password
+        if request.data["dni"] == "":
+            request.data["dni"] = None
+        serializer = self.get_serializer(instance, data=request.data, partial=partial, context={'roles': request.data["roles"]}
+                                         )
+        valid = serializer.is_valid(raise_exception=False)
+        if valid:
+            self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        errores = serializer.get_errores_lista()
+        if len(errores) > 0:
+            return respuestas.get_respuesta(False, errores)
+        return respuestas.get_respuesta(True, "El usuario se ha actualizado con éxito.", None, {"usuario": serializer.data})
 
 
-def crear_usuario_view(enviar_email, request):
+def crear_usuario(enviar, request):
     serializer = UsuarioSerializer(data=request.data, context={'roles': request.data["roles"]})
     if serializer.is_valid(raise_exception=False):
         serializer.save()
         usuario = buscar_usuario("id", serializer.data["id"])
         usuario.agregar_roles(request.data["roles"])
         usuario.save()
-        if enviar_email:
-            email.enviar_email_registro(usuario)
+        if enviar:
+            pass
+        #   email.enviar_email_registro(usuario)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    mensajes = serializer.get_mensaje_errores()
-    return Response(mensajes, status=status.HTTP_400_BAD_REQUEST)
+    errores = serializer.get_errores_lista()
+    return respuestas.get_respuesta(False, errores)
+
 
 # Obtención de productos sin autorización
 class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
