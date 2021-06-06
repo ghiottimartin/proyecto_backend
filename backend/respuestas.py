@@ -24,3 +24,18 @@ def validar_token_email_error_token_invalido():
 def validar_token_email_error_general():
     mensaje = "Hubo un error al activar su cuenta. Intente de nuevo más tarde."
     return get_respuesta(False, mensaje)
+
+
+def olvido_password_error_email_inexistente():
+    mensaje = "El email ingresado no corresponde a ningún usuario registrado."
+    return get_respuesta(False, mensaje)
+
+
+def olvido_password_error_general():
+    mensaje = "Hubo un error al enviar el email de cambio de contraseña. Intente nuevamente más tarde."
+    return get_respuesta(False, mensaje)
+
+
+def olvido_password_exito():
+    mensaje = "Se ha enviado un link a su email para reiniciar su contraseña. Tiene 24 horas para cambiarla."
+    return get_respuesta(True, mensaje)

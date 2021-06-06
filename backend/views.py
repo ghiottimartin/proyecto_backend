@@ -72,31 +72,27 @@ def validar_token_email(request, token):
                 'nombre': usuario.first_name
             }
             return respuestas.get_respuesta(exito=True, mensaje="", codigo=None, datos=data)
-        except Exception as ex:
+        except:
             return respuestas.validar_token_email_error_general()
     return respuestas.validar_token_email_error_general()
 
 
 @api_view(['POST'])
 def olvido_password(request):
-    error = {"message": "Hubo un error al enviar el email de cambio de contraseña. Intente nuevamente más tarde."}
     if request.method == "POST":
         try:
             stringEmail = request.data["email"]
             usuario = buscar_usuario("email", stringEmail)
             if usuario is None:
-                return Response({"message": "El email ingresado no corresponde a ningún usuario registrado."},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return respuestas.olvido_password_error_email_inexistente()
             usuario.token_reset = secrets.token_hex(16)
             usuario.fecha_token_reset = datetime.datetime.today()
             usuario.save()
             enviar_email_registro(usuario)
-            exito = {"message": "Se ha enviado un link a su email para reiniciar su contraseña. Tiene 24 horas para "
-                                "cambiarla."}
-            return Response(exito, status=status.HTTP_200_OK)
-        except Exception as ex:
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
-    return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            return respuestas.olvido_password_exito()
+        except:
+            return respuestas.olvido_password_error_general()
+    return respuestas.olvido_password_error_general()
 
 
 @api_view(['POST'])
