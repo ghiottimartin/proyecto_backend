@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.contrib.auth.backends import ModelBackend
+from django.core.exceptions import ValidationError
 
 
 class EmailBackend(ModelBackend):
@@ -14,8 +14,9 @@ class EmailBackend(ModelBackend):
 
         valida = user.check_password(password)
         if valida is False:
-            raise ValidationError("Usuario y/o contraseña incorrectos.")
+            raise ValidationError({"exito": False, "message": "Usuario y/o contraseña incorrectos."})
         habilitado = user.habilitado
         if valida and habilitado is False:
-            raise ValidationError("Su usuario no ha sido habilitado aún. Revise su correo para activarlo.")
+            raise ValidationError({"exito": False, "message": "Su usuario no ha sido habilitado aún. Revise su correo "
+                                                              "para activarlo."})
         return user
