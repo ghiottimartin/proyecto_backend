@@ -23,7 +23,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         serializer = UsuarioSerializer(data=request.data, context={'roles': request.data["roles"]})
         if serializer.is_valid(raise_exception=False):
             serializer.save()
-            usuario = buscar_usuario_id(serializer.data["id"])
+            usuario = buscar_usuario("id", serializer.data["id"])
             usuario.agregar_roles(request.data["roles"])
             usuario.save()
             # email.enviar_email_registro(usuario)
@@ -58,7 +58,7 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 def activar_cuenta(request, token):
     if request.method == "POST":
         try:
-            usuario = buscar_usuario_token_email(token)
+            usuario = buscar_usuario("token_email", token)
             if usuario is None:
                 return Response(
                     "El token ingresado no es válido o ha caducado. Comuníquese con nosotros mediante la sección.",
@@ -86,7 +86,7 @@ def olvido_password(request):
     if request.method == "POST":
         try:
             stringEmail = request.data["email"]
-            usuario = buscar_usuario_email(stringEmail)
+            usuario = buscar_usuario("email", stringEmail)
             if usuario is None:
                 return Response({"message": "El email ingresado no corresponde a ningún usuario registrado."},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -137,27 +137,17 @@ def cambiar_password(request):
     return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
-def buscar_usuario_id(id):
+# Búsqueda genérica de usuario por un campo
+def buscar_usuario(campo, valor):
+    filtro = {campo: valor}
     try:
-        return Usuario.objects.get(pk=id)
+        return Usuario.objects.get(**filtro)
     except Usuario.DoesNotExist:
         return None
 
 
-def buscar_usuario_email(email):
-    try:
-        return Usuario.objects.get(email=email)
-    except Usuario.DoesNotExist:
-        return None
-
-
-def buscar_usuario_token_email(token):
-    try:
-        return Usuario.objects.get(token_email=token)
-    except Usuario.DoesNotExist:
-        return None
-
-
+# Busca un usuario que tenga el token reset enviado como parámetro y si el usuario posee fecha_token_reset la
+# diferencia con la fecha actual debe ser menor o igual a un día
 def buscar_usuario_token_reset(token):
     try:
         usuario = Usuario.objects.get(token_reset=token)
