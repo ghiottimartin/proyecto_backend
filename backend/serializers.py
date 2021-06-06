@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.views import Token
 from rest_framework.exceptions import ValidationError
 from .models import Producto, Usuario, Rol
+import secrets
 
 
 class CustomModelSerializer(serializers.ModelSerializer):
@@ -51,6 +52,8 @@ class UsuarioSerializer(CustomModelSerializer):
 
     def create(self, validated_data):
         user = Usuario.objects.create_user(**validated_data)
+        user.token_email = secrets.token_hex(16)
+        user.save()
         Token.objects.create(user=user)
         return user
 
