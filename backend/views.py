@@ -9,10 +9,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .email import enviar_email_registro
 from .models import Producto, Usuario
-from . import respuestas
 from .serializers import UsuarioSerializer, ProductoSerializer
-import secrets
+from . import respuestas
 import datetime
+import secrets
 
 
 # Alta de usuario sin autorización
@@ -110,22 +110,20 @@ def validar_token_password(request, token):
 
 @api_view(['POST'])
 def cambiar_password(request):
-    error = {"message": "Hubo un error cambiar la contraseña. Intente de nuevo más tarde."}
     if request.method == "POST":
         try:
             token = request.data["token"]
             usuario = buscar_usuario_token_reset(token)
             if usuario is None:
-                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+                return respuestas.cambiar_password_error_general()
             password = request.data["password"]
             usuario.password = make_password(password)
             usuario.fecha_token_reset = None
             usuario.save()
-            return Response({"message": "La contraseña fue cambiada con éxito, intente ingresar nuevamente."},
-                            status=status.HTTP_200_OK)
+            return respuestas.cambiar_password_exito()
         except:
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
-    return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            return respuestas.cambiar_password_error_general()
+    return respuestas.cambiar_password_error_general()
 
 
 # Búsqueda genérica de usuario por un campo

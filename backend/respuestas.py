@@ -53,3 +53,13 @@ def validar_token_password_error_general():
 def validar_token_password_error_link_invalido():
     mensaje = "El link ingresado no es válido o ha caducado. Vuelva a solicitar el cambio de contraseña."
     return get_respuesta(False, mensaje)
+
+
+def cambiar_password_error_general():
+    mensaje = "Hubo un error cambiar la contraseña. Intente de nuevo más tarde."
+    return get_respuesta(False, mensaje)
+
+
+def cambiar_password_exito():
+    mensaje = "La contraseña fue cambiada con éxito, intente ingresar nuevamente."
+    return get_respuesta(True, mensaje)
