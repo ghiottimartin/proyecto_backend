@@ -35,7 +35,7 @@ class UsuarioSerializer(CustomModelSerializer):
         model = Usuario
         fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password']
 
-    def is_valid(self, raise_exception):
+    def is_valid(self, raise_exception=False):
         roles = self.context["roles"]
         invalidos = comprobar_roles_invalidos(roles)
         if len(invalidos) > 0:
@@ -43,12 +43,12 @@ class UsuarioSerializer(CustomModelSerializer):
             raise ValidationError({"Error": message})
         return super().is_valid(raise_exception=raise_exception)
 
-    extra_kwargs = {
-        'password': {
-            'write_only': True,
-            'required': True,
-        }
-    }
+    def to_representation(self, instance):
+        """Quito password"""
+        ret = super().to_representation(instance)
+        ret['password'] = ""
+        return ret
+
 
     def create(self, validated_data):
         user = Usuario.objects.create_user(**validated_data)
