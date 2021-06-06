@@ -33,7 +33,7 @@ class UsuarioSerializer(CustomModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password']
+        fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password', 'dni']
 
     def is_valid(self, raise_exception=False):
         roles = self.context["roles"]
