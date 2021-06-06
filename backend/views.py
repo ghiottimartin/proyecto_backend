@@ -37,8 +37,12 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
+        password = request.data["password"]
         if request.data["password"] == "":
-            request.data["password"] = instance.password
+            password = instance.password
+        else:
+            password = make_password(password)
+        request.data["password"] = password
         if request.data["dni"] == "":
             request.data["dni"] = None
         serializer = self.get_serializer(instance, data=request.data, partial=partial, context={'roles': request.data["roles"]}
