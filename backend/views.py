@@ -21,16 +21,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = UsuarioSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = UsuarioSerializer(data=request.data, context={'roles': request.data["roles"]})
-        if serializer.is_valid(raise_exception=False):
-            serializer.save()
-            usuario = buscar_usuario("id", serializer.data["id"])
-            usuario.agregar_roles(request.data["roles"])
-            usuario.save()
-            email.enviar_email_registro(usuario)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        mensajes = serializer.get_mensaje_errores()
-        return Response(mensajes, status=status.HTTP_400_BAD_REQUEST)
+        return crear_usuario_view(True, request)
 
 
 # Abm de usuarios con autorización
@@ -40,6 +31,22 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        return crear_usuario_view(False, request)
+
+
+def crear_usuario_view(enviar_email, request):
+    serializer = UsuarioSerializer(data=request.data, context={'roles': request.data["roles"]})
+    if serializer.is_valid(raise_exception=False):
+        serializer.save()
+        usuario = buscar_usuario("id", serializer.data["id"])
+        usuario.agregar_roles(request.data["roles"])
+        usuario.save()
+        if enviar_email:
+            email.enviar_email_registro(usuario)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    mensajes = serializer.get_mensaje_errores()
+    return Response(mensajes, status=status.HTTP_400_BAD_REQUEST)
 
 # Obtención de productos sin autorización
 class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
