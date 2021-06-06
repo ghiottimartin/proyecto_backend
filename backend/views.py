@@ -1,5 +1,4 @@
-import datetime
-
+from django.contrib.auth.hashers import make_password
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework import status
@@ -8,10 +7,11 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from .email import enviar_email_registro
 from .models import Producto, Usuario
 from .serializers import UsuarioSerializer, ProductoSerializer
 import secrets
-from .email import enviar_email_registro
+import datetime
 
 
 # Alta de usuario sin autorización
@@ -23,7 +23,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         serializer = UsuarioSerializer(data=request.data, context={'roles': request.data["roles"]})
         if serializer.is_valid(raise_exception=False):
             serializer.save()
-            usuario = buscar_usuario(serializer.data["id"])
+            usuario = buscar_usuario_id(serializer.data["id"])
             usuario.agregar_roles(request.data["roles"])
             usuario.save()
             # email.enviar_email_registro(usuario)
@@ -82,20 +82,20 @@ def activar_cuenta(request, token):
 
 @api_view(['POST'])
 def olvido_password(request):
-    error = {"Error": "Hubo un error al enviar el email de cambio de contraseña. Intente nuevamente más tarde."}
+    error = {"message": "Hubo un error al enviar el email de cambio de contraseña. Intente nuevamente más tarde."}
     if request.method == "POST":
         try:
             stringEmail = request.data["email"]
             usuario = buscar_usuario_email(stringEmail)
             if usuario is None:
-                return Response("El email ingresado no corresponde a ningún usuario registrado.",
+                return Response({"message": "El email ingresado no corresponde a ningún usuario registrado."},
                                 status=status.HTTP_400_BAD_REQUEST)
             usuario.token_reset = secrets.token_hex(16)
             usuario.fecha_token_reset = datetime.datetime.today()
             usuario.save()
             enviar_email_registro(usuario)
-            exito = {"Exito": "Se ha enviado un link a su email para reiniciar su contraseña. Tiene 24 horas para "
-                              "cambiarla."}
+            exito = {"message": "Se ha enviado un link a su email para reiniciar su contraseña. Tiene 24 horas para "
+                                "cambiarla."}
             return Response(exito, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -104,41 +104,40 @@ def olvido_password(request):
 
 @api_view(['POST'])
 def validar_token_password(request, token):
-    error = {"Error": "Hubo un error intentar validar el link. Intente de nuevo más tarde."}
+    error = {"message": "Hubo un error intentar validar el link. Intente de nuevo más tarde."}
     if request.method == "POST":
         try:
             usuario = buscar_usuario_token_reset(token)
             if usuario is None:
-                return Response(
-                    "El link ingresado no es válido o ha caducado. Vuelva a solicitar el cambio de contraseña.",
-                    status=status.HTTP_400_BAD_REQUEST)
-            usuario.token_reset = None
-            usuario.fecha_token_reset = None
-            usuario.save()
-            return Response({"Exito": "Ahora puede cambiar su contraseña."}, status=status.HTTP_200_OK)
+                return Response({"message": "El link ingresado no es válido o ha caducado. Vuelva a solicitar el "
+                                            "cambio de contraseña."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Ahora puede cambiar su contraseña."}, status=status.HTTP_200_OK)
         except:
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
     return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def cambiar_password(request):
-    error = {"Error": "Hubo un error cambiar la contraseña. Intente de nuevo más tarde."}
+    error = {"message": "Hubo un error cambiar la contraseña. Intente de nuevo más tarde."}
     if request.method == "POST":
         try:
             token = request.data["token"]
             usuario = buscar_usuario_token_reset(token)
             if usuario is None:
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
-            usuario.password =
+            password = request.data["password"]
+            usuario.password = make_password(password)
             usuario.fecha_token_reset = None
             usuario.save()
-            return Response({"Exito": "Ahora puede cambiar su contraseña."}, status=status.HTTP_200_OK)
+            return Response({"message": "La contraseña fue cambiada con éxito, intente ingresar nuevamente."},
+                            status=status.HTTP_200_OK)
         except:
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
     return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
-def buscar_usuario(id):
+def buscar_usuario_id(id):
     try:
         return Usuario.objects.get(pk=id)
     except Usuario.DoesNotExist:
