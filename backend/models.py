@@ -4,10 +4,11 @@ from django.db import models
 
 
 class Usuario(AbstractUser):
-    username = models.CharField(unique=False, max_length=50)
     email = models.EmailField(unique=True)
-    token_reset = models.CharField(max_length=191, null=True)
-    token_email = models.CharField(max_length=191, null=True)
+    username = models.CharField(unique=False, max_length=50)
+    habilitado = models.BooleanField(default=False)
+    token_reset = models.TextField(null=True)
+    token_email = models.TextField(null=True)
     fecha_token_reset = models.DateTimeField(null=True)
 
     roles = models.ManyToManyField(
