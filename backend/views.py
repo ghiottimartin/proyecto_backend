@@ -7,9 +7,9 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .email import enviar_email_registro
 from .models import Producto, Usuario
 from .serializers import UsuarioSerializer, ProductoSerializer
+from . import email
 from . import respuestas
 import datetime
 import secrets
@@ -27,7 +27,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
             usuario = buscar_usuario("id", serializer.data["id"])
             usuario.agregar_roles(request.data["roles"])
             usuario.save()
-            # email.enviar_email_registro(usuario)
+            email.enviar_email_registro(usuario)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         mensajes = serializer.get_mensaje_errores()
         return Response(mensajes, status=status.HTTP_400_BAD_REQUEST)
@@ -88,7 +88,7 @@ def olvido_password(request):
             usuario.token_reset = secrets.token_hex(16)
             usuario.fecha_token_reset = datetime.datetime.today()
             usuario.save()
-            enviar_email_registro(usuario)
+            email.enviar_email_cambio_password(usuario)
             return respuestas.olvido_password_exito()
         except:
             return respuestas.olvido_password_error_general()
@@ -118,6 +118,7 @@ def cambiar_password(request):
                 return respuestas.cambiar_password_error_general()
             password = request.data["password"]
             usuario.password = make_password(password)
+            usuario.token_reset = None
             usuario.fecha_token_reset = None
             usuario.save()
             return respuestas.cambiar_password_exito()

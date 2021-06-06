@@ -11,8 +11,8 @@ def enviar_email_registro(usuario):
     msg.send()
 
 
-def enviar_email_registro(usuario):
-    url = "http://localhost:3000/validar-token/" + str(usuario.token_reset)
+def enviar_email_cambio_password(usuario):
+    url = "http://localhost:3000/reset-password/" + str(usuario.token_reset)
     subject, from_email, to = 'Cambiar contraseña', 'sistemadegestion@gmail.com', usuario.email
     text_content = '¡Bienvenido al Sistema Gastronómica!.'
     html_content = '<p>Para cambiar su contraseña tiene que ingresar al siguiente <a href=' + str(url) + '>link</a>.</p>'
