@@ -7,23 +7,21 @@ from rest_framework.response import Response
 from .models import Producto, Usuario
 from .serializers import UsuarioSerializer, ProductoSerializer
 
-
-
-
-# Alta de usuario sin autorización  
+# Alta de usuario sin autorización
 class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = UsuarioSerializer(data=request.data, context={'roles':request.data["roles"]})
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid(raise_exception=False):
             serializer.save()
             usuario = buscar_usuario(serializer.data["id"])
             usuario.agregar_roles(request.data["roles"])
             usuario.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        mensajes = serializer.get_mensaje_errores()
+        return Response(mensajes, status=status.HTTP_400_BAD_REQUEST)
 
 # Abm de usuarios con autorización
 class ABMUsuarioViewSet(viewsets.ModelViewSet):

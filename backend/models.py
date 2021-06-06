@@ -4,6 +4,7 @@ from django.db import models
 
 
 class Usuario(AbstractUser):
+    username = models.CharField(unique=False, max_length=50)
     email = models.EmailField(unique=True)
     token_reset = models.CharField(max_length=191, null=True)
     token_email = models.CharField(max_length=191, null=True)
