@@ -1,10 +1,23 @@
+import datetime
+
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class Usuario(AbstractUser):
+class Auditoria(models.Model):
+    auditoria_creado_fecha = models.DateTimeField(default=datetime.datetime.now(), blank=True)
+    auditoria_modificado_fecha = models.DateTimeField(default=datetime.datetime.now(), blank=True)
+
+    auditoria_creador = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name="+")
+    auditoria_modificado = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name="+")
+
+    class Meta:
+        abstract = True
+
+
+class Usuario(Auditoria, AbstractUser):
     dni = models.PositiveIntegerField(
         validators=[MinValueValidator(1000000), MaxValueValidator(99999999)],
         null=True,

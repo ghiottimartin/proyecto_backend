@@ -5,11 +5,11 @@ def agregar_auditorias(sender, instance, created, **kargs):
         agregar_auditoria_actualizado(instance)
 
 
-def agregar_auditoria_creado(usuario):
+def agregar_auditoria_creado(entidad):
     print('creado')
     pass
 
 
-def agregar_auditoria_actualizado(usuario):
+def agregar_auditoria_actualizado(entidad):
     print('actualizado')
     pass
