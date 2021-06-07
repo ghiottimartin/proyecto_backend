@@ -1,7 +1,4 @@
 db_proyecto.sqlite3
-/proyecto_backend/__pycache__/*
-/backend/__pycache__/*
-/backend/migrations/__pycache__/*
 /.vscode/*
 /.idea/*
 /proyecto_backend/settings.py
