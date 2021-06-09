@@ -6,9 +6,13 @@ from django.core.exceptions import ValidationError
 class EmailBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        es_ruta_admin = True if request.path == '/admin/login/' else False
         UserModel = get_user_model()
         try:
-            user = UserModel.objects.get(email=username)
+            filtro = {'email': username}
+            if es_ruta_admin:
+                filtro = {'username': username}
+            user = UserModel.objects.get(**filtro)
         except UserModel.DoesNotExist:
             return None
 
@@ -16,7 +20,8 @@ class EmailBackend(ModelBackend):
         if valida is False:
             raise ValidationError({"exito": False, "message": "Usuario y/o contraseña incorrectos."})
         habilitado = user.habilitado
-        if valida and habilitado is False:
+        if valida and habilitado is False and es_ruta_admin is False:
             raise ValidationError({"exito": False, "message": "Su usuario no ha sido habilitado aún. Revise su correo "
                                                               "para activarlo."})
-        return user
+        if (es_ruta_admin and valida and user.is_staff) or (es_ruta_admin is False and valida):
+            return user

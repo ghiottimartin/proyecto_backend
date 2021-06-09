@@ -124,7 +124,7 @@ def olvido_password(request):
             usuario.token_reset = secrets.token_hex(16)
             usuario.fecha_token_reset = datetime.datetime.today()
             usuario.save()
-            email.enviar_email_cambio_password(usuario)
+            #email.enviar_email_cambio_password(usuario)
             return respuestas.olvido_password_exito()
         except:
             return respuestas.olvido_password_error_general()
