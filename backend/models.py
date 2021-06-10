@@ -60,17 +60,7 @@ class Rol(models.Model):
     ROLES = (ROOT, MOZO, COMENSAL, VENEDEDOR, ADMINISTRADOR)
 
 
-class Producto(models.Model):
-    nombre = models.CharField(max_length=30)
-    precio = models.FloatField()
-
-    def __str__(self):
-        return self.nombre
-
-
 def get_rol(rol):
-    if rol is None:
-        rol = Rol.COMENSAL
     try:
         return Rol.objects.get(nombre=rol)
     except Rol.DoesNotExist:

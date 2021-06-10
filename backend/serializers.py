@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.authtoken.views import Token
 from rest_framework.exceptions import ValidationError
-from .models import Producto, Usuario, Rol
+from .models import Usuario, Rol
 import secrets
 from . import respuestas
 
@@ -68,12 +68,6 @@ class UsuarioSerializer(CustomModelSerializer):
         user.save()
         Token.objects.create(user=user)
         return user
-
-
-class ProductoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Producto
-        fields = '__all__'
 
 
 # Verifica que los roles sean válidos.

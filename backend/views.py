@@ -7,8 +7,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Producto, Usuario
-from .serializers import UsuarioSerializer, ProductoSerializer
+from .models import Usuario
+from .serializers import UsuarioSerializer
 from . import email
 from . import respuestas
 import datetime
@@ -75,20 +75,6 @@ def crear_usuario(enviar, request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     errores = serializer.get_errores_lista()
     return respuestas.get_respuesta(False, errores)
-
-
-# Obtención de productos sin autorización
-class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    queryset = Producto.objects.all()
-    serializer_class = ProductoSerializer
-
-
-# Abm de productos con autorización
-class ABMProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
-    serializer_class = ProductoSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
 
 
 @api_view(['POST'])
