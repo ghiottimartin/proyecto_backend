@@ -1,6 +1,6 @@
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 import datetime
 
@@ -16,6 +16,21 @@ class Auditoria(models.Model):
         abstract = True
 
 
+class Rol(models.Model):
+    nombre = models.CharField(max_length=50)
+    legible = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=250)
+    root = models.BooleanField(default=False)
+
+    ROOT = 'root'
+    MOZO = 'mozo'
+    COMENSAL = 'comensal'
+    VENEDEDOR = 'vendedor'
+    ADMINISTRADOR = 'admin'
+
+    ROLES = (ROOT, MOZO, COMENSAL, VENEDEDOR, ADMINISTRADOR)
+
+
 class Usuario(Auditoria, AbstractUser):
     dni = models.PositiveIntegerField(
         validators=[MinValueValidator(1000000), MaxValueValidator(99999999)],
@@ -28,6 +43,21 @@ class Usuario(Auditoria, AbstractUser):
     token_reset = models.TextField(null=True)
     token_email = models.TextField(null=True)
     fecha_token_reset = models.DateTimeField(null=True)
+    operaciones = list()
+
+    esMozo = False
+    esAdmin = False
+    esComensal = False
+    esVendedor = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.id is not None:
+            self.esMozo = self.comprobar_tiene_rol(Rol.MOZO)
+            self.esAdmin = self.comprobar_tiene_rol(Rol.ADMINISTRADOR)
+            self.esComensal = self.comprobar_tiene_rol(Rol.COMENSAL)
+            self.esVendedor = self.comprobar_tiene_rol(Rol.VENEDEDOR)
+            self.operaciones = self.get_operaciones()
 
     roles = models.ManyToManyField(
         to='Rol', related_name="usuarios_roles", blank=True)
@@ -44,20 +74,37 @@ class Usuario(Auditoria, AbstractUser):
                 raise ValidationError({"Error": "No se ha encontrado el rol."})
             self.agregar_rol(objetoRol)
 
+    def comprobar_tiene_rol(self, nombre):
+        existe = self.roles.filter(nombre=nombre).first()
+        return isinstance(existe, Rol)
 
-class Rol(models.Model):
-    nombre = models.CharField(max_length=50)
-    legible = models.CharField(max_length=50)
-    descripcion = models.CharField(max_length=250)
-    root = models.BooleanField(default=False)
+    def get_operaciones(self):
+        operaciones_admin = self.get_operaciones_admin()
+        return operaciones_admin
 
-    ROOT = 'root'
-    MOZO = 'mozo'
-    COMENSAL = 'comensal'
-    VENEDEDOR = 'vendedor'
-    ADMINISTRADOR = 'administrador'
+    def get_operaciones_admin(self):
+        if self.esAdmin is not True:
+            return dict()
+        operaciones = [{
+            "rol": Rol.ADMINISTRADOR,
+            "ruta": "/producto/listar/admin",
+            "titulo": "Productos",
+            "descripcion": "Permite gestionar los productos del sistema"
+        }, {
+            "rol": Rol.ADMINISTRADOR,
+            "ruta": "/usuarios/listar",
+            "titulo": "Usuarios",
+            "descripcion": "Permite gestionar los usuarios del sistema"
+        }, {
+            "rol": Rol.ADMINISTRADOR,
+            "ruta": "/compras",
+            "titulo": "Ingreso",
+            "descripcion": "Permite ingresar mercadería"
+        }]
+        return operaciones
 
-    ROLES = (ROOT, MOZO, COMENSAL, VENEDEDOR, ADMINISTRADOR)
+    def __str__(self):
+        return self.username
 
 
 def get_rol(rol):
@@ -65,3 +112,4 @@ def get_rol(rol):
         return Rol.objects.get(nombre=rol)
     except Rol.DoesNotExist:
         return None
+

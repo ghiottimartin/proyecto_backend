@@ -3,7 +3,6 @@ from rest_framework.authtoken.views import Token
 from rest_framework.exceptions import ValidationError
 from .models import Usuario, Rol
 import secrets
-from . import respuestas
 
 
 class CustomModelSerializer(serializers.ModelSerializer):
@@ -36,7 +35,8 @@ class UsuarioSerializer(CustomModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password', 'dni']
+        fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password', 'dni', 'operaciones',
+                  'esAdmin', 'esMozo', 'esComensal', 'esVendedor']
 
     def is_valid(self, raise_exception=False):
         roles = self.context["roles"]
