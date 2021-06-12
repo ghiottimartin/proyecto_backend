@@ -35,7 +35,7 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         return crear_usuario(False, request)
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        esAdmin = request.user.esAdmin
         instance = self.get_object()
         password = request.data["password"]
         if request.data["password"] == "":
@@ -45,21 +45,21 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         request.data["password"] = password
         if request.data["dni"] == "":
             request.data["dni"] = None
-        serializer = self.get_serializer(instance, data=request.data, partial=partial, context={'roles': request.data["roles"]}
-                                         )
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial, context={'roles': request.data["roles"]})
         valid = serializer.is_valid(raise_exception=False)
+        tipoRuta = request.data["tipoRuta"]
+        if tipoRuta == 'admin' and esAdmin is not True:
+            return respuestas.get_respuesta(False, "No está autorizado para realizar esta operación.", None)
+        if tipoRuta == 'admin' and esAdmin:
+            instance.actualizar_roles(request.data)
         if valid:
-            self.perform_update(serializer)
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
+            serializer.save()
 
         errores = serializer.get_errores_lista()
         if len(errores) > 0:
             return respuestas.get_respuesta(False, errores)
-        return respuestas.get_respuesta(True, "El usuario se ha actualizado con éxito.", None, {"usuario": serializer.data})
+        return respuestas.get_respuesta(True, "El usuario se ha actualizado con éxito.", None, {"usuario": serializer.data, "esAdmin": esAdmin})
 
 
 def crear_usuario(enviar, request):

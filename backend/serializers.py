@@ -13,10 +13,8 @@ class CustomModelSerializer(serializers.ModelSerializer):
             errores = self.errors
         for key in errores:
             error = errores[key][0]
-            clave_ucfirst = key[0].upper() + key[1:]
             if isinstance(error, str):
-                ucfirst = error[0].upper() + error[1:]
-                texto = clave_ucfirst + ": " + ucfirst
+                texto = key.capitalize() + ": " + error.capitalize()
                 mensajes.append(texto)
             elif isinstance(error, dict):
                 recursivos = self.get_errores_lista(error)
@@ -54,6 +52,8 @@ class UsuarioSerializer(CustomModelSerializer):
             if isinstance(rol, dict):
                 nombre = rol["nombre"]
                 lista.append(nombre)
+            if isinstance(rol, str):
+                lista.append(rol)
         return lista
 
     def to_representation(self, instance):

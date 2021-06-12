@@ -63,9 +63,23 @@ class Usuario(Auditoria, AbstractUser):
         to='Rol', related_name="usuarios_roles", blank=True)
 
     def agregar_rol(self, rol):
-        exists = self.roles.filter(id=rol.id).first()
-        if not exists:
-            self.roles.add(rol)
+        filtro = {'id': rol}
+        if isinstance(rol, Rol):
+            filtro = {'id': rol.id}
+        if isinstance(rol, str):
+            filtro = {'nombre': rol}
+        exists = self.roles.filter(**filtro).first()
+
+        objeto = rol
+        if isinstance(objeto, str):
+            objeto = Rol.objects.get(nombre=rol)
+        if not exists and isinstance(objeto, Rol):
+            self.roles.add(objeto)
+
+    def quitar_rol(self, rol):
+        existe = self.roles.filter(nombre=rol).first()
+        if existe:
+            self.roles.remove(existe)
 
     def agregar_roles(self, roles):
         for rol in roles:
@@ -73,6 +87,20 @@ class Usuario(Auditoria, AbstractUser):
             if objetoRol is None:
                 raise ValidationError({"Error": "No se ha encontrado el rol."})
             self.agregar_rol(objetoRol)
+
+    def actualizar_roles(self, usuario):
+        self.actualizar_rol(usuario, Rol.MOZO)
+        self.actualizar_rol(usuario, Rol.COMENSAL)
+        self.actualizar_rol(usuario, Rol.VENEDEDOR)
+
+    def actualizar_rol(self, usuario, rol):
+        buscar = "es" + rol.capitalize()
+        agregarRol = usuario.get(buscar)
+        tieneRol = self.comprobar_tiene_rol(rol)
+        if agregarRol and tieneRol is False:
+            self.agregar_rol(rol)
+        elif agregarRol is False and tieneRol:
+            self.quitar_rol(rol)
 
     def comprobar_tiene_rol(self, nombre):
         existe = self.roles.filter(nombre=nombre).first()
