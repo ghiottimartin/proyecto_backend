@@ -22,7 +22,7 @@ class Producto(Auditoria, models.Model):
     categoria = models.ForeignKey(
         Categoria, on_delete=models.PROTECT, related_name="productos", default="productos")
     nombre = models.CharField(max_length=50)
-    imagen = models.ImageField(_("Image"), upload_to=upload_to, null=True, default="producto/default.jpg")
+    imagen = models.ImageField(_("Image"), upload_to=upload_to, null=True, default="producto/defecto/default.jpg")
     imagen_nombre = models.CharField(max_length=50, default="default.jpg")
     descripcion = models.CharField(max_length=255, default="")
     precio_vigente = models.FloatField(default=0.00)
