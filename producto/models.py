@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from backend.models import Auditoria
+import uuid
 
 
 class Categoria(Auditoria, models.Model):
@@ -14,7 +15,7 @@ class Categoria(Auditoria, models.Model):
 
 
 def upload_to(instance, filename):
-    return 'producto/{filename}'.format(filename=filename)
+    return 'producto/{id}-{filename}'.format(id=uuid.uuid4(), filename=filename)
 
 
 class Producto(Auditoria, models.Model):
@@ -22,6 +23,7 @@ class Producto(Auditoria, models.Model):
         Categoria, on_delete=models.PROTECT, related_name="productos", default="productos")
     nombre = models.CharField(max_length=50)
     imagen = models.ImageField(_("Image"), upload_to=upload_to, null=True, default="producto/default.jpg")
+    imagen_nombre = models.CharField(max_length=50, default="default.jpg")
     descripcion = models.CharField(max_length=255, default="")
     precio_vigente = models.FloatField(default=0.00)
     habilitado = models.BooleanField(default=True)
