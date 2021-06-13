@@ -36,7 +36,23 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         serializer.save()
         return respuestas.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # Si cambia la imagen, borro la anterior.
+        if "imagen" in request.data:
+            instance.imagen.delete(False)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=False)
+        valido = serializer.is_valid(raise_exception=False)
+        if not valido:
+            return respuestas.get_respuesta(False, "Hubo un error al actualizar el producto", None, serializer.get_errores_lista())
+
+        serializer.save()
+        return respuestas.get_respuesta(True, "El producto fue actualizado con éxito", None, serializer.data)
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        instance.imagen.delete(False)
         self.perform_destroy(instance)
         return respuestas.get_respuesta(True, "El producto se ha borrado con éxito")

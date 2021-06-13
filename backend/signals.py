@@ -21,7 +21,3 @@ def agregar_auditoria_creado(entidad, logueado):
 def agregar_auditoria_actualizado(entidad, logueado):
     entidad.auditoria_modificado = logueado
     entidad.auditoria_modificado_fecha = datetime.datetime.now()
-
-
-def borrar_imagen(sender, instance, **kwargs):
-    instance.imagen.delete(False)
