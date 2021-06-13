@@ -5,6 +5,7 @@ from .models import Usuario, Rol
 import secrets
 
 
+# ModelSerializer que permite devolver los mensajes en forma de lista de cadenas de texto.
 class CustomModelSerializer(serializers.ModelSerializer):
 
     def get_errores_lista(self, errores=None):
@@ -22,12 +23,14 @@ class CustomModelSerializer(serializers.ModelSerializer):
         return mensajes
 
 
+# Serializador de los roles del usuario.
 class RolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rol
         fields = '__all__'
 
 
+# Serializador del usuario.
 class UsuarioSerializer(CustomModelSerializer):
     roles = RolSerializer(many=True, read_only=True)
 
@@ -36,6 +39,7 @@ class UsuarioSerializer(CustomModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password', 'dni', 'operaciones',
                   'esAdmin', 'esMozo', 'esComensal', 'esVendedor']
 
+    # Verifica que los datos recibidos del usuario sean válidos, validando los roles del usuario.
     def is_valid(self, raise_exception=False):
         roles = self.context["roles"]
         if isinstance(roles, list):
@@ -46,6 +50,7 @@ class UsuarioSerializer(CustomModelSerializer):
             raise ValidationError({"Error": message})
         return super().is_valid(raise_exception=raise_exception)
 
+    # Convierte los valores de la lista de roles para que tenga los nombres de los roles.
     def convertir_lista_roles(self, roles):
         lista = []
         for rol in roles:
@@ -56,12 +61,14 @@ class UsuarioSerializer(CustomModelSerializer):
                 lista.append(rol)
         return lista
 
+    # Método que devuelve los datos del usuario. Quito la contraseña para que no sea mostrada al usuario.
     def to_representation(self, instance):
         """Quito password"""
         ret = super().to_representation(instance)
         ret['password'] = ""
         return ret
 
+    # Método de creación de un usuario.
     def create(self, validated_data):
         user = Usuario.objects.create_user(**validated_data)
         user.token_email = secrets.token_hex(16)
