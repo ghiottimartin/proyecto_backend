@@ -60,7 +60,6 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         serializer = UsuarioSerializer(instance=usuarios, many=True)
         return respuestas.get_respuesta(True, "", None, {"usuarios": serializer.data})
 
-
     # Actualiza la contraseña del usuario según la request. Si la cambió se actualiza sino devuelve la actual.
     def actualizar_password(self, usuario, request):
         password = request.data["password"]
