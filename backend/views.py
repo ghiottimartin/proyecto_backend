@@ -7,7 +7,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Usuario
+from .models import Usuario, Rol
 from .serializers import UsuarioSerializer
 from . import email
 from . import respuestas
@@ -60,6 +60,11 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         if len(errores) > 0:
             return respuestas.get_respuesta(False, errores)
         return respuestas.get_respuesta(True, "El usuario se ha actualizado con éxito.", None, {"usuario": serializer.data, "esAdmin": esAdmin})
+
+    def list(self, request, *args, **kwargs):
+        usuarios = Usuario.objects.all().exclude(roles__in=Rol.objects.filter(nombre=Rol.ADMINISTRADOR))
+        serializer = UsuarioSerializer(instance=usuarios, many=True)
+        return respuestas.get_respuesta(True, "", None, {"usuarios": serializer.data})
 
 
 def crear_usuario(enviar, request):
