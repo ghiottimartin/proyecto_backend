@@ -68,11 +68,14 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
 
 
 def crear_usuario(enviar, request):
-    serializer = UsuarioSerializer(data=request.data, context={'roles': request.data["roles"]})
+    roles = get_roles_usuario(request.data)
+    serializer = UsuarioSerializer(data=request.data, context={'roles': roles})
     if serializer.is_valid(raise_exception=False):
         serializer.save()
         usuario = buscar_usuario("id", serializer.data["id"])
-        usuario.agregar_roles(request.data["roles"])
+        if request.data['tipoRegistro'] == 'admin':
+            usuario.password = make_password(str(usuario.dni))
+        usuario.agregar_roles(roles)
         usuario.save()
         if enviar:
             pass
@@ -179,3 +182,14 @@ def buscar_usuario_token_reset(token):
         return None
     except Exception as ex:
         return None
+
+
+def get_roles_usuario(usuario):
+    roles = []
+    if 'esMozo' in usuario and usuario.get('esMozo'):
+        roles.append(Rol.MOZO)
+    if 'esComensal' in usuario and usuario.get('esComensal'):
+        roles.append(Rol.COMENSAL)
+    if 'esVendedor' in usuario and usuario.get('esVendedor'):
+        roles.append(Rol.VENEDEDOR)
+    return roles
