@@ -33,24 +33,26 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         return crear_usuario(False, request)
 
     def update(self, request, *args, **kwargs):
+        # Verifico que tenga permiso para actualizar usuarios.
         esAdmin = request.user.esAdmin
-        instance = self.get_object()
-        request.data["password"] = self.actualizar_password(instance, request)
-        if request.data["dni"] == "":
-            request.data["dni"] = None
-        serializer = self.get_serializer(instance, data=request.data, partial=False)
-        valid = serializer.is_valid(raise_exception=False)
-        tipoRuta = request.data["tipoRuta"]
-        if tipoRuta == 'admin' and esAdmin is not True:
+        tipoRuta = request.data["tipoRuta"] if "tipoRuta" in request.data else "comun"
+        if tipoRuta == 'admin' and not esAdmin:
             return respuestas.get_respuesta(False, "No está autorizado para realizar esta operación.", None)
-        if tipoRuta == 'admin' and esAdmin:
-            instance.actualizar_roles(request.data)
-        if valid:
-            serializer.save()
 
-        errores = serializer.get_errores_lista()
-        if len(errores) > 0:
+        # Actualizo datos del usuario.
+        usuario = self.get_object()
+        actualizada = self.actualizar_campos_request(request, usuario)
+        serializer = UsuarioSerializer(data=actualizada.data, instance=usuario)
+        valido = serializer.is_valid(raise_exception=False)
+        if not valido:
+            errores = serializer.get_errores_lista()
             return respuestas.get_respuesta(False, errores)
+
+        # Guardo cambios del usuario.
+        serializer.save()
+        if tipoRuta == 'admin' and esAdmin:
+            usuario.actualizar_roles(actualizada.data)
+            usuario.save()
         return respuestas.get_respuesta(True, "El usuario se ha actualizado con éxito.", None, {"usuario": serializer.data, "esAdmin": esAdmin})
 
     def list(self, request, *args, **kwargs):
@@ -67,6 +69,14 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         else:
             password = make_password(password)
         return password
+
+    # Actualiza la contraseña y inicializa campos vacíos.
+    def actualizar_campos_request(self, request, usuario):
+        request.data["password"] = self.actualizar_password(usuario, request)
+        if request.data["dni"] == "":
+            request.data["dni"] = None
+        return request
+
 
 def crear_usuario(enviar, request):
     serializer = UsuarioSerializer(data=request.data)
