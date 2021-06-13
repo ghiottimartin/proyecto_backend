@@ -2,10 +2,10 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 
-app_name = "backend"
+app_name = "base"
 
 router = DefaultRouter()
-#Rutas de usuario
+# Rutas de usuario
 router.register('usuarios', views.ABMUsuarioViewSet, basename="usuario")
 router.register('registro', views.RegistroViewSet, basename="registro")
 

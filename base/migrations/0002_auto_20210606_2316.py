@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def agregar_roles(apps, schema_editor):
-    Rol = apps.get_model('backend', 'Rol')
+    Rol = apps.get_model('base', 'Rol')
 
     root = Rol(nombre="root", legible="Root", descripcion="Rol con todos los permisos.", root=1)
     root.save()
@@ -25,14 +25,14 @@ def agregar_roles(apps, schema_editor):
 
 
 def borrar_roles(apps, schema_editor):
-    Rol = apps.get_model('backend', 'Rol')
+    Rol = apps.get_model('base', 'Rol')
     Rol.objects.all().delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('backend', '0001_initial'),
+        ('base', '0001_initial'),
     ]
 
     operations = [

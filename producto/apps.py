@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 from django.db.models.signals import pre_save
-from backend.signals import agregar_auditorias
+from base.signals import agregar_auditorias
 
 
 class ProductoConfig(AppConfig):

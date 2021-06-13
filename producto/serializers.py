@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Producto, Categoria
-from backend.serializers import CustomModelSerializer
+from base.serializers import CustomModelSerializer
 
 
 class ProductoSerializer(CustomModelSerializer):
