@@ -79,25 +79,32 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
 
 
 def crear_usuario(enviar, request):
+    # Verifico que los datos sean válidos.
     serializer = UsuarioSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=False):
-        serializer.save()
-        usuario = buscar_usuario("id", serializer.data["id"])
-        tipoAdmin = request.data['tipoRegistro'] == 'admin'
-        if tipoAdmin:
-            usuario.password = make_password(str(usuario.dni))
-            usuario.actualizar_roles(request.data)
-        else:
-            usuario.agregar_rol_comensal()
-        usuario.save()
-        if enviar:
-            pass
-        #   email.enviar_email_registro(usuario)
-        return respuestas.exito()
-    errores = serializer.get_errores_lista()
-    return respuestas.get_respuesta(False, errores)
+    if not serializer.is_valid(raise_exception=False):
+        errores = serializer.get_errores_lista()
+        return respuestas.get_respuesta(False, errores)
+
+    # Guardo campos genéricos del usuario.
+    serializer.save()
+
+    # Si lo está creando un usuario administrador le pongo como contraseña el dni y agrego los roles según los campos
+    # booleanos. Sino le agrego el rol comensal.
+    usuario = buscar_usuario("id", serializer.data["id"])
+    tipoAdmin = request.data['tipoRegistro'] == 'admin'
+    if tipoAdmin:
+        usuario.password = make_password(str(usuario.dni))
+        usuario.actualizar_roles(request.data)
+    else:
+        usuario.agregar_rol_comensal()
+    usuario.save()
+    if enviar:
+        pass
+    #   email.enviar_email_registro(usuario)
+    return respuestas.exito()
 
 
+# Comprueba que el link del email para habilitar el usuario sea válido.
 @api_view(['POST'])
 def validar_token_email(request, token):
     if request.method == "POST":
@@ -120,6 +127,7 @@ def validar_token_email(request, token):
     return respuestas.validar_token_email_error_general()
 
 
+# Envía un email al usuario para que cambie su contraseña.
 @api_view(['POST'])
 def olvido_password(request):
     if request.method == "POST":
@@ -138,6 +146,7 @@ def olvido_password(request):
     return respuestas.olvido_password_error_general()
 
 
+# Comprueba que el link del email para cambiar la contraseña sea válido.
 @api_view(['POST'])
 def validar_token_password(request, token):
     if request.method == "POST":
@@ -151,6 +160,7 @@ def validar_token_password(request, token):
     return respuestas.validar_token_password_error_general()
 
 
+# Cambia la contraseña del usuario.
 @api_view(['POST'])
 def cambiar_password(request):
     if request.method == "POST":
