@@ -1,20 +1,16 @@
-from django.conf import settings
-from django.conf.urls.static import static
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from rest_framework import routers
 from . import views
 
-app_name = "backend"
+app_name = "producto"
 
-router = DefaultRouter()
+router = routers.SimpleRouter()
 
 # Rutas de productos
 router.register('', views.ProductoViewSet)
 router.register('abm/', views.ABMProductoViewSet)
+router.register('categorias/', views.CategoriaViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

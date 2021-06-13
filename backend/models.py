@@ -116,7 +116,7 @@ class Usuario(Auditoria, AbstractUser):
             return dict()
         operaciones = [{
             "rol": Rol.ADMINISTRADOR,
-            "ruta": "/producto/listar/admin",
+            "ruta": "/productos/listar/admin",
             "titulo": "Productos",
             "descripcion": "Permite gestionar los productos del sistema"
         }, {

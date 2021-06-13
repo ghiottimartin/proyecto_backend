@@ -4,7 +4,7 @@ from backend.models import Auditoria
 
 class Categoria(Auditoria, models.Model):
     superior = models.ForeignKey(
-        'Categoria', on_delete=models.PROTECT, related_name="inferiores")
+        'Categoria', on_delete=models.PROTECT, related_name="inferiores", null=True, blank=True)
     nombre = models.CharField(max_length=30)
     habilitado = models.BooleanField(default=True)
 
