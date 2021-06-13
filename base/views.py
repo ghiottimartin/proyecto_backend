@@ -1,11 +1,9 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import mixins
 from rest_framework import viewsets
-from rest_framework import status
 from rest_framework.authtoken.views import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Usuario, Rol
 from .serializers import UsuarioSerializer
@@ -45,8 +43,7 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         request.data["password"] = password
         if request.data["dni"] == "":
             request.data["dni"] = None
-        partial = kwargs.pop('partial', False)
-        serializer = self.get_serializer(instance, data=request.data, partial=partial, context={'roles': request.data["roles"]})
+        serializer = self.get_serializer(instance, data=request.data, partial=False)
         valid = serializer.is_valid(raise_exception=False)
         tipoRuta = request.data["tipoRuta"]
         if tipoRuta == 'admin' and esAdmin is not True:
@@ -68,19 +65,21 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
 
 
 def crear_usuario(enviar, request):
-    roles = get_roles_usuario(request.data)
-    serializer = UsuarioSerializer(data=request.data, context={'roles': roles})
+    serializer = UsuarioSerializer(data=request.data)
     if serializer.is_valid(raise_exception=False):
         serializer.save()
         usuario = buscar_usuario("id", serializer.data["id"])
-        if request.data['tipoRegistro'] == 'admin':
+        tipoAdmin = request.data['tipoRegistro'] == 'admin'
+        if tipoAdmin:
             usuario.password = make_password(str(usuario.dni))
-        usuario.agregar_roles(roles)
+            usuario.actualizar_roles(request.data)
+        else:
+            usuario.agregar_rol_comensal()
         usuario.save()
         if enviar:
             pass
         #   email.enviar_email_registro(usuario)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return respuestas.exito()
     errores = serializer.get_errores_lista()
     return respuestas.get_respuesta(False, errores)
 
@@ -182,14 +181,3 @@ def buscar_usuario_token_reset(token):
         return None
     except Exception as ex:
         return None
-
-
-def get_roles_usuario(usuario):
-    roles = []
-    if 'esMozo' in usuario and usuario.get('esMozo'):
-        roles.append(Rol.MOZO)
-    if 'esComensal' in usuario and usuario.get('esComensal'):
-        roles.append(Rol.COMENSAL)
-    if 'esVendedor' in usuario and usuario.get('esVendedor'):
-        roles.append(Rol.VENEDEDOR)
-    return roles

@@ -62,12 +62,21 @@ class Usuario(Auditoria, AbstractUser):
             self.esVendedor = self.comprobar_tiene_rol(Rol.VENEDEDOR)
             self.operaciones = self.get_operaciones()
 
+    # Agrega el rol comensa al usuario.
+    def agregar_rol_comensal(self):
+        comensal = get_rol(Rol.COMENSAL)
+        if isinstance(comensal, Rol):
+            self.agregar_rol(comensal)
+        else:
+            raise ValidationError({"Error": "No se ha podido crear el usuario con rol comensal."})
+
     # Agrega un rol al usuario, el parámetro rol puede ser el id del rol, un objeto Rol o el nombre rol.
     def agregar_rol(self, rol):
         # Defino el parámetro para buscar el rol.
-        filtro = {'id': rol}
-        if isinstance(rol, Rol):
-            filtro = {'id': rol.id}
+        id = rol
+        if isinstance(id, Rol):
+            id = rol.id
+        filtro = {'id': id}
         if isinstance(rol, str):
             filtro = {'nombre': rol}
         existe = self.roles.filter(**filtro).first()
@@ -84,14 +93,6 @@ class Usuario(Auditoria, AbstractUser):
         existe = self.roles.filter(nombre=rol).first()
         if existe:
             self.roles.remove(existe)
-
-    # A partir de una lista de strings de roles se le agrega los mismos al usuario.
-    def agregar_roles(self, roles):
-        for rol in roles:
-            objeto = get_rol(rol)
-            if not isinstance(objeto, Rol):
-                raise ValidationError({"Error": "No se ha encontrado el rol."})
-            self.agregar_rol(objeto)
 
     # Según los cambios en los campos esMozo, esComensal y esVendedor se actualiza los roles del usuario.
     def actualizar_roles(self, usuario):
