@@ -35,12 +35,7 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         esAdmin = request.user.esAdmin
         instance = self.get_object()
-        password = request.data["password"]
-        if request.data["password"] == "":
-            password = instance.password
-        else:
-            password = make_password(password)
-        request.data["password"] = password
+        request.data["password"] = self.actualizar_password(instance, request)
         if request.data["dni"] == "":
             request.data["dni"] = None
         serializer = self.get_serializer(instance, data=request.data, partial=False)
@@ -63,6 +58,15 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         serializer = UsuarioSerializer(instance=usuarios, many=True)
         return respuestas.get_respuesta(True, "", None, {"usuarios": serializer.data})
 
+
+    # Actualiza la contraseña del usuario según la request. Si la cambió se actualiza sino devuelve la actual.
+    def actualizar_password(self, usuario, request):
+        password = request.data["password"]
+        if request.data["password"] == "":
+            password = usuario.password
+        else:
+            password = make_password(password)
+        return password
 
 def crear_usuario(enviar, request):
     serializer = UsuarioSerializer(data=request.data)
