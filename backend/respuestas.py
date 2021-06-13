@@ -13,6 +13,12 @@ def get_respuesta(exito, mensaje="", codigo=None, datos=None):
     }
     if isinstance(datos, dict):
         respuesta.update(datos)
+    if isinstance(datos, list):
+        indice = 0
+        while indice < len(datos):
+            error = datos[indice]
+            indice += 1
+            respuesta.update({"datos": error})
     return Response(respuesta, status=codigo)
 
 
