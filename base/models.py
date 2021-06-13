@@ -32,6 +32,8 @@ class Rol(models.Model):
 
 
 class Usuario(Auditoria, AbstractUser):
+    roles = models.ManyToManyField(
+        to='Rol', related_name="usuarios_roles", blank=True)
     dni = models.PositiveIntegerField(
         validators=[MinValueValidator(1000000), MaxValueValidator(99999999)],
         null=True,
@@ -60,60 +62,72 @@ class Usuario(Auditoria, AbstractUser):
             self.esVendedor = self.comprobar_tiene_rol(Rol.VENEDEDOR)
             self.operaciones = self.get_operaciones()
 
-    roles = models.ManyToManyField(
-        to='Rol', related_name="usuarios_roles", blank=True)
-
+    # Agrega un rol al usuario, el parámetro rol puede ser el id del rol, un objeto Rol o el nombre rol.
     def agregar_rol(self, rol):
+        # Defino el parámetro para buscar el rol.
         filtro = {'id': rol}
         if isinstance(rol, Rol):
             filtro = {'id': rol.id}
         if isinstance(rol, str):
             filtro = {'nombre': rol}
-        exists = self.roles.filter(**filtro).first()
+        existe = self.roles.filter(**filtro).first()
 
+        # Si no tiene el rol se lo agrego.
         objeto = rol
         if isinstance(objeto, str):
             objeto = Rol.objects.get(nombre=rol)
-        if not exists and isinstance(objeto, Rol):
+        if not existe and isinstance(objeto, Rol):
             self.roles.add(objeto)
 
+    # Si tiene el rol a quitar, se lo remueve de la colección de roles.
     def quitar_rol(self, rol):
         existe = self.roles.filter(nombre=rol).first()
         if existe:
             self.roles.remove(existe)
 
+    # A partir de una lista de strings de roles se le agrega los mismos al usuario.
     def agregar_roles(self, roles):
         for rol in roles:
-            objetoRol = get_rol(rol)
-            if objetoRol is None:
+            objeto = get_rol(rol)
+            if not isinstance(objeto, Rol):
                 raise ValidationError({"Error": "No se ha encontrado el rol."})
-            self.agregar_rol(objetoRol)
+            self.agregar_rol(objeto)
 
+    # Según los cambios en los campos esMozo, esComensal y esVendedor se actualiza los roles del usuario.
     def actualizar_roles(self, usuario):
         self.actualizar_rol(usuario, Rol.MOZO)
         self.actualizar_rol(usuario, Rol.COMENSAL)
         self.actualizar_rol(usuario, Rol.VENEDEDOR)
 
+    # Quita o agrega el rol al usuario dependiendo de los campos es'NombreRol'.
     def actualizar_rol(self, usuario, rol):
         buscar = "es" + rol.capitalize()
         agregarRol = usuario.get(buscar)
         tieneRol = self.comprobar_tiene_rol(rol)
+
+        # Si es'NombreRol' es verdadero y no tenía el rol anteriormente le agregamos el rol.
         if agregarRol and tieneRol is False:
             self.agregar_rol(rol)
+        # Si es'NombreRol' es falso y tenía el rol anteriormente le quitamos el rol.
         elif agregarRol is False and tieneRol:
             self.quitar_rol(rol)
 
+    # Comprueba si el usuario tiene el rol a partir del nombre del mismo.
     def comprobar_tiene_rol(self, nombre):
         existe = self.roles.filter(nombre=nombre).first()
         return isinstance(existe, Rol)
 
+    # Devuelve las operaciones del usuario según los roles del mismo.
     def get_operaciones(self):
         operaciones_admin = self.get_operaciones_admin()
         return operaciones_admin
 
+    # Devuele las operaciones para el rol administrador si tiene el rol indicado.
     def get_operaciones_admin(self):
+        # Si no lo tiene devolvemos un diccionario vacío.
         if self.esAdmin is not True:
             return dict()
+
         operaciones = [{
             "rol": Rol.ADMINISTRADOR,
             "ruta": "/productos/listar/admin",
@@ -136,6 +150,7 @@ class Usuario(Auditoria, AbstractUser):
         return self.username
 
 
+# Busca el rol por nombre.
 def get_rol(rol):
     try:
         return Rol.objects.get(nombre=rol)
