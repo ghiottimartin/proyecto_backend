@@ -5,6 +5,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria
+from base.permisos import TieneRolAdmin
 from .serializers import ProductoSerializer, CategoriaSerializer
 
 
@@ -25,7 +26,7 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
     parser_classes = [MultiPartParser, FormParser]
 
     def create(self, request, *args, **kwargs):
