@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from base.models import Auditoria
-from . import utils
 import uuid
 
 
@@ -27,7 +26,7 @@ class Producto(Auditoria, models.Model):
     imagen = models.ImageField(_("Image"), upload_to=upload_to, null=True, default="producto/defecto/default.jpg")
     imagen_nombre = models.CharField(max_length=50, default="default.jpg")
     descripcion = models.CharField(max_length=255, default="")
-    precio_vigente = models.FloatField(default=0.00)
+    precio_vigente = models.FloatField()
     habilitado = models.BooleanField(default=True)
 
     def __str__(self):
