@@ -10,6 +10,7 @@ router = routers.SimpleRouter()
 router.register('', views.ProductoViewSet)
 router.register('abm/', views.ABMProductoViewSet)
 router.register('categorias/', views.CategoriaViewSet)
+router.register('abm/categorias/', views.ABMCategoriaViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

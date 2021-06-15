@@ -15,6 +15,14 @@ class CategoriaViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,  mixins.R
     serializer_class = CategoriaSerializer
 
 
+# Abm de categorías con autorización
+class ABMCategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
+
+
 # Obtención de productos sin autorización
 class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Producto.objects.all()
