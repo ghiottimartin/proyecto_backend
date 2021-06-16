@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/', include('base.urls', namespace='base')),
     path('auth/', CustomAuthToken.as_view()),
     path('producto/', include('producto.urls', namespace='producto')),
+    path('gastronomia/', include('gastronomia.urls', namespace='gastronomia')),
 ]
 
 if settings.DEBUG:

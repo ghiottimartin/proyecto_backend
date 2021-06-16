@@ -5,6 +5,7 @@ from . import views
 app_name = "gastronomia"
 
 router = routers.SimpleRouter()
+router.register('pedido', views.PedidoEstadoViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
