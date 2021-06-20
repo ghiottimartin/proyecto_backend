@@ -21,8 +21,18 @@ class Pedido(Auditoria, models.Model):
 
 
 class PedidoLinea(models.Model):
-    pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="+")
-    producto = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="+")
+    pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="lineas")
+    producto = models.ForeignKey('producto.Producto', on_delete=models.CASCADE, related_name="+")
     cantidad = models.IntegerField()
     subtotal = models.FloatField()
     total = models.FloatField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        precio = self.producto.precio_vigente
+        total = precio * self.cantidad
+        self.subtotal = precio
+        self.total = total
+        self.pedido.total += total
+        self.pedido.save()

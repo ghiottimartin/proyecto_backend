@@ -31,3 +31,11 @@ class Producto(Auditoria, models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+# Busca un producto por id.
+def get_producto(pk):
+    try:
+        return Producto.objects.get(pk=pk)
+    except Producto.DoesNotExist:
+        return None

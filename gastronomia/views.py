@@ -3,19 +3,11 @@ from .serializers import PedidoSerializer
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.db import transaction
 from base.permisos import TieneRolComensal
 from base import respuestas
-
-
-# Devuelve un pedido por estado.
-def get_pedido(pk=None, usuario=None, estado=None):
-    try:
-        if pk is not None:
-            return Pedido.objects.get(pk=pk)
-        if usuario is not None and estado is not None:
-            return Pedido.objects.get(ultimo_estado=estado, usuario=usuario)
-    except Pedido.DoesNotExist:
-        return None
+from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido
+from django.core.exceptions import ValidationError
 
 
 # Abm de pedidos con autorización
@@ -30,11 +22,33 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
         pedido = None
         usuario = request.user
         if isinstance(clave, str):
-            pedido = get_pedido(usuario=usuario, estado=clave)
+            pedido = get_pedido(pk=None, usuario=usuario, estado=clave)
         if isinstance(clave, int):
             pedido = get_pedido(pk=clave)
-        exito = pedido is not None
-        return respuestas.get_respuesta(exito, "", None, pedido)
+        if pedido is None:
+            return respuestas.get_respuesta(False, "")
+        serializer = PedidoSerializer(instance=pedido)
+        return respuestas.get_respuesta(True, "", None, serializer.data)
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        usuario = request.user
+        pedido = get_pedido(usuario=usuario, estado=Estado.FINALIZADO)
+        if isinstance(pedido, Pedido):
+            pedido.forzar = True
+            serializer = PedidoSerializer(instance=pedido)
+            respuestas.get_respuesta(False, "Ya posee un pedido por retirar. ¿Está seguro de que quiere comenzar otro "
+                                            "pedido?", serializer.data)
+        try:
+            validar_crear_pedido(request.data)
+            id = request.data["id"]
+            lineas = request.data["lineas"]
+            lineasIds = request.data["lineasIds"]
+            pedido = crear_pedido(usuario, id, lineas, lineasIds)
+            serializer = PedidoSerializer(instance=pedido)
+            return respuestas.get_respuesta(True, "", None, serializer.data)
+        except ValidationError as e:
+            return respuestas.get_respuesta(False, e.messages)
 
 
 
