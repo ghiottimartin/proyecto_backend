@@ -1,9 +1,12 @@
-from base.models import Usuario, Rol
-from base.serializers import UsuarioSerializer
-from base import respuestas
-from django.contrib.auth.hashers import make_password
 from base import email
+from base.models import Usuario, Rol
+from base.respuestas import Respuesta
+from base.serializers import UsuarioSerializer
+from django.contrib.auth.hashers import make_password
 import datetime
+from django.db import transaction
+
+respuesta = Respuesta()
 
 
 # Busca el rol por nombre.
@@ -14,12 +17,13 @@ def get_rol(rol):
         return None
 
 
+@transaction.atomic
 def crear_usuario(enviar, request):
     # Verifico que los datos sean válidos.
     serializer = UsuarioSerializer(data=request.data)
     if not serializer.is_valid(raise_exception=False):
         errores = serializer.get_errores_lista()
-        return respuestas.get_respuesta(False, errores)
+        return respuesta.get_respuesta(False, errores)
 
     # Guardo campos genéricos del usuario.
     serializer.save()
@@ -37,7 +41,7 @@ def crear_usuario(enviar, request):
     if enviar:
         pass
     #   email.enviar_email_registro(usuario)
-    return respuestas.exito()
+    return respuesta.exito()
 
 
 # Búsqueda genérica de usuario por un campo

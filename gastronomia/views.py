@@ -51,6 +51,3 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(True, "", None, serializer.data)
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)
-
-
-
