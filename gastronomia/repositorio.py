@@ -1,5 +1,5 @@
 from .models import Pedido, PedidoLinea, Estado
-from producto.models import get_producto
+from producto import repositorioProducto
 from django.core.exceptions import ValidationError
 
 
@@ -46,7 +46,7 @@ def crear_pedido(usuario, id, lineas, lineasIds):
 
 
 def crear_linea_pedido(pedido, item):
-    producto = get_producto(item["producto_id"])
+    producto = repositorioProducto.get_producto(item["producto_id"])
     if producto is None:
         raise Exception("No se ha encontrado el producto.")
     cantidad = item["cantidad"]
