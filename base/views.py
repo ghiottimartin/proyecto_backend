@@ -1,3 +1,6 @@
+from base import email
+from base import repositorio
+from base import respuestas
 from django.contrib.auth.hashers import make_password
 from rest_framework import mixins
 from rest_framework import viewsets
@@ -7,8 +10,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from .models import Usuario, Rol
 from .serializers import UsuarioSerializer
-from . import email
-from . import respuestas
 import datetime
 import secrets
 
@@ -19,7 +20,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = UsuarioSerializer
 
     def create(self, request, *args, **kwargs):
-        return crear_usuario(True, request)
+        return repositorio.crear_usuario(True, request)
 
 
 # Abm de usuarios con autorización
@@ -30,7 +31,7 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        return crear_usuario(False, request)
+        return repositorio.crear_usuario(False, request)
 
     def update(self, request, *args, **kwargs):
         # Verifico que tenga permiso para actualizar usuarios.
@@ -77,38 +78,12 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         return request
 
 
-def crear_usuario(enviar, request):
-    # Verifico que los datos sean válidos.
-    serializer = UsuarioSerializer(data=request.data)
-    if not serializer.is_valid(raise_exception=False):
-        errores = serializer.get_errores_lista()
-        return respuestas.get_respuesta(False, errores)
-
-    # Guardo campos genéricos del usuario.
-    serializer.save()
-
-    # Si lo está creando un usuario administrador le pongo como contraseña el dni y agrego los roles según los campos
-    # booleanos. Sino le agrego el rol comensal.
-    usuario = buscar_usuario("id", serializer.data["id"])
-    tipoAdmin = request.data['tipoRegistro'] == 'admin'
-    if tipoAdmin:
-        usuario.password = make_password(str(usuario.dni))
-        usuario.actualizar_roles(request.data)
-    else:
-        usuario.agregar_rol_comensal()
-    usuario.save()
-    if enviar:
-        pass
-    #   email.enviar_email_registro(usuario)
-    return respuestas.exito()
-
-
 # Comprueba que el link del email para habilitar el usuario sea válido.
 @api_view(['POST'])
 def validar_token_email(request, token):
     if request.method == "POST":
         try:
-            usuario = buscar_usuario("token_email", token)
+            usuario = repositorio.buscar_usuario("token_email", token)
             if usuario is None:
                 return respuestas.validar_token_email_error_token_invalido()
             usuario.habilitado = True
@@ -132,7 +107,7 @@ def olvido_password(request):
     if request.method == "POST":
         try:
             stringEmail = request.data["email"]
-            usuario = buscar_usuario("email", stringEmail)
+            usuario = repositorio.buscar_usuario("email", stringEmail)
             if usuario is None:
                 return respuestas.olvido_password_error_email_inexistente()
             usuario.token_reset = secrets.token_hex(16)
@@ -150,7 +125,7 @@ def olvido_password(request):
 def validar_token_password(request, token):
     if request.method == "POST":
         try:
-            usuario = buscar_usuario_token_reset(token)
+            usuario = repositorio.buscar_usuario_token_reset(token)
             if usuario is None:
                 return respuestas.validar_token_password_error_link_invalido()
             return respuestas.exito()
@@ -165,7 +140,7 @@ def cambiar_password(request):
     if request.method == "POST":
         try:
             token = request.data["token"]
-            usuario = buscar_usuario_token_reset(token)
+            usuario = repositorio.buscar_usuario_token_reset(token)
             if usuario is None:
                 return respuestas.cambiar_password_error_general()
             password = request.data["password"]
@@ -174,33 +149,6 @@ def cambiar_password(request):
             usuario.fecha_token_reset = None
             usuario.save()
             return respuestas.cambiar_password_exito()
-        except:
+        except Exception as ex:
             return respuestas.cambiar_password_error_general()
     return respuestas.cambiar_password_error_general()
-
-
-# Búsqueda genérica de usuario por un campo
-def buscar_usuario(campo, valor):
-    filtro = {campo: valor}
-    try:
-        return Usuario.objects.get(**filtro)
-    except Usuario.DoesNotExist:
-        return None
-
-
-# Busca un usuario que tenga el token reset enviado como parámetro y si el usuario posee fecha_token_reset la
-# diferencia con la fecha actual debe ser menor o igual a un día
-def buscar_usuario_token_reset(token):
-    try:
-        usuario = Usuario.objects.get(token_reset=token)
-        if usuario is not None and usuario.fecha_token_reset is None:
-            return usuario
-        naive = usuario.fecha_token_reset.replace(tzinfo=None)
-        delta = datetime.datetime.today() - naive
-        if delta.days > 1:
-            return None
-        return usuario
-    except Usuario.DoesNotExist:
-        return None
-    except Exception as ex:
-        return None
