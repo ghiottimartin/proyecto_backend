@@ -1,13 +1,15 @@
 from .models import Pedido, Estado
 from .serializers import PedidoSerializer
+from base.permisos import TieneRolComensal
+from base.respuestas import Respuesta
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.db import transaction
-from base.permisos import TieneRolComensal
-from base import respuestas
-from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido
-from django.core.exceptions import ValidationError
+
+respuesta = Respuesta()
 
 
 # Abm de pedidos con autorización
@@ -26,9 +28,9 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
         if isinstance(clave, int):
             pedido = get_pedido(pk=clave)
         if pedido is None:
-            return respuestas.get_respuesta(False, "")
+            return respuesta.get_respuesta(False, "")
         serializer = PedidoSerializer(instance=pedido)
-        return respuestas.get_respuesta(True, "", None, serializer.data)
+        return respuesta.get_respuesta(True, "", None, serializer.data)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -37,7 +39,7 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
         if isinstance(pedido, Pedido):
             pedido.forzar = True
             serializer = PedidoSerializer(instance=pedido)
-            respuestas.get_respuesta(False, "Ya posee un pedido por retirar. ¿Está seguro de que quiere comenzar otro "
+            respuesta.get_respuesta(False, "Ya posee un pedido por retirar. ¿Está seguro de que quiere comenzar otro "
                                             "pedido?", serializer.data)
         try:
             validar_crear_pedido(request.data)
@@ -46,9 +48,9 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             lineasIds = request.data["lineasIds"]
             pedido = crear_pedido(usuario, id, lineas, lineasIds)
             serializer = PedidoSerializer(instance=pedido)
-            return respuestas.get_respuesta(True, "", None, serializer.data)
+            return respuesta.get_respuesta(True, "", None, serializer.data)
         except ValidationError as e:
-            return respuestas.get_respuesta(False, e.messages)
+            return respuesta.get_respuesta(False, e.messages)
 
 
 
