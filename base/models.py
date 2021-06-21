@@ -1,4 +1,3 @@
-from base import repositorio
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -65,7 +64,7 @@ class Usuario(Auditoria, AbstractUser):
 
     # Agrega el rol comensa al usuario.
     def agregar_rol_comensal(self):
-        comensal = repositorio.get_rol(Rol.COMENSAL)
+        comensal = get_rol(Rol.COMENSAL)
         if isinstance(comensal, Rol):
             self.agregar_rol(comensal)
         else:
@@ -150,3 +149,12 @@ class Usuario(Auditoria, AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+# Busca el rol por nombre.
+def get_rol(rol):
+    try:
+        return Rol.objects.get(nombre=rol)
+    except Rol.DoesNotExist:
+        return None
+
