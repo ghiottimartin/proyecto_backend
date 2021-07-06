@@ -8,6 +8,7 @@ class Categoria(Auditoria, models.Model):
     superior = models.ForeignKey(
         'Categoria', on_delete=models.PROTECT, related_name="inferiores", null=True, blank=True)
     nombre = models.CharField(max_length=30)
+    descripcion = models.CharField(max_length=255)
     habilitado = models.BooleanField(default=True)
 
     def __str__(self):
