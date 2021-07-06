@@ -8,6 +8,8 @@ from .models import Producto, Categoria
 from base.permisos import TieneRolAdmin
 from .serializers import ProductoSerializer, CategoriaSerializer
 
+respuesta = respuestas.Respuesta()
+
 
 # Obtención de categorías sin autorización
 class CategoriaViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,  mixins.RetrieveModelMixin):
@@ -41,9 +43,9 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid(raise_exception=False):
             errores = serializer.get_errores_lista()
-            return respuestas.get_respuesta(False, "Hubo un error al crear el producto", None, errores)
+            return respuesta.get_respuesta(False, "Hubo un error al crear el producto", None, errores)
         serializer.save()
-        return respuestas.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
+        return respuesta.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -55,13 +57,13 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=False)
         valido = serializer.is_valid(raise_exception=False)
         if not valido:
-            return respuestas.get_respuesta(False, "Hubo un error al actualizar el producto", None, serializer.get_errores_lista())
+            return respuesta.get_respuesta(False, "Hubo un error al actualizar el producto", None, serializer.get_errores_lista())
 
         serializer.save()
-        return respuestas.get_respuesta(True, "El producto fue actualizado con éxito", None, serializer.data)
+        return respuesta.get_respuesta(True, "El producto fue actualizado con éxito", None, serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.imagen.delete(False)
         self.perform_destroy(instance)
-        return respuestas.get_respuesta(True, "El producto se ha borrado con éxito")
+        return respuesta.get_respuesta(True, "El producto se ha borrado con éxito")

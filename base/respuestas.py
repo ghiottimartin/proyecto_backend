@@ -18,7 +18,7 @@ class Respuesta:
             "message": mensaje
         }
         if isinstance(datos, dict):
-            respuesta.update(datos)
+            respuesta.update({"datos": datos})
         if isinstance(datos, list):
             indice = 0
             while indice < len(datos):

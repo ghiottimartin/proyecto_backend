@@ -14,8 +14,8 @@ class ProductoSerializer(CustomModelSerializer):
     def to_representation(self, instance):
         """Quito password"""
         ret = super().to_representation(instance)
-        ret['categoria'] = instance.categoria.nombre
-        ret['precio_vigente'] = locale.currency(instance.precio_vigente)
+        ret['categoria_texto'] = instance.categoria.nombre
+        ret['precio_texto'] = locale.currency(instance.precio_vigente)
         return ret
 
 
