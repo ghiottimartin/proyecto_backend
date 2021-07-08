@@ -4,7 +4,7 @@ import datetime
 
 
 class Estado(models.Model):
-    pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="+")
+    pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="estados")
     estado = models.CharField(max_length=40)
     fecha = models.DateTimeField(default=datetime.datetime.now)
 
