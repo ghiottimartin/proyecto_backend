@@ -47,7 +47,7 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             lineas = request.data["lineas"]
             lineasIds = request.data["lineasIds"]
             if id <= 0:
-                pedido = crear_pedido(id, lineas)
+                pedido = crear_pedido(usuario, lineas)
             else:
                 pedido = actualizar_pedido(id, lineas)
             serializer = PedidoSerializer(instance=pedido)
