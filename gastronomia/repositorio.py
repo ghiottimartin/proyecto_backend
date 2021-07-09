@@ -23,8 +23,11 @@ def validar_crear_pedido(datos):
         raise ValidationError("Debe seleccionar al menos un producto.")
     else:
         for linea in lineas:
-            id_producto = linea["producto"] if "producto" in linea else 0
-            if isinstance(id_producto, dict) or id_producto <= 0:
+            try:
+                id_producto = linea["producto"]["id"]
+            except:
+                id_producto = 0
+            if id_producto <= 0:
                 raise ValidationError("No se ha encontrado el producto.")
             cantidad = int(linea["cantidad"]) if "cantidad" in linea else 0
             if not isinstance(cantidad, int):
@@ -46,7 +49,7 @@ def crear_pedido(usuario, lineas):
 
 
 def crear_linea_pedido(pedido, item):
-    producto = get_producto(item["producto"])
+    producto = get_producto(item["producto"]["id"])
     if producto is None:
         raise Exception("No se ha encontrado el producto.")
     cantidad = item["cantidad"]
