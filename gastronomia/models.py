@@ -19,6 +19,18 @@ class Pedido(Auditoria, models.Model):
     total = models.FloatField()
     forzar = models.BooleanField(default=False)
 
+    def comprobar_vacio(self):
+        cantidad_lineas = self.lineas.count()
+        return cantidad_lineas == 0
+
+    def actualizar_total(self):
+        lineas = self.lineas.all()
+        total = 0
+        for linea in lineas:
+            total += linea.total
+        self.total = total
+        self.save()
+
 
 class PedidoLinea(models.Model):
     pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="lineas")
@@ -34,5 +46,3 @@ class PedidoLinea(models.Model):
         total = precio * self.cantidad
         self.subtotal = precio
         self.total = total
-        self.pedido.total += total
-        self.pedido.save()

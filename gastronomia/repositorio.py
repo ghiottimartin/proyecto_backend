@@ -26,16 +26,21 @@ def validar_crear_pedido(datos):
             id_producto = linea["producto"] if "producto" in linea else 0
             if id_producto <= 0:
                 raise ValidationError("No se ha encontrado el producto.")
-            cantidad = linea["cantidad"] if "cantidad" in linea else 0
-            if cantidad <= 0:
-                raise ValidationError("La cantidad del producto debe ser mayor a cero.")
+            cantidad = int(linea["cantidad"]) if "cantidad" in linea else 0
+            if not isinstance(cantidad, int):
+                raise ValidationError("La cantidad del producto debe tener un valor numérico.")
 
 
 def crear_pedido(usuario, lineas):
     pedido = Pedido(usuario=usuario, ultimo_estado=Estado.ABIERTO, total=0)
+    pedido.save()
     for item in lineas:
-        linea = crear_linea_pedido(pedido, item)
-        linea.save()
+        crear_linea_pedido(pedido, item)
+    vacio = pedido.comprobar_vacio()
+    if vacio:
+        pedido.delete()
+        return None
+    pedido.actualizar_total()
     return pedido
 
 
@@ -44,7 +49,10 @@ def crear_linea_pedido(pedido, item):
     if producto is None:
         raise Exception("No se ha encontrado el producto.")
     cantidad = item["cantidad"]
+    if int(cantidad) == 0:
+        return None
     linea = PedidoLinea(pedido=pedido, producto=producto, cantidad=cantidad)
+    linea.save()
     return linea
 
 
@@ -53,21 +61,28 @@ def actualizar_pedido(id, lineas):
     if pedido is None:
         raise ValidationError("No se ha encontrado el pedido.")
     actualizar_lineas_pedido(pedido, lineas)
+    vacio = pedido.comprobar_vacio()
+    if vacio:
+        pedido.delete()
+        return None
+    pedido.actualizar_total()
     return pedido
 
 
 def actualizar_lineas_pedido(pedido, lineas):
     for linea in lineas:
         id = linea["id"]
-        if id > 0:
-            objeto = get_linea_pedido(id)
-        else:
-            objeto = crear_linea_pedido(pedido, linea)
-        if objeto is None:
+        objeto = get_linea_pedido(id)
+        cantidad = linea["cantidad"]
+        if id > 0 and objeto is None:
             raise ValidationError("No se ha encontrado al línea del pedido de id " + id)
-        if id > 0:
+        elif id == 0:
+            objeto = crear_linea_pedido(pedido, linea)
+        if cantidad == 0 and objeto is not None:
+            objeto.delete()
+        elif objeto is not None:
             objeto.cantidad = linea["cantidad"]
-        objeto.save()
+            objeto.save()
 
 
 def get_linea_pedido(id):

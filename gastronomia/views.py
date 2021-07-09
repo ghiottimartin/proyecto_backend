@@ -45,12 +45,14 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             validar_crear_pedido(request.data)
             id = request.data["id"]
             lineas = request.data["lineas"]
-            lineasIds = request.data["lineasIds"]
             if id <= 0:
                 pedido = crear_pedido(usuario, lineas)
             else:
                 pedido = actualizar_pedido(id, lineas)
-            serializer = PedidoSerializer(instance=pedido)
-            return respuesta.get_respuesta(True, "", None, serializer.data)
+            datos = {"pedido": "borrado"}
+            if pedido is not None:
+                serializer = PedidoSerializer(instance=pedido)
+                datos = serializer.data
+            return respuesta.get_respuesta(True, "", None, datos)
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)
