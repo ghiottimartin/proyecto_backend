@@ -19,6 +19,12 @@ class Pedido(Auditoria, models.Model):
     total = models.FloatField()
     forzar = models.BooleanField(default=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.save()
+        self.agregar_estado_abierto()
+
     def comprobar_vacio(self):
         cantidad_lineas = self.lineas.count()
         return cantidad_lineas == 0
@@ -29,6 +35,18 @@ class Pedido(Auditoria, models.Model):
         for linea in lineas:
             total += linea.total
         self.total = total
+        self.save()
+
+    def agregar_estado_abierto(self):
+        ultimo = self.estados.order_by('-fecha').filter(estado=Estado.ABIERTO).first()
+        if ultimo is None:
+            estado = Estado(estado=Estado.ABIERTO, pedido=self)
+            estado.save()
+            self.estados.add(estado)
+
+    def borrar_datos_pedido(self):
+        self.estados.all().delete()
+        self.lineas.all().delete()
         self.save()
 
 
@@ -42,7 +60,13 @@ class PedidoLinea(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.actualizar_total()
+
+    def actualizar_total(self):
         precio = self.producto.precio_vigente
         total = precio * self.cantidad
         self.subtotal = precio
         self.total = total
+        self.save()
+
+

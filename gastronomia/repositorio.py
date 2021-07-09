@@ -24,7 +24,7 @@ def validar_crear_pedido(datos):
     else:
         for linea in lineas:
             id_producto = linea["producto"] if "producto" in linea else 0
-            if id_producto <= 0:
+            if isinstance(id_producto, dict) or id_producto <= 0:
                 raise ValidationError("No se ha encontrado el producto.")
             cantidad = int(linea["cantidad"]) if "cantidad" in linea else 0
             if not isinstance(cantidad, int):
@@ -38,6 +38,7 @@ def crear_pedido(usuario, lineas):
         crear_linea_pedido(pedido, item)
     vacio = pedido.comprobar_vacio()
     if vacio:
+        pedido.borrar_datos_pedido()
         pedido.delete()
         return None
     pedido.actualizar_total()
@@ -63,6 +64,7 @@ def actualizar_pedido(id, lineas):
     actualizar_lineas_pedido(pedido, lineas)
     vacio = pedido.comprobar_vacio()
     if vacio:
+        pedido.borrar_datos_pedido()
         pedido.delete()
         return None
     pedido.actualizar_total()
@@ -82,12 +84,15 @@ def actualizar_lineas_pedido(pedido, lineas):
             objeto.delete()
         elif objeto is not None:
             objeto.cantidad = linea["cantidad"]
+
+        if objeto is not None and objeto.id is not None:
+            objeto.actualizar_total()
             objeto.save()
 
 
 def get_linea_pedido(id):
     try:
-        if id is not None:
+        if id > 0:
             return PedidoLinea.objects.get(pk=id)
     except Pedido.DoesNotExist:
         return None
