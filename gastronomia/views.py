@@ -56,3 +56,7 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(True, "", None, datos)
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)
+
+    def destroy(self, request, *args, **kwargs):
+        super().destroy(request, *args, **kwargs)
+        return respuesta.get_respuesta(True, "Pedido cancelado con éxito.")
