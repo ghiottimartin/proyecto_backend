@@ -36,9 +36,11 @@ def validar_crear_pedido(datos):
 
 def crear_pedido(usuario, lineas):
     pedido = get_pedido(usuario=usuario, estado=Estado.ABIERTO)
-    if pedido is None:
-        pedido = Pedido(usuario=usuario, ultimo_estado=Estado.ABIERTO, total=0)
-        pedido.save()
+    if pedido is not None:
+        id = pedido.id
+        return actualizar_pedido(id, lineas)
+    pedido = Pedido(usuario=usuario, ultimo_estado=Estado.ABIERTO, total=0)
+    pedido.save()
     for item in lineas:
         crear_linea_pedido(pedido, item)
     vacio = pedido.comprobar_vacio()
@@ -51,6 +53,10 @@ def crear_pedido(usuario, lineas):
 
 
 def crear_linea_pedido(pedido, item):
+    id_producto = item["producto"]["id"]
+    existente = get_linea_pedido(id_pedido=pedido.id, id_producto=id_producto)
+    if existente is not None:
+        return existente
     producto = get_producto(item["producto"]["id"])
     if producto is None:
         raise Exception("No se ha encontrado el producto.")
@@ -78,12 +84,14 @@ def actualizar_pedido(id, lineas):
 
 def actualizar_lineas_pedido(pedido, lineas):
     for linea in lineas:
-        id = linea["id"]
-        objeto = get_linea_pedido(id)
+        id_linea = linea["id"]
+        id_pedido = pedido.id
+        id_producto = linea["producto"]["id"]
+        objeto = get_linea_pedido(id_pedido, id_producto)
         cantidad = linea["cantidad"]
-        if id > 0 and objeto is None:
-            raise ValidationError("No se ha encontrado al línea del pedido de id " + id)
-        elif id == 0:
+        if objeto is None and id_linea > 0:
+            raise ValidationError("No se ha encontrado al línea del pedido de id " + id_linea)
+        elif id_linea == 0:
             objeto = crear_linea_pedido(pedido, linea)
         if cantidad == 0 and objeto is not None:
             objeto.delete()
@@ -95,9 +103,9 @@ def actualizar_lineas_pedido(pedido, lineas):
             objeto.save()
 
 
-def get_linea_pedido(id):
+def get_linea_pedido(id_pedido, id_producto):
     try:
-        if id > 0:
-            return PedidoLinea.objects.get(pk=id)
-    except Pedido.DoesNotExist:
+        if id_pedido > 0 and id_producto > 0:
+            return PedidoLinea.objects.get(producto=id_producto, pedido=id_pedido)
+    except PedidoLinea.DoesNotExist:
         return None
