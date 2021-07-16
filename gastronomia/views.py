@@ -37,16 +37,14 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
         usuario = request.user
         pedido = get_pedido(usuario=usuario, estado=Estado.FINALIZADO)
         if isinstance(pedido, Pedido):
-            pedido.forzar = True
-            serializer = PedidoSerializer(instance=pedido)
-            respuesta.get_respuesta(False, "Ya posee un pedido por retirar. ¿Está seguro de que quiere comenzar otro "
-                                           "pedido?", serializer.data)
+            return respuesta.get_respuesta(exito=False, mensaje="Ya posee un pedido en curso. Dirígase a la sección "
+                                                                "Pedidos para ver el estado del mismo.")
         try:
             validar_crear_pedido(request.data)
             id = request.data["id"]
             lineas = request.data["lineas"]
             if id <= 0:
-                pedido = crear_pedido(usuario, lineas)
+                pedido = crear_pedido(usuario, lineas, forzar)
             else:
                 pedido = actualizar_pedido(id, lineas)
             datos = {"pedido": "borrado"}
