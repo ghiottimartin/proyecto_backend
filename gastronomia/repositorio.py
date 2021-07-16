@@ -109,3 +109,9 @@ def get_linea_pedido(id_pedido, id_producto):
             return PedidoLinea.objects.get(producto=id_producto, pedido=id_pedido)
     except PedidoLinea.DoesNotExist:
         return None
+
+
+def finalizar_pedido(pedido):
+    pedido.agregar_estado(Estado.FINALIZADO)
+    pedido.save()
+    return pedido

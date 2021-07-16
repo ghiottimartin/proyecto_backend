@@ -23,7 +23,7 @@ class Pedido(Auditoria, models.Model):
         super().__init__(*args, **kwargs)
 
         self.save()
-        self.agregar_estado_abierto()
+        self.agregar_estado(Estado.ABIERTO)
 
     def comprobar_vacio(self):
         cantidad_lineas = self.lineas.count()
@@ -37,12 +37,13 @@ class Pedido(Auditoria, models.Model):
         self.total = total
         self.save()
 
-    def agregar_estado_abierto(self):
-        ultimo = self.estados.order_by('-fecha').filter(estado=Estado.ABIERTO).first()
+    def agregar_estado(self, estado):
+        ultimo = self.estados.order_by('-fecha').filter(estado=estado).first()
         if ultimo is None:
-            estado = Estado(estado=Estado.ABIERTO, pedido=self)
-            estado.save()
-            self.estados.add(estado)
+            objeto = Estado(estado=estado, pedido=self)
+            objeto.save()
+            self.ultimo_estado = estado
+            self.estados.add(objeto)
 
     def borrar_datos_pedido(self):
         self.estados.all().delete()

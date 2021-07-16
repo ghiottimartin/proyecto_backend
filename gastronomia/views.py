@@ -4,7 +4,7 @@ from base.permisos import TieneRolComensal
 from base.respuestas import Respuesta
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido
+from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, finalizar_pedido
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -60,3 +60,11 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         super().destroy(request, *args, **kwargs)
         return respuesta.get_respuesta(True, "Pedido cancelado con éxito.")
+
+    def update(self, request, *args, **kwargs):
+        pedido = get_pedido(pk=kwargs["pk"])
+        if pedido is None:
+            return respuesta.get_respuesta(True, "No se ha encontrado el pedido.")
+        finalizar_pedido(pedido)
+        return respuesta.get_respuesta(True, "Pedido realizado con éxito, podrá retirarlo por el local en "
+                                             "aproximadamente 45 minutos.")
