@@ -8,18 +8,17 @@ class Respuesta:
     # y un mensaje en la clave 'message'. Dependiendo del éxito devuelve el código HTTP correspondiente pudiendo
     # indicar uno personalizado por el parámetro 'codigo'. Si deseamos devolver datos podemos hacerlo mediante el
     # parámetro 'datos'.
-    def get_respuesta(self, exito, mensaje="", codigo=None, datos=None):
+    def get_respuesta(self, exito=True, mensaje="", codigo=None, datos=None, formatear=True):
         if exito and codigo is None:
             codigo = status.HTTP_200_OK
         if exito is False and codigo is None:
             codigo = status.HTTP_400_BAD_REQUEST
         respuesta = {
             "exito": exito,
-            "message": mensaje
+            "message": mensaje,
+            "datos": datos
         }
-        if isinstance(datos, dict):
-            respuesta.update({"datos": datos})
-        if isinstance(datos, list):
+        if isinstance(datos, list) and formatear:
             indice = 0
             while indice < len(datos):
                 error = datos[indice]

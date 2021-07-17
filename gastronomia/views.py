@@ -13,11 +13,17 @@ respuesta = Respuesta()
 
 
 # Abm de pedidos con autorización
-class PedidoEstadoViewSet(viewsets.ModelViewSet):
+class PedidoViewSet(viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, TieneRolComensal]
+
+    def list(self, request, *args, **kwargs):
+        idUsuario = request.query_params["usuario"]
+        pedidos = Pedido.objects.filter(usuario=idUsuario).order_by('-fecha')
+        serializer = PedidoSerializer(instance=pedidos, many=True)
+        return respuesta.get_respuesta(datos=serializer.data, formatear=False)
 
     def retrieve(self, request, *args, **kwargs):
         clave = kwargs.get('pk')
