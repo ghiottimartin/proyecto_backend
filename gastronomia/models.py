@@ -9,7 +9,7 @@ class Estado(models.Model):
     fecha = models.DateTimeField(default=datetime.datetime.now)
 
     ABIERTO = 'abierto'
-    FINALIZADO = 'finalizado'
+    CERRADO = 'cerrado'
 
 
 class Pedido(Auditoria, models.Model):

@@ -4,7 +4,7 @@ from base.permisos import TieneRolComensal
 from base.respuestas import Respuesta
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, finalizar_pedido
+from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -27,15 +27,15 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             pedido = get_pedido(pk=None, usuario=usuario, estado=clave)
         if isinstance(clave, int):
             pedido = get_pedido(pk=clave)
-        finalizado = None
+        cerrado = None
         if pedido is None:
-            finalizado = get_pedido(pk=None, usuario=usuario, estado=Estado.FINALIZADO)
+            cerrado = get_pedido(pk=None, usuario=usuario, estado=Estado.CERRADO)
         noHayAbierto = pedido is None
-        hayFinalizado = finalizado is not None
-        if noHayAbierto and not hayFinalizado:
+        hayCerrado = cerrado is not None
+        if noHayAbierto and not hayCerrado:
             return respuesta.get_respuesta(False, "")
-        if noHayAbierto and hayFinalizado:
-            return respuesta.get_respuesta(exito=True, datos={"finalizado": True})
+        if noHayAbierto and hayCerrado:
+            return respuesta.get_respuesta(exito=True, datos={"cerrado": True})
         serializer = PedidoSerializer(instance=pedido)
         return respuesta.get_respuesta(True, "", None, serializer.data)
 
@@ -67,6 +67,6 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
         pedido = get_pedido(pk=kwargs["pk"])
         if pedido is None:
             return respuesta.get_respuesta(True, "No se ha encontrado el pedido.")
-        finalizar_pedido(pedido)
+        cerrar_pedido(pedido)
         return respuesta.get_respuesta(True, "Pedido realizado con éxito, podrá retirarlo por el local en "
                                              "aproximadamente 45 minutos.")

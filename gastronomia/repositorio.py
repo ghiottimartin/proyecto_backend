@@ -111,7 +111,7 @@ def get_linea_pedido(id_pedido, id_producto):
         return None
 
 
-def finalizar_pedido(pedido):
-    pedido.agregar_estado(Estado.FINALIZADO)
+def cerrar_pedido(pedido):
+    pedido.agregar_estado(Estado.CERRADO)
     pedido.save()
     return pedido
