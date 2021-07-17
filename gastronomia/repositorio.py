@@ -34,14 +34,12 @@ def validar_crear_pedido(datos):
                 raise ValidationError("La cantidad del producto debe tener un valor numérico.")
 
 
-def crear_pedido(usuario, lineas, forzar):
+def crear_pedido(usuario, lineas):
     pedido = get_pedido(usuario=usuario, estado=Estado.ABIERTO)
     if pedido is not None:
         id = pedido.id
-        pedido.forzar = forzar
         return actualizar_pedido(id, lineas)
     pedido = Pedido(usuario=usuario, ultimo_estado=Estado.ABIERTO, total=0)
-    pedido.forzar = forzar
     pedido.save()
     for item in lineas:
         crear_linea_pedido(pedido, item)

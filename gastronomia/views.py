@@ -48,7 +48,7 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             id = datos["id"]
             lineas = datos["lineas"]
             if id <= 0:
-                pedido = crear_pedido(usuario, lineas, forzar)
+                pedido = crear_pedido(usuario, lineas)
             else:
                 pedido = actualizar_pedido(id, lineas)
             datos = {"pedido": "borrado"}
