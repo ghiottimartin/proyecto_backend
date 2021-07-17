@@ -27,7 +27,7 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
 
 # Obtención de productos sin autorización
 class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    queryset = Producto.objects.all()
+    queryset = Producto.objects.filter(borrado=False)
     serializer_class = ProductoSerializer
 
 
@@ -64,6 +64,6 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.imagen.delete(False)
-        self.perform_destroy(instance)
+        instance.borrado = True
+        instance.save()
         return respuesta.get_respuesta(True, "El producto se ha borrado con éxito")

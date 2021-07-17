@@ -29,6 +29,7 @@ class Producto(Auditoria, models.Model):
     descripcion = models.CharField(max_length=255, default="")
     precio_vigente = models.FloatField()
     habilitado = models.BooleanField(default=True)
+    borrado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
