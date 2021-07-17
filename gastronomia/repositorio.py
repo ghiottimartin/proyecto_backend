@@ -9,7 +9,7 @@ def get_pedido(pk=None, usuario=None, estado=None):
         if pk is not None:
             return Pedido.objects.get(pk=pk)
         if usuario is not None and estado is not None:
-            return Pedido.objects.get(ultimo_estado=estado, usuario=usuario)
+            return Pedido.objects.filter(ultimo_estado=estado, usuario=usuario).first()
     except Pedido.DoesNotExist:
         return None
 

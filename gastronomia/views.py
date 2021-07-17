@@ -27,22 +27,26 @@ class PedidoEstadoViewSet(viewsets.ModelViewSet):
             pedido = get_pedido(pk=None, usuario=usuario, estado=clave)
         if isinstance(clave, int):
             pedido = get_pedido(pk=clave)
+        finalizado = None
         if pedido is None:
+            finalizado = get_pedido(pk=None, usuario=usuario, estado=Estado.FINALIZADO)
+        noHayAbierto = pedido is None
+        hayFinalizado = finalizado is not None
+        if noHayAbierto and not hayFinalizado:
             return respuesta.get_respuesta(False, "")
+        if noHayAbierto and hayFinalizado:
+            return respuesta.get_respuesta(exito=True, datos={"finalizado": True})
         serializer = PedidoSerializer(instance=pedido)
         return respuesta.get_respuesta(True, "", None, serializer.data)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         usuario = request.user
-        pedido = get_pedido(usuario=usuario, estado=Estado.FINALIZADO)
-        if isinstance(pedido, Pedido):
-            return respuesta.get_respuesta(exito=False, mensaje="Ya posee un pedido en curso. Dirígase a la sección "
-                                                                "Pedidos para ver el estado del mismo.")
         try:
-            validar_crear_pedido(request.data)
-            id = request.data["id"]
-            lineas = request.data["lineas"]
+            datos = request.data
+            validar_crear_pedido(datos)
+            id = datos["id"]
+            lineas = datos["lineas"]
             if id <= 0:
                 pedido = crear_pedido(usuario, lineas, forzar)
             else:
