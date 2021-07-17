@@ -47,6 +47,7 @@ class Usuario(Auditoria, AbstractUser):
     token_email = models.TextField(null=True)
     fecha_token_reset = models.DateTimeField(null=True)
     operaciones = list()
+    borrado = models.BooleanField(default=False)
 
     esMozo = False
     esAdmin = False

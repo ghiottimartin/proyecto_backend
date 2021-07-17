@@ -17,7 +17,7 @@ respuesta = Respuesta()
 
 # Alta de usuario sin autorización
 class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
-    queryset = Usuario.objects.all()
+    queryset = Usuario.objects.filter(borrado=False)
     serializer_class = UsuarioSerializer
 
     def create(self, request, *args, **kwargs):
@@ -26,7 +26,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 
 # Abm de usuarios con autorización
 class ABMUsuarioViewSet(viewsets.ModelViewSet):
-    queryset = Usuario.objects.all()
+    queryset = Usuario.objects.filter(borrado=False)
     serializer_class = UsuarioSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -58,9 +58,15 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(True, "El usuario se ha actualizado con éxito.", None, {"usuario": serializer.data, "esAdmin": esAdmin})
 
     def list(self, request, *args, **kwargs):
-        usuarios = Usuario.objects.all().exclude(roles__in=Rol.objects.filter(nombre=Rol.ADMINISTRADOR))
+        usuarios = Usuario.objects.filter(borrado=False).exclude(roles__in=Rol.objects.filter(nombre=Rol.ADMINISTRADOR))
         serializer = UsuarioSerializer(instance=usuarios, many=True)
         return respuesta.get_respuesta(True, "", None, {"usuarios": serializer.data})
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.borrado = True
+        instance.save()
+        return respuesta.get_respuesta(True, "El usuario se ha borrado con éxito")
 
     # Actualiza la contraseña del usuario según la request. Si la cambió se actualiza sino devuelve la actual.
     def actualizar_password(self, usuario, request):
