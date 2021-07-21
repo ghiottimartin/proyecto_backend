@@ -11,6 +11,10 @@ class Estado(models.Model):
     ABIERTO = 'abierto'
     CERRADO = 'cerrado'
 
+    @classmethod
+    def comprobar_estado_valido(cls, estado):
+        return estado == cls.ABIERTO or estado == cls.CERRADO
+
 
 class Pedido(Auditoria, models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+")

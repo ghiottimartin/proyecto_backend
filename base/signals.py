@@ -2,9 +2,14 @@ import datetime
 from request_middleware.middleware import get_request
 
 
-def agregar_auditorias(sender, instance, **kwargs):
+def get_usuario_logueado():
     usuario = None if get_request() is None else get_request().user
     logueado = None if usuario is None or usuario.id is None else usuario
+    return logueado
+
+
+def agregar_auditorias(sender, instance, **kwargs):
+    logueado = get_usuario_logueado()
     if instance.id is None:
         agregar_auditoria_creado(instance, logueado)
     else:

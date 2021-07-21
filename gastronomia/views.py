@@ -29,10 +29,15 @@ class PedidoViewSet(viewsets.ModelViewSet):
         clave = kwargs.get('pk')
         pedido = None
         usuario = request.user
-        if isinstance(clave, str):
+        serializer = None
+        estado_valido = Estado.comprobar_estado_valido(clave)
+        if estado_valido:
             pedido = get_pedido(pk=None, usuario=usuario, estado=clave)
-        if isinstance(clave, int):
+            serializer = PedidoSerializer(instance=pedido)
+        elif clave.isnumeric():
             pedido = get_pedido(pk=clave)
+            serializer = PedidoSerializer(instance=pedido)
+            return respuesta.get_respuesta(exito=True, datos=serializer.data)
         cerrado = None
         if pedido is None:
             cerrado = get_pedido(pk=None, usuario=usuario, estado=Estado.CERRADO)
@@ -42,7 +47,6 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(False, "")
         if noHayAbierto and hayCerrado:
             return respuesta.get_respuesta(exito=True, datos={"cerrado": True})
-        serializer = PedidoSerializer(instance=pedido)
         return respuesta.get_respuesta(True, "", None, serializer.data)
 
     @transaction.atomic
