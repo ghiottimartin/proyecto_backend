@@ -21,10 +21,17 @@ class PedidoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, TieneRolComensal]
 
     def list(self, request, *args, **kwargs):
-        idUsuario = request.query_params["usuario"]
-        pedidos = Pedido.objects.filter(usuario=idUsuario).order_by('-fecha')
-        serializer = PedidoSerializer(instance=pedidos, many=True)
-        return respuesta.get_respuesta(datos=serializer.data, formatear=False)
+        logueado = request.user
+        pedidos = []
+        if logueado.esVendedor:
+            pedidos = Pedido.objects.all().order_by('-fecha')
+        else:
+            idUsuario = request.query_params["usuario"]
+            pedidos = Pedido.objects.filter(usuario=idUsuario).order_by('-fecha')
+        if len(pedidos) > 0:
+            serializer = PedidoSerializer(instance=pedidos, many=True)
+            pedidos = serializer.data
+        return respuesta.get_respuesta(datos=pedidos, formatear=False)
 
     def retrieve(self, request, *args, **kwargs):
         clave = kwargs.get('pk')
