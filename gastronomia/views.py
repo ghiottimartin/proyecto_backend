@@ -7,6 +7,7 @@ from django.db import transaction
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 respuesta = Respuesta()
@@ -80,3 +81,25 @@ class PedidoViewSet(viewsets.ModelViewSet):
         cerrar_pedido(pedido)
         return respuesta.get_respuesta(True, "Pedido realizado con éxito, podrá retirarlo por el local en "
                                              "aproximadamente 45 minutos.")
+
+    @action(detail=True, methods=['post'])
+    def finalizar(self, request, pk=None):
+        try:
+            pedido = get_pedido(pk)
+            if pedido is None:
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido a cerrar.")
+            abierto = pedido.comprobar_estado_abierto()
+            if abierto:
+                return respuesta.get_respuesta(exito=False, mensaje="No se puede finalizar el pedido debido a que el "
+                                                                    "usuario no lo ha cerrado.")
+            finalizado = pedido.comprobar_estado_finalizado()
+            if finalizado:
+                return respuesta.get_respuesta(exito=False, mensaje="El pedido ya se encuentra en estado finalizado.")
+            cerrado = pedido.comprobar_estado_cerrado()
+            if cerrado:
+                pedido.finalizar_pedido()
+            else:
+                raise ValidationError("")
+            return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha finalizar con éxito.")
+        except:
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al finalizar el pedido.")

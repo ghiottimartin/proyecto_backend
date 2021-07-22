@@ -53,4 +53,14 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'icono': 'fa fa-eye',
                 'key': str(objeto.id) + "-" + accion,
             })
+        cerrado = objeto.comprobar_estado_cerrado()
+        if cerrado and logueado.esVendedor:
+            accion = 'finalizar'
+            operaciones.append({
+                'accion': 'finalizar',
+                'clase': 'btn btn-sm btn-success text-success',
+                'texto': 'Finalizar',
+                'icono': 'fa fa-check-circle',
+                'key': str(objeto.id) + "-" + accion,
+            })
         return operaciones

@@ -10,6 +10,7 @@ class Estado(models.Model):
 
     ABIERTO = 'abierto'
     CERRADO = 'cerrado'
+    FINALIZADO = 'finalizado'
 
     @classmethod
     def comprobar_estado_valido(cls, estado):
@@ -33,6 +34,18 @@ class Pedido(Auditoria, models.Model):
         cantidad_lineas = self.lineas.count()
         return cantidad_lineas == 0
 
+    def comprobar_estado_cerrado(self):
+        ultimo_estado = self.ultimo_estado
+        return ultimo_estado == Estado.CERRADO
+
+    def comprobar_estado_abierto(self):
+        ultimo_estado = self.ultimo_estado
+        return ultimo_estado == Estado.ABIERTO
+
+    def comprobar_estado_finalizado(self):
+        ultimo_estado = self.ultimo_estado
+        return ultimo_estado == Estado.FINALIZADO
+
     def actualizar_total(self):
         lineas = self.lineas.all()
         total = 0
@@ -49,9 +62,14 @@ class Pedido(Auditoria, models.Model):
             self.ultimo_estado = estado
             self.estados.add(objeto)
 
+
     def borrar_datos_pedido(self):
         self.estados.all().delete()
         self.lineas.all().delete()
+        self.save()
+
+    def finalizar_pedido(self):
+        self.agregar_estado(Estado.FINALIZADO)
         self.save()
 
 
