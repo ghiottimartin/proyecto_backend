@@ -32,11 +32,14 @@ class PedidoSerializer(serializers.ModelSerializer):
 
     # Método que devuelve los datos del pedido.
     def to_representation(self, instance):
-        """Quito password"""
+        logueado = get_usuario_logueado()
+
         ret = super().to_representation(instance)
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
         ret['estado_texto'] = instance.ultimo_estado.capitalize()
+        ret['usuario_texto'] = instance.usuario.email
+        ret['mostrar_usuario'] = logueado.esAdmin or logueado.esVendedor
         return ret
 
     def get_operaciones(self, objeto):
