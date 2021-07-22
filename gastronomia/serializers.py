@@ -59,7 +59,7 @@ class PedidoSerializer(serializers.ModelSerializer):
             operaciones.append({
                 'accion': 'recibir',
                 'clase': 'btn btn-sm btn-success text-success',
-                'texto': 'Recibido',
+                'texto': 'Entregar',
                 'icono': 'fa fa-check-circle',
                 'key': str(objeto.id) + "-" + accion,
             })
