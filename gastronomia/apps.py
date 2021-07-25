@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 from django.db.models.signals import pre_save
-from base.signals import agregar_auditorias
+from jumbo_soft.signals import agregar_auditorias
 
 
 class GastronomiaConfig(AppConfig):

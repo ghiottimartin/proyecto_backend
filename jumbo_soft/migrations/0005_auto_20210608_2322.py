@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0004_auto_20210608_2239'),
+        ('jumbo_soft', '0004_auto_20210608_2239'),
     ]
 
     operations = [

@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ('auditoria_creador_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
                 ('auditoria_modificado_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
-                ('roles', models.ManyToManyField(blank=True, related_name='usuarios_roles', to='base.Rol')),
+                ('roles', models.ManyToManyField(blank=True, related_name='usuarios_roles', to='jumbo_soft.Rol')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions')),
             ],
             options={

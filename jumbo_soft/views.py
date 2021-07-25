@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from .models import Usuario, Rol
 from .serializers import UsuarioSerializer
 from . import email
-from base.respuestas import Respuesta
+from jumbo_soft.respuestas import Respuesta
 import datetime
 import secrets
 

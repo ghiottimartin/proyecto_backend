@@ -1,7 +1,7 @@
 from .models import Pedido, Estado
 from .serializers import PedidoSerializer
-from base.permisos import TieneRolComensal
-from base.respuestas import Respuesta
+from jumbo_soft.permisos import TieneRolComensal
+from jumbo_soft.respuestas import Respuesta
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido

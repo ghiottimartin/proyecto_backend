@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Producto, Categoria
-from base.serializers import CustomModelSerializer
+from jumbo_soft.serializers import CustomModelSerializer
 import locale
 locale.setlocale(locale.LC_ALL, '')
 

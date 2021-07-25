@@ -9,8 +9,8 @@ class Auditoria(models.Model):
     auditoria_creado_fecha = models.DateTimeField(default=datetime.datetime.now, blank=True)
     auditoria_modificado_fecha = models.DateTimeField(default=datetime.datetime.now, blank=True)
 
-    auditoria_creador = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="+", null=True)
-    auditoria_modificado = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="+", null=True)
+    auditoria_creador = models.ForeignKey('jumbo_soft.Usuario', on_delete=models.CASCADE, related_name="+", null=True)
+    auditoria_modificado = models.ForeignKey('jumbo_soft.Usuario', on_delete=models.CASCADE, related_name="+", null=True)
 
     class Meta:
         abstract = True

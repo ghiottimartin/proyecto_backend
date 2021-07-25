@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'base',
+    'jumbo_soft',
     'producto',
     'gastronomia',
     'corsheaders',
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django_extensions'
 ]
 
-AUTH_USER_MODEL = 'base.Usuario'
+AUTH_USER_MODEL = 'jumbo_soft.Usuario'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

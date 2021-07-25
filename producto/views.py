@@ -1,11 +1,11 @@
-from base import respuestas
+from jumbo_soft import respuestas
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria
-from base.permisos import TieneRolAdmin
+from jumbo_soft.permisos import TieneRolAdmin
 from .serializers import ProductoSerializer, CategoriaSerializer
 
 respuesta = respuestas.Respuesta()

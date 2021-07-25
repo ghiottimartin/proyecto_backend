@@ -1,5 +1,5 @@
 from django.db import models
-from base.models import Auditoria, Usuario
+from jumbo_soft.models import Auditoria, Usuario
 import datetime
 
 

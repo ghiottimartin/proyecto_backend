@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from base.models import Usuario, Rol
+from jumbo_soft.models import Usuario, Rol
 
 
 # Indica si la persona logueada tiene el rol pasado como parámetro.

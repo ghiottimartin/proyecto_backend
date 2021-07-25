@@ -9,7 +9,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0003_auto_20210606_2319'),
+        ('jumbo_soft', '0003_auto_20210606_2319'),
     ]
 
     operations = [
