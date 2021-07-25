@@ -46,6 +46,26 @@ class Pedido(Auditoria, models.Model):
         ultimo_estado = self.ultimo_estado
         return ultimo_estado == Estado.RECIBIDO
 
+    def comprobar_puede_visualizar(self, usuario):
+        es_admin = usuario.esAdmin
+        es_vendedor = usuario.esVendedor
+        pedido_usuario = self.usuario
+        le_pertenece = pedido_usuario == usuario
+        return le_pertenece or es_admin or es_vendedor
+
+    def comprobar_puede_cerrar(self, usuario):
+        cerrado = self.comprobar_estado_cerrado()
+        es_vendedor = usuario.esVendedor
+        return cerrado and es_vendedor
+
+    def comprobar_puede_cancelar(self, usuario):
+        abierto = self.comprobar_estado_abierto()
+        cerrado = self.comprobar_estado_cerrado()
+        es_vendedor = usuario.esVendedor
+        pedido_usuario = self.usuario
+        le_pertenece = pedido_usuario == usuario
+        return (es_vendedor or le_pertenece) and (cerrado or abierto)
+
     def actualizar_total(self):
         lineas = self.lineas.all()
         total = 0
@@ -61,7 +81,6 @@ class Pedido(Auditoria, models.Model):
             objeto.save()
             self.ultimo_estado = estado
             self.estados.add(objeto)
-
 
     def borrar_datos_pedido(self):
         self.estados.all().delete()
@@ -91,5 +110,6 @@ class PedidoLinea(models.Model):
         self.subtotal = precio
         self.total = total
         self.save()
+
 
 

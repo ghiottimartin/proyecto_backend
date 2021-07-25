@@ -44,11 +44,11 @@ class PedidoSerializer(serializers.ModelSerializer):
         return ret
 
     def get_operaciones(self, objeto):
-        usuario = objeto.usuario
         logueado = get_usuario_logueado()
-        le_pertenece = usuario == logueado
         operaciones = []
-        if le_pertenece or logueado.esAdmin:
+
+        puede_visualizar = objeto.comprobar_puede_visualizar(logueado)
+        if puede_visualizar:
             accion = 'visualizar'
             operaciones.append({
                 'accion': accion,
@@ -57,14 +57,26 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'icono': 'fa fa-eye',
                 'key': str(objeto.id) + "-" + accion,
             })
-        cerrado = objeto.comprobar_estado_cerrado()
-        if cerrado and logueado.esVendedor:
+
+        puede_cerrar = objeto.comprobar_puede_cerrar(logueado)
+        if puede_cerrar:
             accion = 'recibir'
             operaciones.append({
                 'accion': 'recibir',
                 'clase': 'btn btn-sm btn-success text-success',
                 'texto': 'Entregar',
                 'icono': 'fa fa-check-circle',
+                'key': str(objeto.id) + "-" + accion,
+            })
+
+        puede_cancelar = objeto.comprobar_puede_cancelar(logueado)
+        if puede_cancelar:
+            accion = 'cancelar'
+            operaciones.append({
+                'accion': 'cancelar',
+                'clase': 'btn btn-sm btn-danger text-danger',
+                'texto': 'Cancelar',
+                'icono': 'fa fa-window-close',
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones
