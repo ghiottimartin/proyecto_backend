@@ -10,3 +10,5 @@ class JumboSoftConfig(AppConfig):
 
         # Agrego auditoría a los usuarios
         pre_save.connect(signals.agregar_auditorias, sender='jumbo_soft.Usuario')
+        pre_save.connect(signals.agregar_auditorias, sender='jumbo_soft.Categoria')
+        pre_save.connect(signals.agregar_auditorias, sender='jumbo_soft.Producto')

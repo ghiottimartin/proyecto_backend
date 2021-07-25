@@ -1,7 +1,10 @@
+import locale
 from rest_framework import serializers
 from rest_framework.authtoken.views import Token
-from .models import Usuario, Rol
+from .models import Usuario, Rol, Producto, Categoria
 import secrets
+
+locale.setlocale(locale.LC_ALL, '')
 
 
 # ModelSerializer que permite devolver los mensajes en forma de lista de cadenas de texto.
@@ -52,3 +55,23 @@ class UsuarioSerializer(CustomModelSerializer):
         user.save()
         Token.objects.create(user=user)
         return user
+
+
+class ProductoSerializer(CustomModelSerializer):
+    class Meta:
+        model = Producto
+        fields = '__all__'
+
+    # Método que devuelve los datos del usuario. Quito la contraseña para que no sea mostrada al usuario.
+    def to_representation(self, instance):
+        """Quito password"""
+        ret = super().to_representation(instance)
+        ret['categoria_texto'] = instance.categoria.nombre
+        ret['precio_texto'] = locale.currency(instance.precio_vigente)
+        return ret
+
+
+class CategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria
+        fields = '__all__'

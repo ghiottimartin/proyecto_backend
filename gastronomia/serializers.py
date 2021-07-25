@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Pedido, PedidoLinea
-from producto.serializers import ProductoSerializer
+from jumbo_soft.serializers import ProductoSerializer
 from jumbo_soft.signals import get_usuario_logueado
 
 import locale

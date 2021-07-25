@@ -1,5 +1,5 @@
 from .models import Pedido, PedidoLinea, Estado
-from producto.models import get_producto
+from jumbo_soft.models import get_producto
 from django.core.exceptions import ValidationError
 
 

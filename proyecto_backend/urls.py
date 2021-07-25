@@ -8,7 +8,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('jumbo_soft.urls', namespace='jumbo_soft')),
     path('auth/', CustomAuthToken.as_view()),
-    path('producto/', include('producto.urls', namespace='producto')),
     path('gastronomia/', include('gastronomia.urls', namespace='gastronomia')),
 ]
 

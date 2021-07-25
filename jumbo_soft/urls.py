@@ -9,6 +9,12 @@ router = DefaultRouter()
 router.register('usuarios', views.ABMUsuarioViewSet, basename="usuario")
 router.register('registro', views.RegistroViewSet, basename="registro")
 
+# Rutas de productos
+router.register('producto/', views.ProductoViewSet)
+router.register('producto/abm/', views.ABMProductoViewSet)
+router.register('producto/categorias/', views.CategoriaViewSet)
+router.register('producto/abm/categorias/', views.ABMCategoriaViewSet)
+
 urlpatterns = [
     path('', include(router.urls)),
     path('validar-email/<str:token>', views.validar_token_email, name="activar-cuenta"),

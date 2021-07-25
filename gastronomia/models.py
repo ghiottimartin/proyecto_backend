@@ -99,7 +99,7 @@ class Pedido(Auditoria, models.Model):
 
 class PedidoLinea(models.Model):
     pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="lineas")
-    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, related_name="+")
+    producto = models.ForeignKey('jumbo_soft.Producto', on_delete=models.PROTECT, related_name="+")
     cantidad = models.IntegerField()
     subtotal = models.FloatField()
     total = models.FloatField()
