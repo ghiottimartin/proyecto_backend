@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'jumbo_soft',
     'corsheaders',
-    'request_middleware',
     'django_extensions'
 ]
 
@@ -51,7 +50,7 @@ AUTH_USER_MODEL = 'jumbo_soft.Usuario'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'request_middleware.middleware.RequestMiddleware',
+    'jumbo_soft.middleware.RequestMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 

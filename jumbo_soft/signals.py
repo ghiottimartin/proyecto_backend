@@ -1,5 +1,5 @@
 import datetime
-from request_middleware.middleware import get_request
+from jumbo_soft.middleware import get_request
 
 
 def get_usuario_logueado():
