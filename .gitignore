@@ -1,5 +1,4 @@
 db_proyecto.sqlite3
 /.vscode/*
 /.idea/*
-/proyecto_backend/settings.py
 /media/*
