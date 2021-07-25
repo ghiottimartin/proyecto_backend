@@ -11,6 +11,7 @@ class Estado(models.Model):
     ABIERTO = 'abierto'
     CERRADO = 'cerrado'
     RECIBIDO = 'recibido'
+    CANCELADO = 'cancelado'
 
     @classmethod
     def comprobar_estado_valido(cls, estado):

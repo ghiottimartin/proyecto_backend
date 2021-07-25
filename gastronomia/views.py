@@ -111,3 +111,19 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha recibido con éxito.")
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al recibir el pedido.")
+
+    @action(detail=True, methods=['post'])
+    def cancelar(self, request, pk=None):
+        try:
+            pedido = get_pedido(pk)
+            if pedido is None:
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido a cancelar.")
+            usuario = request.user
+            puede_cancelar = pedido.comprobar_puede_cancelar(usuario)
+            if not puede_cancelar:
+                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para cancelar el pedido.")
+            pedido.agregar_estado(Estado.CANCELADO)
+            pedido.save()
+            return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha cancelado con éxito.")
+        except:
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al recibir el pedido.")
