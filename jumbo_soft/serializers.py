@@ -131,11 +131,11 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
 
-        puede_cerrar = objeto.comprobar_puede_cerrar(logueado)
-        if puede_cerrar:
-            accion = 'recibir'
+        puede_entregar = objeto.comprobar_puede_entregar(logueado)
+        if puede_entregar:
+            accion = 'entregar'
             operaciones.append({
-                'accion': 'recibir',
+                'accion': 'entregar',
                 'clase': 'btn btn-sm btn-success text-success',
                 'texto': 'Entregar',
                 'icono': 'fa fa-check-circle',

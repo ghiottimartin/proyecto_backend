@@ -241,10 +241,11 @@ class Pedido(Auditoria, models.Model):
         le_pertenece = pedido_usuario == usuario
         return le_pertenece or es_admin or es_vendedor
 
-    def comprobar_puede_cerrar(self, usuario):
+    def comprobar_puede_entregar(self, usuario):
         cerrado = self.comprobar_estado_cerrado()
+        es_admin = usuario.esAdmin
         es_vendedor = usuario.esVendedor
-        return cerrado and es_vendedor
+        return cerrado and (es_vendedor or es_admin)
 
     def comprobar_puede_cancelar(self, usuario):
         abierto = self.comprobar_estado_abierto()
