@@ -68,6 +68,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://ancient-oasis-22601.herokuapp.com"
 ]
 
 AUTHENTICATION_BACKENDS = ['proyecto_backend.auth.EmailBackend']
