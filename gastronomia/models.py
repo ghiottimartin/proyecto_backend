@@ -47,6 +47,10 @@ class Pedido(Auditoria, models.Model):
         ultimo_estado = self.ultimo_estado
         return ultimo_estado == Estado.RECIBIDO
 
+    def comprobar_estado_cancelado(self):
+        ultimo_estado = self.ultimo_estado
+        return ultimo_estado == Estado.CANCELADO
+
     def comprobar_puede_visualizar(self, usuario):
         es_admin = usuario.esAdmin
         es_vendedor = usuario.esVendedor
