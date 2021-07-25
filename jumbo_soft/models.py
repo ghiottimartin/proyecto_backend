@@ -252,7 +252,7 @@ class Pedido(Auditoria, models.Model):
         es_vendedor = usuario.esVendedor
         pedido_usuario = self.usuario
         le_pertenece = pedido_usuario == usuario
-        return (es_vendedor or le_pertenece) and (cerrado or abierto)
+        return (abierto and le_pertenece) or (cerrado and es_vendedor)
 
     def actualizar_total(self):
         lineas = self.lineas.all()
