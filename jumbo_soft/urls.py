@@ -15,6 +15,9 @@ router.register('producto/abm/', views.ABMProductoViewSet)
 router.register('producto/categorias/', views.CategoriaViewSet)
 router.register('producto/abm/categorias/', views.ABMCategoriaViewSet)
 
+# Rutas de pedidos
+router.register('pedido', views.PedidoViewSet)
+
 urlpatterns = [
     path('', include(router.urls)),
     path('validar-email/<str:token>', views.validar_token_email, name="activar-cuenta"),

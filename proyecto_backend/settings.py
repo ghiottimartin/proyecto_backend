@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'jumbo_soft',
-    'gastronomia',
     'corsheaders',
     'request_middleware',
     'django_extensions'
