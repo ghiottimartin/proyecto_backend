@@ -6,10 +6,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('base.urls', namespace='base')),
     path('auth/', CustomAuthToken.as_view()),
-    path('producto/', include('producto.urls', namespace='producto')),
-    path('gastronomia/', include('gastronomia.urls', namespace='gastronomia')),
+    path('api/', include('base.urls', namespace='base')),
+    path('api/producto/', include('producto.urls', namespace='producto')),
+    path('api/gastronomia/', include('gastronomia.urls', namespace='gastronomia')),
 ]
 
 if settings.DEBUG:
