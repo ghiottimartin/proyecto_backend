@@ -39,7 +39,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['cancelado'] = instance.comprobar_estado_cancelado()
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
-        ret['estado_texto'] = instance.ultimo_estado.capitalize()
+        ret['estado_texto'] = instance.get_estado_texto(logueado)
         ret['usuario_texto'] = instance.usuario.email
         ret['mostrar_usuario'] = logueado.esAdmin or logueado.esVendedor
         return ret
@@ -61,9 +61,9 @@ class PedidoSerializer(serializers.ModelSerializer):
 
         puede_cerrar = objeto.comprobar_puede_cerrar(logueado)
         if puede_cerrar:
-            accion = 'recibir'
+            accion = 'entregar'
             operaciones.append({
-                'accion': 'recibir',
+                'accion': accion,
                 'clase': 'btn btn-sm btn-success text-success',
                 'texto': 'Entregar',
                 'icono': 'fa fa-check-circle',

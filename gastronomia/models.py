@@ -12,6 +12,7 @@ class Estado(models.Model):
     CERRADO = 'cerrado'
     RECIBIDO = 'recibido'
     CANCELADO = 'cancelado'
+    ENTREGADO = 'entregado'
 
     @classmethod
     def comprobar_estado_valido(cls, estado):
@@ -95,6 +96,15 @@ class Pedido(Auditoria, models.Model):
     def recibir_pedido(self):
         self.agregar_estado(Estado.RECIBIDO)
         self.save()
+
+    def get_estado_texto(self, logueado):
+        estado = self.ultimo_estado.capitalize()
+        recibido = self.comprobar_estado_recibido()
+        le_pertenece = self.usuario_id == logueado.id
+        if not le_pertenece and recibido:
+            return Estado.ENTREGADO
+        return estado
+
 
 
 class PedidoLinea(models.Model):
