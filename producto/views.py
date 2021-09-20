@@ -27,7 +27,7 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
 
 # Obtención de productos sin autorización
 class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    queryset = Producto.objects.filter(borrado=False)
+    queryset = Producto.objects.filter(borrado=False).order_by('nombre')
     serializer_class = ProductoSerializer
 
 
