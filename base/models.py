@@ -122,13 +122,14 @@ class Usuario(Auditoria, AbstractUser):
     # Devuelve las operaciones del usuario según los roles del mismo.
     def get_operaciones(self):
         operaciones_admin = self.get_operaciones_admin()
-        return operaciones_admin
+        operaciones_vendedor = self.get_operaciones_vendedor()
+        return operaciones_admin + operaciones_vendedor
 
     # Devuele las operaciones para el rol administrador si tiene el rol indicado.
     def get_operaciones_admin(self):
-        # Si no lo tiene devolvemos un diccionario vacío.
+        # Si no lo tiene devolvemos una lista vacía.
         if self.esAdmin is not True:
-            return dict()
+            return list()
 
         operaciones = [{
             "rol": Rol.ADMINISTRADOR,
@@ -145,6 +146,20 @@ class Usuario(Auditoria, AbstractUser):
             "ruta": "/compras",
             "titulo": "Ingreso",
             "descripcion": "Permite ingresar mercadería"
+        }]
+        return operaciones
+
+    # Devuele las operaciones para el rol vendedor si tiene el rol indicado.
+    def get_operaciones_vendedor(self):
+        # Si no lo tiene devolvemos una lista vacía.
+        if self.esVendedor is not True:
+            return list()
+
+        operaciones = [{
+            "rol": Rol.VENEDEDOR,
+            "ruta": "/pedidos/vendedor",
+            "titulo": "Pedidos",
+            "descripcion": "Permite gestionar los pedidos"
         }]
         return operaciones
 

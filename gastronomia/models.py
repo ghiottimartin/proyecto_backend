@@ -102,7 +102,7 @@ class Pedido(Auditoria, models.Model):
         recibido = self.comprobar_estado_recibido()
         le_pertenece = self.usuario_id == logueado.id
         if not le_pertenece and recibido:
-            return Estado.ENTREGADO
+            return Estado.ENTREGADO.capitalize()
         return estado
 
 

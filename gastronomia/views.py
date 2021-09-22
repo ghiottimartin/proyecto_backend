@@ -21,13 +21,21 @@ class PedidoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, TieneRolComensal]
 
     def list(self, request, *args, **kwargs):
+        idUsuario = request.query_params["usuario"]
+        pedidos = Pedido.objects.filter(usuario=idUsuario).order_by('-fecha')
+        if len(pedidos) > 0:
+            serializer = PedidoSerializer(instance=pedidos, many=True)
+            pedidos = serializer.data
+        return respuesta.get_respuesta(datos=pedidos, formatear=False)
+
+    @action(detail=False, methods=['get'])
+    def listado_vendedor(self, request, pk=None):
         logueado = request.user
         pedidos = []
         if logueado.esVendedor:
             pedidos = Pedido.objects.all().order_by('-fecha')
         else:
-            idUsuario = request.query_params["usuario"]
-            pedidos = Pedido.objects.filter(usuario=idUsuario).order_by('-fecha')
+            return respuesta.get_respuesta(False, "No está autorizado para listar los pedidos vendidos.", 401)
         if len(pedidos) > 0:
             serializer = PedidoSerializer(instance=pedidos, many=True)
             pedidos = serializer.data
