@@ -25,6 +25,10 @@ class Pedido(Auditoria, models.Model):
     ultimo_estado = models.CharField(max_length=40, default=Estado.ABIERTO)
     total = models.FloatField()
     forzar = models.BooleanField(default=False)
+    tipo = models.CharField(max_length=15)
+
+    TIPO_ONLINE = 'online'
+    TIPO_MOSTRADOR = 'mostrador'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

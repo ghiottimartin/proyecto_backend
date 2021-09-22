@@ -69,12 +69,13 @@ class PedidoViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         usuario = request.user
         try:
+            tipo = Pedido.TIPO_ONLINE
             datos = request.data
             validar_crear_pedido(datos)
             id = datos["id"]
             lineas = datos["lineas"]
             if id <= 0:
-                pedido = crear_pedido(usuario, lineas)
+                pedido = crear_pedido(usuario, lineas, tipo)
             else:
                 pedido = actualizar_pedido(id, lineas)
             datos = {"pedido": "borrado"}
