@@ -2,6 +2,7 @@ from .models import Pedido, Estado
 from .serializers import PedidoSerializer
 from base.permisos import TieneRolComensal
 from base.respuestas import Respuesta
+from django.db.models import Count, Q
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido
@@ -9,6 +10,7 @@ from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from base import utils
 
 respuesta = Respuesta()
 
@@ -20,26 +22,48 @@ class PedidoViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, TieneRolComensal]
 
+    def filtrar_pedidos(self, request):
+        desdeTexto = request.query_params.get('fechaDesde', "")
+        hastaTexto = request.query_params.get('fechaHasta', "")
+        desde = utils.get_fecha_string2objeto(desdeTexto)
+        hasta = utils.get_fecha_string2objeto(hastaTexto, False)
+        idUsuario = request.query_params.get('usuario', None)
+        pedidos = Pedido.objects.filter(fecha__range=(desde, hasta)).order_by('-fecha')
+        if isinstance(idUsuario, int) and idUsuario > 0:
+            pedidos = pedidos.filter(usuario=idUsuario)
+        return pedidos
+
     def list(self, request, *args, **kwargs):
-        idUsuario = request.query_params["usuario"]
-        pedidos = Pedido.objects.filter(usuario=idUsuario).order_by('-fecha')
+        pedidos = self.filtrar_pedidos(request)
         if len(pedidos) > 0:
             serializer = PedidoSerializer(instance=pedidos, many=True)
             pedidos = serializer.data
-        return respuesta.get_respuesta(datos=pedidos, formatear=False)
+
+        idUsuario = request.query_params.get("usuario")
+        cantidad = Pedido.objects.filter(usuario=idUsuario).count()
+        datos = {
+            "pedidos": pedidos,
+            "cantidad": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
 
     @action(detail=False, methods=['get'])
     def listado_vendedor(self, request, pk=None):
         logueado = request.user
         pedidos = []
         if logueado.esVendedor:
-            pedidos = Pedido.objects.all().order_by('-fecha')
+            pedidos = self.filtrar_pedidos(request)
         else:
             return respuesta.get_respuesta(False, "No está autorizado para listar los pedidos vendidos.", 401)
         if len(pedidos) > 0:
             serializer = PedidoSerializer(instance=pedidos, many=True)
             pedidos = serializer.data
-        return respuesta.get_respuesta(datos=pedidos, formatear=False)
+        cantidad = Pedido.objects.count()
+        datos = {
+            "pedidos": pedidos,
+            "cantidad": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
 
     def retrieve(self, request, *args, **kwargs):
         clave = kwargs.get('pk')
