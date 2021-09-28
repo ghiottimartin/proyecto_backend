@@ -40,7 +40,9 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
         ret['estado_texto'] = instance.get_estado_texto(logueado)
-        ret['usuario_texto'] = instance.usuario.email
+        ret['estado_clase'] = instance.get_estado_clase()
+        ret['usuario_email'] = instance.usuario.email
+        ret['usuario_nombre'] = instance.usuario.first_name
         ret['mostrar_usuario'] = logueado.esAdmin or logueado.esVendedor
         return ret
 

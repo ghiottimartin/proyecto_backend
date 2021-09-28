@@ -109,6 +109,14 @@ class Pedido(Auditoria, models.Model):
             return Estado.ENTREGADO.capitalize()
         return estado
 
+    def get_estado_clase(self):
+        clase = "font-weight-bold"
+        estado = self.ultimo_estado
+        if estado == Estado.CANCELADO:
+            clase = clase + " text-danger"
+        if estado == Estado.RECIBIDO:
+            clase = clase + " text-success"
+        return clase
 
 
 class PedidoLinea(models.Model):
