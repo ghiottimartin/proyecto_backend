@@ -2,7 +2,6 @@ from .models import Pedido, Estado
 from .serializers import PedidoSerializer
 from base.permisos import TieneRolComensal
 from base.respuestas import Respuesta
-from django.db.models import Count, Q
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido
@@ -22,13 +21,29 @@ class PedidoViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, TieneRolComensal]
 
+    def get_cantidad_registros(self, request):
+        desdeTexto = request.query_params.get('fechaDesde', "")
+        hastaTexto = request.query_params.get('fechaHasta', "")
+        desde = utils.get_fecha_string2objeto(desdeTexto)
+        hasta = utils.get_fecha_string2objeto(hastaTexto, False)
+        idUsuario = request.query_params.get('usuario', None)
+        pedidos = Pedido.objects.filter(fecha__range=(desde, hasta))
+        if isinstance(idUsuario, int) and idUsuario > 0:
+            pedidos = pedidos.filter(usuario=idUsuario)
+        return pedidos.count()
+
     def filtrar_pedidos(self, request):
         desdeTexto = request.query_params.get('fechaDesde', "")
         hastaTexto = request.query_params.get('fechaHasta', "")
         desde = utils.get_fecha_string2objeto(desdeTexto)
         hasta = utils.get_fecha_string2objeto(hastaTexto, False)
         idUsuario = request.query_params.get('usuario', None)
-        pedidos = Pedido.objects.filter(fecha__range=(desde, hasta)).order_by('-fecha')
+
+        pagina = int(request.query_params.get('paginaActual', 1))
+        registros = int(request.query_params.get('registrosPorPagina', 10))
+        offset = (pagina - 1) * registros
+        limit = offset + registros
+        pedidos = Pedido.objects.filter(fecha__range=(desde, hasta)).order_by('-fecha')[offset:limit]
         if isinstance(idUsuario, int) and idUsuario > 0:
             pedidos = pedidos.filter(usuario=idUsuario)
         return pedidos
@@ -40,10 +55,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
             pedidos = serializer.data
 
         idUsuario = request.query_params.get("usuario")
-        cantidad = Pedido.objects.filter(usuario=idUsuario).count()
+        cantidad = self.get_cantidad_registros(request)
+        total = Pedido.objects.filter(usuario=idUsuario).count()
         datos = {
             "pedidos": pedidos,
-            "cantidad": cantidad
+            "total": total,
+            "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
 
@@ -58,10 +75,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
         if len(pedidos) > 0:
             serializer = PedidoSerializer(instance=pedidos, many=True)
             pedidos = serializer.data
-        cantidad = Pedido.objects.count()
+        cantidad = self.get_cantidad_registros(request)
+        total = Pedido.objects.count()
         datos = {
             "pedidos": pedidos,
-            "cantidad": cantidad
+            "total": total,
+            "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
 
