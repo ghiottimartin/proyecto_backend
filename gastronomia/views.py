@@ -31,7 +31,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         filtros = {
             "fecha__range": (desde, hasta),
         }
-        if int(idUsuario) > 0:
+        if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
             filtros["usuario"] = idUsuario
         cantidad = Pedido.objects.filter(**filtros).count()
         return cantidad
@@ -50,7 +50,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         filtros = {
             "fecha__range": (desde, hasta),
         }
-        if int(idUsuario) > 0:
+        if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
             filtros["usuario"] = idUsuario
         pedidos = Pedido.objects.filter(**filtros).order_by('-fecha')[offset:limit]
         return pedidos
