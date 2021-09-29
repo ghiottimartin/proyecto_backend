@@ -116,6 +116,8 @@ class Pedido(Auditoria, models.Model):
             clase = clase + " text-danger"
         if estado == Estado.RECIBIDO:
             clase = clase + " text-success"
+        if estado == Estado.ABIERTO or estado == Estado.CERRADO:
+            return ""
         return clase
 
 
