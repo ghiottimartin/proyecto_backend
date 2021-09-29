@@ -27,10 +27,14 @@ class PedidoViewSet(viewsets.ModelViewSet):
         desde = utils.get_fecha_string2objeto(desdeTexto)
         hasta = utils.get_fecha_string2objeto(hastaTexto, False)
         idUsuario = request.query_params.get('usuario', None)
-        pedidos = Pedido.objects.filter(fecha__range=(desde, hasta))
-        if isinstance(idUsuario, int) and idUsuario > 0:
-            pedidos = pedidos.filter(usuario=idUsuario)
-        return pedidos.count()
+
+        filtros = {
+            "fecha__range": (desde, hasta),
+        }
+        if int(idUsuario) > 0:
+            filtros["usuario"] = idUsuario
+        cantidad = Pedido.objects.filter(**filtros).count()
+        return cantidad
 
     def filtrar_pedidos(self, request):
         desdeTexto = request.query_params.get('fechaDesde', "")
@@ -43,9 +47,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
         registros = int(request.query_params.get('registrosPorPagina', 10))
         offset = (pagina - 1) * registros
         limit = offset + registros
-        pedidos = Pedido.objects.filter(fecha__range=(desde, hasta)).order_by('-fecha')[offset:limit]
-        if isinstance(idUsuario, int) and idUsuario > 0:
-            pedidos = pedidos.filter(usuario=idUsuario)
+        filtros = {
+            "fecha__range": (desde, hasta),
+        }
+        if int(idUsuario) > 0:
+            filtros["usuario"] = idUsuario
+        pedidos = Pedido.objects.filter(**filtros).order_by('-fecha')[offset:limit]
         return pedidos
 
     def list(self, request, *args, **kwargs):
