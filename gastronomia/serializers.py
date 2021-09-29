@@ -61,8 +61,8 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
 
-        puede_cerrar = objeto.comprobar_puede_cerrar(logueado)
-        if puede_cerrar:
+        puede_entregar = objeto.comprobar_puede_entregar(logueado)
+        if puede_entregar:
             accion = 'entregar'
             operaciones.append({
                 'accion': accion,

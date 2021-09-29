@@ -149,7 +149,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
                                              "aproximadamente 45 minutos.")
 
     @action(detail=True, methods=['post'])
-    def recibir(self, request, pk=None):
+    def entregar(self, request, pk=None):
         try:
             pedido = get_pedido(pk)
             if pedido is None:
@@ -157,19 +157,19 @@ class PedidoViewSet(viewsets.ModelViewSet):
                                                                     "recibido.")
             abierto = pedido.comprobar_estado_abierto()
             if abierto:
-                return respuesta.get_respuesta(exito=False, mensaje="No se puede marcar como recibido el pedido "
+                return respuesta.get_respuesta(exito=False, mensaje="No se puede marcar como entregado el pedido "
                                                                     "debido a que el usuario no lo ha cerrado.")
             recibido = pedido.comprobar_estado_recibido()
             if recibido:
-                return respuesta.get_respuesta(exito=False, mensaje="El pedido ya se encuentra en estado recibido.")
+                return respuesta.get_respuesta(exito=False, mensaje="El pedido ya se encuentra en estado entregado.")
             cerrado = pedido.comprobar_estado_cerrado()
             if cerrado:
-                pedido.recibir_pedido()
+                pedido.entregar_pedido()
             else:
                 raise ValidationError("")
-            return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha recibido con éxito.")
+            return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha entregado con éxito.")
         except:
-            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al recibir el pedido.")
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al entregar el pedido.")
 
     @action(detail=True, methods=['post'])
     def cancelar(self, request, pk=None):
@@ -185,4 +185,4 @@ class PedidoViewSet(viewsets.ModelViewSet):
             pedido.save()
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha cancelado con éxito.")
         except:
-            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al recibir el pedido.")
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al cancelar el pedido.")
