@@ -70,10 +70,11 @@ class Pedido(Auditoria, models.Model):
 
     def comprobar_puede_cancelar(self, usuario):
         abierto = self.comprobar_estado_abierto()
+        cerrado = self.comprobar_estado_cerrado()
         es_vendedor = usuario.esVendedor
         pedido_usuario = self.usuario
         le_pertenece = pedido_usuario == usuario
-        return (es_vendedor or le_pertenece) and abierto
+        return (abierto and (es_vendedor or le_pertenece)) or (es_vendedor and cerrado)
 
     def actualizar_total(self):
         lineas = self.lineas.all()
