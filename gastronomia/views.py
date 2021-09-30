@@ -50,6 +50,11 @@ class PedidoViewSet(viewsets.ModelViewSet):
         if estado != "":
             filtros["ultimo_estado"] = estado
 
+        # Agrega filtro por usuario
+        usuario = request.query_params.get('nombreUsuario', "")
+        if usuario != "":
+            filtros["usuario__first_name__contains"] = usuario
+
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
         registros = int(request.query_params.get('registrosPorPagina', 10))
