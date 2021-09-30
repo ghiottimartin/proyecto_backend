@@ -21,7 +21,8 @@ class PedidoViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, TieneRolComensal]
 
-    def get_cantidad_registros(self, request):
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
         desdeTexto = request.query_params.get('fechaDesde', "")
         hastaTexto = request.query_params.get('fechaHasta', "")
         desde = utils.get_fecha_string2objeto(desdeTexto)
@@ -38,39 +39,42 @@ class PedidoViewSet(viewsets.ModelViewSet):
             filtros = {
                 "id": numero
             }
-        cantidad = Pedido.objects.filter(**filtros).count()
-        return cantidad
-
-    def filtrar_pedidos(self, request):
-        desdeTexto = request.query_params.get('fechaDesde', "")
-        hastaTexto = request.query_params.get('fechaHasta', "")
-        desde = utils.get_fecha_string2objeto(desdeTexto)
-        hasta = utils.get_fecha_string2objeto(hastaTexto, False)
-        idUsuario = request.query_params.get('usuario', None)
-        numero = request.query_params.get('numero', "")
+            return filtros
 
         pagina = int(request.query_params.get('paginaActual', 1))
         registros = int(request.query_params.get('registrosPorPagina', 10))
         offset = (pagina - 1) * registros
         limit = offset + registros
-        filtros = {
-            "fecha__range": (desde, hasta),
-        }
-        if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
-            filtros["usuario"] = idUsuario
+        filtros["offset"] = offset
+        filtros["limit"] = limit
+        return filtros
 
-        numero_valido = numero is not None and numero.isnumeric() and int(numero) > 0
-        if numero_valido:
-            filtros = {
-                "id": numero
-            }
-        pedidos = Pedido.objects.filter(**filtros)
-        if numero_valido:
-            return pedidos
+    # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        if id is None:
+            filtros.pop("offset")
+            filtros.pop("limit")
+        cantidad = Pedido.objects.filter(**filtros).count()
+        return cantidad
 
+    # Devuelve los pedidos según los filtros de la query
+    def filtrar_pedidos(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        id_valido = id is not None and int(id) > 0
+        if id_valido:
+            return Pedido.objects.filter(id=id)
+
+        offset = filtros.get("offset")
+        limit = filtros.get("limit")
+        filtros.pop("offset")
+        filtros.pop("limit")
         pedidos = Pedido.objects.filter(**filtros).order_by('-fecha')[offset:limit]
         return pedidos
 
+    # Listado de pedidos para un comensal
     def list(self, request, *args, **kwargs):
         pedidos = self.filtrar_pedidos(request)
         if len(pedidos) > 0:
@@ -81,12 +85,13 @@ class PedidoViewSet(viewsets.ModelViewSet):
         cantidad = self.get_cantidad_registros(request)
         total = Pedido.objects.filter(usuario=idUsuario).count()
         datos = {
-            "pedidos": pedidos,
             "total": total,
+            "pedidos": pedidos,
             "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
 
+    # Listado de pedidos para un vendedor
     @action(detail=False, methods=['get'])
     def listado_vendedor(self, request, pk=None):
         logueado = request.user
@@ -101,12 +106,13 @@ class PedidoViewSet(viewsets.ModelViewSet):
         cantidad = self.get_cantidad_registros(request)
         total = Pedido.objects.count()
         datos = {
-            "pedidos": pedidos,
             "total": total,
+            "pedidos": pedidos,
             "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
 
+    # Devuelve un pedido por id.
     def retrieve(self, request, *args, **kwargs):
         clave = kwargs.get('pk')
         pedido = None
@@ -131,6 +137,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=True, datos={"cerrado": True})
         return respuesta.get_respuesta(True, "", None, serializer.data)
 
+    # Crea un pedido.
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         usuario = request.user
@@ -152,10 +159,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)
 
+    # Borra un pedido por id.
     def destroy(self, request, *args, **kwargs):
         super().destroy(request, *args, **kwargs)
-        return respuesta.get_respuesta(True, "Pedido cancelado con éxito.")
+        return respuesta.get_respuesta(True, "Pedido borrado con éxito.")
 
+    # Cambia el estado del pedido a cerrado.
     def update(self, request, *args, **kwargs):
         pedido = get_pedido(pk=kwargs["pk"])
         if pedido is None:
@@ -164,6 +173,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(True, "Pedido realizado con éxito, podrá retirarlo por el local en "
                                              "aproximadamente 45 minutos.")
 
+    # Cambia el estado del pedido a entregado. Es decir, el mismo fue recibido por el comensal.
     @action(detail=True, methods=['post'])
     def entregar(self, request, pk=None):
         try:
@@ -187,6 +197,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al entregar el pedido.")
 
+    # Cambia el estado del pedido a cancelado.
     @action(detail=True, methods=['post'])
     def cancelar(self, request, pk=None):
         try:
