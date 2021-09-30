@@ -23,24 +23,34 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
     # Devuelve los filtros de la query.
     def get_filtros(self, request):
+        # Agrega filtro por id de pedido y lo devuelve sin el resto.
+        id = request.query_params.get('numero', "")
+        if id is not None and id.isnumeric() and int(id) > 0:
+            filtros = {
+                "id": id
+            }
+            return filtros
+
+        # Agrega filtros por fecha desde y hasta
         desdeTexto = request.query_params.get('fechaDesde', "")
         hastaTexto = request.query_params.get('fechaHasta', "")
         desde = utils.get_fecha_string2objeto(desdeTexto)
         hasta = utils.get_fecha_string2objeto(hastaTexto, False)
-        idUsuario = request.query_params.get('usuario', None)
-        numero = request.query_params.get('numero', "")
-
         filtros = {
             "fecha__range": (desde, hasta),
         }
+
+        # Agrega filtros por pedidos del usuario
+        idUsuario = request.query_params.get('usuario', None)
         if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
             filtros["usuario"] = idUsuario
-        if numero is not None and numero.isnumeric() and int(numero) > 0:
-            filtros = {
-                "id": numero
-            }
-            return filtros
 
+        # Agrega filtro por estado
+        estado = request.query_params.get('estado', "")
+        if estado != "":
+            filtros["ultimo_estado"] = estado
+
+        # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
         registros = int(request.query_params.get('registrosPorPagina', 10))
         offset = (pagina - 1) * registros
