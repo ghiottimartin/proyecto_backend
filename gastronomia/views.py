@@ -27,12 +27,17 @@ class PedidoViewSet(viewsets.ModelViewSet):
         desde = utils.get_fecha_string2objeto(desdeTexto)
         hasta = utils.get_fecha_string2objeto(hastaTexto, False)
         idUsuario = request.query_params.get('usuario', None)
+        numero = request.query_params.get('numero', "")
 
         filtros = {
             "fecha__range": (desde, hasta),
         }
         if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
             filtros["usuario"] = idUsuario
+        if numero is not None and numero.isnumeric() and int(numero) > 0:
+            filtros = {
+                "id": numero
+            }
         cantidad = Pedido.objects.filter(**filtros).count()
         return cantidad
 
@@ -42,6 +47,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         desde = utils.get_fecha_string2objeto(desdeTexto)
         hasta = utils.get_fecha_string2objeto(hastaTexto, False)
         idUsuario = request.query_params.get('usuario', None)
+        numero = request.query_params.get('numero', "")
 
         pagina = int(request.query_params.get('paginaActual', 1))
         registros = int(request.query_params.get('registrosPorPagina', 10))
@@ -52,6 +58,16 @@ class PedidoViewSet(viewsets.ModelViewSet):
         }
         if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
             filtros["usuario"] = idUsuario
+
+        numero_valido = numero is not None and numero.isnumeric() and int(numero) > 0
+        if numero_valido:
+            filtros = {
+                "id": numero
+            }
+        pedidos = Pedido.objects.filter(**filtros)
+        if numero_valido:
+            return pedidos
+
         pedidos = Pedido.objects.filter(**filtros).order_by('-fecha')[offset:limit]
         return pedidos
 
