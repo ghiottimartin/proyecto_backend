@@ -143,7 +143,7 @@ class Usuario(Auditoria, AbstractUser):
             "descripcion": "Permite gestionar los usuarios del sistema"
         }, {
             "rol": Rol.ADMINISTRADOR,
-            "ruta": "/compras",
+            "ruta": "/ingreso-mercaderia/",
             "titulo": "Ingreso",
             "descripcion": "Permite ingresar mercadería"
         }]

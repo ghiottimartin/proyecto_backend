@@ -10,4 +10,5 @@ class ProductoConfig(AppConfig):
     # registering signals with the model's string label
     pre_save.connect(agregar_auditorias, sender='producto.Categoria')
     pre_save.connect(agregar_auditorias, sender='producto.Producto')
+    pre_save.connect(agregar_auditorias, sender='producto.Ingreso')
 

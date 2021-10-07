@@ -1,6 +1,7 @@
+import datetime
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from base.models import Auditoria
+from base.models import Auditoria, Usuario
 import uuid
 
 
@@ -35,9 +36,47 @@ class Producto(Auditoria, models.Model):
         return self.nombre
 
 
-# Busca un producto por id.
-def get_producto(pk):
-    try:
-        return Producto.objects.get(pk=pk)
-    except Producto.DoesNotExist:
-        return None
+class MovimientoStock(Auditoria, models.Model):
+    producto = models.ForeignKey(
+        Producto, on_delete=models.PROTECT, related_name="movimientos", default="movimientos")
+    cantidad = models.IntegerField()
+
+    def __str__(self):
+        return self.auditoria_creado_fecha
+
+
+class Ingreso(Auditoria, models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+")
+    fecha = models.DateTimeField(default=datetime.datetime.now)
+    total = models.FloatField(default=0)
+
+    def actualizar_total(self):
+        lineas = self.lineas.all()
+        total = 0
+        for linea in lineas:
+            total += linea.total
+        self.total = total
+        self.save()
+
+    def __str__(self):
+        return self.auditoria_creado_fecha
+
+
+class IngresoLinea(models.Model):
+    ingreso = models.ForeignKey('producto.Ingreso', on_delete=models.CASCADE, related_name="lineas")
+    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, related_name="+")
+    cantidad = models.IntegerField()
+    precio = models.IntegerField()
+    total = models.FloatField(default=0)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.actualizar_total()
+
+    def actualizar_total(self):
+        # Mas adelante se va a actualizar el precio del producto.
+        precio = self.precio
+        total = precio * self.cantidad
+        self.total = total
+        self.save()

@@ -1,6 +1,6 @@
-from .models import Pedido, PedidoLinea, Estado
-from producto.models import get_producto
 from django.core.exceptions import ValidationError
+from .models import Pedido, PedidoLinea, Estado
+from producto.repositorio import get_producto
 
 
 # Devuelve un pedido por estado.

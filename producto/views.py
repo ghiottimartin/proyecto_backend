@@ -1,12 +1,15 @@
 from base import respuestas
+from base.permisos import TieneRolAdmin
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
-from .models import Producto, Categoria
-from base.permisos import TieneRolAdmin
-from .serializers import ProductoSerializer, CategoriaSerializer
+from .models import Producto, Categoria, Ingreso
+from .repositorio import validar_crear_ingreso, crear_ingreso
+from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer
 
 respuesta = respuestas.Respuesta()
 
@@ -67,3 +70,26 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         instance.borrado = True
         instance.save()
         return respuesta.get_respuesta(True, "El producto se ha borrado con éxito")
+
+
+# Abm de ingresos.
+class ABMIngresoViewSet(viewsets.ModelViewSet):
+    queryset = Ingreso.objects.all()
+    serializer_class = IngresoSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        datos = request.data
+        try:
+            validar_crear_ingreso(datos)
+            lineas = datos["lineas"]
+            usuario = request.user
+            ingreso = crear_ingreso(usuario, lineas)
+            if ingreso is not None:
+                serializer = IngresoSerializer(instance=ingreso)
+                datos = serializer.data
+            return respuesta.get_respuesta(True, "", None, datos)
+        except ValidationError as e:
+            return respuesta.get_respuesta(False, e.messages)
