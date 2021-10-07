@@ -35,12 +35,19 @@ class Producto(Auditoria, models.Model):
 
     # Actualiza el precio vigente y agrego el precio a la colección de precios.
     def agregar_precio(self, nuevo=None):
-        if nuevo is not None:
+        anterior = self.precio_vigente
+        if nuevo is not None and round(anterior, 2) != round(nuevo, 2):
             self.precio_vigente = nuevo
             self.save()
-        precio = Precio(producto=self, precio=self.precio_vigente)
-        precio.save()
-        self.precios.add(precio)
+        elif nuevo is None:
+            nuevo = anterior
+
+        ultimo = self.precios.last()
+        ultimo_precio = ultimo.precio if ultimo is not None else anterior
+        if ultimo_precio != nuevo:
+            precio = Precio(producto=self, precio=self.precio_vigente)
+            precio.save()
+            self.precios.add(precio)
 
     def __str__(self):
         return self.nombre

@@ -42,6 +42,7 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, TieneRolAdmin]
     parser_classes = [MultiPartParser, FormParser]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid(raise_exception=False):
@@ -52,14 +53,17 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         producto.agregar_precio()
         return respuesta.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
 
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
+        producto = self.get_object()
+        precio = float(request.data["precio_vigente"])
+        producto.agregar_precio(precio)
 
         # Si cambia la imagen, borro la anterior.
         if "imagen" in request.data:
-            instance.imagen.delete(False)
+            producto.imagen.delete(False)
 
-        serializer = self.get_serializer(instance, data=request.data, partial=False)
+        serializer = self.get_serializer(producto, data=request.data, partial=False)
         valido = serializer.is_valid(raise_exception=False)
         if not valido:
             return respuesta.get_respuesta(False, "Hubo un error al actualizar el producto", None, serializer.get_errores_lista())
