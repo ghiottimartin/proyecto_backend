@@ -92,7 +92,7 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
                 datos = serializer.data
             else:
                 return respuesta.get_respuesta(False, "Hubo un error al crear el ingreso")
-            movimientos = ingreso.crear_movimientos()
+            ingreso.crear_movimientos()
             return respuesta.get_respuesta(True, "", None, datos)
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)

@@ -31,6 +31,7 @@ class Producto(Auditoria, models.Model):
     precio_vigente = models.FloatField()
     habilitado = models.BooleanField(default=True)
     borrado = models.BooleanField(default=False)
+    stock = models.IntegerField(default=0)
 
     def __str__(self):
         return self.nombre
@@ -84,6 +85,11 @@ class IngresoLinea(models.Model):
         cantidad = self.cantidad
         movimiento = MovimientoStock(producto=producto, cantidad=cantidad)
         movimiento.save()
+
+        stock = producto.stock
+        nuevo = stock + cantidad
+        producto.stock = nuevo
+        producto.save()
 
     def actualizar_total(self):
         # Mas adelante se va a actualizar el precio del producto.
