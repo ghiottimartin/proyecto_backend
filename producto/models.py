@@ -33,8 +33,22 @@ class Producto(Auditoria, models.Model):
     borrado = models.BooleanField(default=False)
     stock = models.IntegerField(default=0)
 
+    def agregar_precio(self):
+        precio = Precio(producto=self, precio=self.precio_vigente)
+        precio.save()
+        self.precios.add(precio)
+
     def __str__(self):
         return self.nombre
+
+
+class Precio(Auditoria, models.Model):
+    producto = models.ForeignKey('producto.Producto', on_delete=models.CASCADE, related_name="precios")
+    fecha = models.DateTimeField(default=datetime.datetime.now)
+    precio = models.FloatField()
+
+    def __str__(self):
+        return self.producto.__str__() + ": $ " + self.precio.__str__()
 
 
 class MovimientoStock(Auditoria, models.Model):

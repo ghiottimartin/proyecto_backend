@@ -48,6 +48,8 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
             errores = serializer.get_errores_lista()
             return respuesta.get_respuesta(False, "Hubo un error al crear el producto", None, errores)
         serializer.save()
+        producto = serializer.instance
+        producto.agregar_precio()
         return respuesta.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
 
     def update(self, request, *args, **kwargs):
