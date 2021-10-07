@@ -33,7 +33,11 @@ class Producto(Auditoria, models.Model):
     borrado = models.BooleanField(default=False)
     stock = models.IntegerField(default=0)
 
-    def agregar_precio(self):
+    # Actualiza el precio vigente y agrego el precio a la colección de precios.
+    def agregar_precio(self, nuevo=None):
+        if nuevo is not None:
+            self.precio_vigente = nuevo
+            self.save()
         precio = Precio(producto=self, precio=self.precio_vigente)
         precio.save()
         self.precios.add(precio)
@@ -65,6 +69,7 @@ class Ingreso(Auditoria, models.Model):
     fecha = models.DateTimeField(default=datetime.datetime.now)
     total = models.FloatField(default=0)
 
+    # Actualiza el total del ingreso a partir del total de cada línea.
     def actualizar_total(self):
         lineas = self.lineas.all()
         total = 0
@@ -73,6 +78,7 @@ class Ingreso(Auditoria, models.Model):
         self.total = total
         self.save()
 
+    # Crea un movimiento de stock por cada producto ingresado.
     def crear_movimientos(self):
         lineas = self.lineas.all()
         for linea in lineas:
@@ -93,7 +99,9 @@ class IngresoLinea(models.Model):
         super().__init__(*args, **kwargs)
 
         self.actualizar_total()
+        self.actualizar_precio_producto()
 
+    # Crea un movimiento de stock a partir del producto ingresado.
     def crear_movimiento(self):
         producto = self.producto
         cantidad = self.cantidad
@@ -105,12 +113,20 @@ class IngresoLinea(models.Model):
         producto.stock = nuevo
         producto.save()
 
+    # Actualiza el total de la línea a partir de la cantidad y el precio.
     def actualizar_total(self):
-        # Mas adelante se va a actualizar el precio del producto.
         precio = self.precio
         total = precio * self.cantidad
         self.total = total
         self.save()
+
+    # Si el precio del producto cambió se lo actualiza.
+    def actualizar_precio_producto(self):
+        producto = self.producto
+        precio = round(self.precio, 2)
+        precio_producto = round(producto.precio_vigente, 2)
+        if precio != precio_producto:
+            producto.agregar_precio(precio)
 
     def __str__(self):
         return "Línea de " + self.ingreso.__str__()
