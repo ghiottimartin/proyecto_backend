@@ -58,8 +58,13 @@ class Ingreso(Auditoria, models.Model):
         self.total = total
         self.save()
 
+    def crear_movimientos(self):
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.crear_movimiento()
+
     def __str__(self):
-        return self.auditoria_creado_fecha
+        return "Ingreso " + self.auditoria_creado_fecha.__str__()
 
 
 class IngresoLinea(models.Model):
@@ -74,9 +79,18 @@ class IngresoLinea(models.Model):
 
         self.actualizar_total()
 
+    def crear_movimiento(self):
+        producto = self.producto
+        cantidad = self.cantidad
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidad)
+        movimiento.save()
+
     def actualizar_total(self):
         # Mas adelante se va a actualizar el precio del producto.
         precio = self.precio
         total = precio * self.cantidad
         self.total = total
         self.save()
+
+    def __str__(self):
+        return "Línea de " + self.ingreso.__str__()

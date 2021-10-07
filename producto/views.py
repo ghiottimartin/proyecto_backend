@@ -90,6 +90,9 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
             if ingreso is not None:
                 serializer = IngresoSerializer(instance=ingreso)
                 datos = serializer.data
+            else:
+                return respuesta.get_respuesta(False, "Hubo un error al crear el ingreso")
+            movimientos = ingreso.crear_movimientos()
             return respuesta.get_respuesta(True, "", None, datos)
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)
