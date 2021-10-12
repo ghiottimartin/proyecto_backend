@@ -42,7 +42,7 @@ class Usuario(Auditoria, AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(unique=False, max_length=50)
     password = models.CharField(max_length=128, null=True)
-    habilitado = models.BooleanField(default=False)
+    habilitado = models.BooleanField(default=True)
     token_reset = models.TextField(null=True)
     token_email = models.TextField(null=True)
     fecha_token_reset = models.DateTimeField(null=True)
