@@ -107,6 +107,8 @@ class Pedido(Auditoria, models.Model):
         le_pertenece = self.usuario_id == logueado.id
         if not le_pertenece and recibido:
             return Estado.ENTREGADO.capitalize()
+        if self.comprobar_estado_cerrado():
+            return "En curso"
         return estado
 
     def get_estado_clase(self):
