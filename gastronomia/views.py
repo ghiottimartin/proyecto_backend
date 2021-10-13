@@ -1,6 +1,5 @@
 from .models import Pedido, Estado
 from .serializers import PedidoSerializer
-from base.permisos import TieneRolComensal
 from base.respuestas import Respuesta
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -19,7 +18,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, TieneRolComensal]
+    permission_classes = [IsAuthenticated]
 
     # Devuelve los filtros de la query.
     def get_filtros(self, request):
