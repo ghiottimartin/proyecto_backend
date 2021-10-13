@@ -32,9 +32,12 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
         categoria = self.get_object()
         puede_borrarse = categoria.comprobar_puede_borrarse()
         if not puede_borrarse:
-            return respuesta.get_respuesta(False, "La categoría no se puede borrar porque está relacionada con un producto activo")
+            return respuesta.get_respuesta(False, "La categoría no se puede borrar porque está relacionada con un "
+                                                  "producto activo")
 
-        super().destroy(self, request, *args, **kwargs)
+        instance = self.get_object()
+        instance.borrado = True
+        instance.save()
         return respuesta.get_respuesta(True, "La categoría se ha borrado con éxito")
 
 
