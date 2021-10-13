@@ -2,6 +2,7 @@ import datetime
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from base.models import Auditoria, Usuario
+from gastronomia.models import Pedido, Estado
 import uuid
 
 
@@ -53,6 +54,11 @@ class Producto(Auditoria, models.Model):
             precio = Precio(producto=self, precio=self.precio_vigente)
             precio.save()
             self.precios.add(precio)
+
+    # Comprueba que el producto pueda borrarse
+    def comprobar_puede_borrarse(self):
+        cantidad = Pedido.objects.all().filter(lineas__producto__exact=self).count()
+        return cantidad == 0
 
     def __str__(self):
         return self.nombre

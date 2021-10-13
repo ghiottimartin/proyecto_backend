@@ -86,8 +86,11 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.borrado = True
-        instance.save()
+        puede_borrarse = instance.comprobar_puede_borrarse()
+        if not puede_borrarse:
+            return respuesta.get_respuesta(False, "El producto no se puede borrar porque está relacionado con un pedido")
+
+        super().destroy(self, request, *args, **kwargs)
         return respuesta.get_respuesta(True, "El producto se ha borrado con éxito")
 
 
