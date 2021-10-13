@@ -70,12 +70,15 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         producto = self.get_object()
-        
+
         precio = float(request.data["precio_vigente"])
         producto.agregar_precio(precio)
 
         costo = float(request.data["costo_vigente"])
         producto.agregar_costo(costo)
+
+        compra_directa = bool(request.data["compra_directa"])
+        producto.compra_directa = compra_directa
 
         # Si cambia la imagen, borro la anterior.
         if "imagen" in request.data:
