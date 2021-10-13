@@ -91,6 +91,11 @@ class Ingreso(Auditoria, models.Model):
         for linea in lineas:
             linea.crear_movimiento()
 
+    # Devuelve true si el usuario puede visualizar el ingreso.
+    def comprobar_puede_visualizar(self, usuario):
+        es_admin = usuario.esAdmin
+        return es_admin
+
     def __str__(self):
         return "Ingreso " + self.auditoria_creado_fecha.__str__()
 

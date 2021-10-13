@@ -45,6 +45,7 @@ class IngresoLineaSerializer(serializers.ModelSerializer):
 
 class IngresoSerializer(serializers.ModelSerializer):
     lineas = IngresoLineaSerializer(many=True, read_only=True)
+    operaciones = serializers.SerializerMethodField()
 
     class Meta:
         model = Ingreso
@@ -59,6 +60,22 @@ class IngresoSerializer(serializers.ModelSerializer):
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
         return ret
+
+    def get_operaciones(self, objeto):
+        logueado = get_usuario_logueado()
+        operaciones = []
+
+        puede_visualizar = objeto.comprobar_puede_visualizar(logueado)
+        if puede_visualizar:
+            accion = 'visualizar'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-info text-info',
+                'texto': 'Ver',
+                'icono': 'fa fa-eye',
+                'key': str(objeto.id) + "-" + accion,
+            })
+        return operaciones
 
 
 class MovimientoSerializer(serializers.ModelSerializer):
