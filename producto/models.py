@@ -34,6 +34,7 @@ class Producto(Auditoria, models.Model):
     imagen = models.ImageField(_("Image"), upload_to=upload_to, null=True, default="producto/defecto/default.jpg")
     imagen_nombre = models.CharField(max_length=50, default="default.jpg")
     descripcion = models.CharField(max_length=255, default="")
+    costo_vigente = models.FloatField()
     precio_vigente = models.FloatField()
     habilitado = models.BooleanField(default=True)
     borrado = models.BooleanField(default=False)
@@ -55,10 +56,34 @@ class Producto(Auditoria, models.Model):
             precio.save()
             self.precios.add(precio)
 
+    # Actualiza el costo vigente y agrego el precio a la colección de costos.
+    def agregar_costo(self, nuevo=None):
+        anterior = self.costo_vigente
+        if nuevo is not None and round(anterior, 2) != round(nuevo, 2):
+            self.costo_vigente = nuevo
+            self.save()
+        elif nuevo is None:
+            nuevo = anterior
+
+        ultimo = self.costos.last()
+        ultimo_costo = ultimo.costo if ultimo is not None else anterior
+        if ultimo_costo != nuevo or ultimo is None:
+            costo = Costo(producto=self, costo=self.costo_vigente)
+            costo.save()
+            self.costos.add(costo)
+
     # Comprueba que el producto pueda borrarse
     def comprobar_puede_borrarse(self):
         cantidad = Pedido.objects.all().filter(lineas__producto__exact=self).count()
         return cantidad == 0
+
+    def get_margen_ganancia(self):
+        precio = self.precio_vigente
+        costo = self.costo_vigente
+        diferencia = precio - costo
+        margen = diferencia * 100 / precio
+        redondeado = str(round(margen, 2))
+        return redondeado + "%"
 
     def __str__(self):
         return self.nombre
@@ -71,6 +96,15 @@ class Precio(Auditoria, models.Model):
 
     def __str__(self):
         return self.producto.__str__() + ": $ " + self.precio.__str__()
+
+
+class Costo(Auditoria, models.Model):
+    producto = models.ForeignKey('producto.Producto', on_delete=models.CASCADE, related_name="costos")
+    fecha = models.DateTimeField(default=datetime.datetime.now)
+    costo = models.FloatField()
+
+    def __str__(self):
+        return self.producto.__str__() + ": $ " + self.costo.__str__()
 
 
 class MovimientoStock(Auditoria, models.Model):

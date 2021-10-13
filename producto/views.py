@@ -64,13 +64,18 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         serializer.save()
         producto = serializer.instance
         producto.agregar_precio()
+        producto.agregar_costo()
         return respuesta.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         producto = self.get_object()
+        
         precio = float(request.data["precio_vigente"])
         producto.agregar_precio(precio)
+
+        costo = float(request.data["costo_vigente"])
+        producto.agregar_costo(costo)
 
         # Si cambia la imagen, borro la anterior.
         if "imagen" in request.data:

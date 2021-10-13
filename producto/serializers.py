@@ -18,6 +18,8 @@ class ProductoSerializer(CustomModelSerializer):
         ret = super().to_representation(instance)
         ret['categoria_texto'] = instance.categoria.nombre
         ret['precio_texto'] = locale.currency(instance.precio_vigente)
+        ret['costo_texto'] = locale.currency(instance.costo_vigente)
+        ret['margen_texto'] = instance.get_margen_ganancia()
         ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
         return ret
 
