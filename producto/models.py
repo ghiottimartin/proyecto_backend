@@ -12,6 +12,10 @@ class Categoria(Auditoria, models.Model):
     descripcion = models.CharField(max_length=255, null=True)
     habilitado = models.BooleanField(default=True)
 
+    def comprobar_puede_borrarse(self):
+        cantidad = self.productos.count()
+        return cantidad == 0
+
     def __str__(self):
         return self.nombre
 

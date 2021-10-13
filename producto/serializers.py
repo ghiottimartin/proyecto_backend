@@ -12,7 +12,7 @@ class ProductoSerializer(CustomModelSerializer):
         model = Producto
         fields = '__all__'
 
-    # Método que devuelve los datos del usuario. Quito la contraseña para que no sea mostrada al usuario.
+    # Método que devuelve los datos del producto
     def to_representation(self, instance):
         """Quito password"""
         ret = super().to_representation(instance)
@@ -25,6 +25,13 @@ class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
         fields = '__all__'
+
+    # Método que devuelve los datos de la categoría del producto.
+    def to_representation(self, instance):
+        """Quito password"""
+        ret = super().to_representation(instance)
+        ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
+        return ret
 
 
 class IngresoLineaSerializer(serializers.ModelSerializer):
