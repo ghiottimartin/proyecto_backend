@@ -29,6 +29,11 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, TieneRolAdmin]
 
     def destroy(self, request, *args, **kwargs):
+        categoria = self.get_object()
+        puede_borrarse = categoria.comprobar_puede_borrarse()
+        if not puede_borrarse:
+            return respuesta.get_respuesta(False, "La categoría no se puede borrar porque está relacionada con un producto activo")
+
         super().destroy(self, request, *args, **kwargs)
         return respuesta.get_respuesta(True, "La categoría se ha borrado con éxito")
 
