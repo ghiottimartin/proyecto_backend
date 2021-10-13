@@ -28,6 +28,10 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, TieneRolAdmin]
 
+    def destroy(self, request, *args, **kwargs):
+        super().destroy(self, request, *args, **kwargs)
+        return respuesta.get_respuesta(True, "La categoría se ha borrado con éxito")
+
 
 # Obtención de productos sin autorización
 class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
