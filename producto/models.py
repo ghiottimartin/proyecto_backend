@@ -50,7 +50,7 @@ class Producto(Auditoria, models.Model):
 
         ultimo = self.precios.last()
         ultimo_precio = ultimo.precio if ultimo is not None else anterior
-        if ultimo_precio != nuevo:
+        if ultimo_precio != nuevo or ultimo is None:
             precio = Precio(producto=self, precio=self.precio_vigente)
             precio.save()
             self.precios.add(precio)
