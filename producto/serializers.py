@@ -53,11 +53,11 @@ class IngresoSerializer(serializers.ModelSerializer):
     # Método que devuelve los datos del ingreso.
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['id_texto'] = "P" + str(instance.id).zfill(5)
-        ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
-        ret['total_texto'] = locale.currency(instance.total)
+        ret['id_texto'] = "I" + str(instance.id).zfill(5)
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = instance.usuario.first_name
+        ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
+        ret['total_texto'] = locale.currency(instance.total)
         return ret
 
 
