@@ -1,5 +1,6 @@
 import datetime
 from django.db import models
+from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 from base.models import Auditoria, Usuario
 from gastronomia.models import Pedido, Estado
@@ -93,6 +94,13 @@ class Producto(Auditoria, models.Model):
         margen = diferencia * 100 / precio
         redondeado = str(round(margen, 2))
         return redondeado + "%"
+
+    def actualizar_stock(self, nueva=0):
+        # Todo generar movimientos de stock
+        if nueva == 0:
+            return
+        self.stock = int(nueva)
+        self.save()
 
     def __str__(self):
         return self.nombre
