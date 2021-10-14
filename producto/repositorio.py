@@ -46,7 +46,11 @@ def crear_linea_ingreso(ingreso, item):
     id_producto = item["producto"]["id"]
     producto = get_producto(id_producto)
     if producto is None:
-        raise Exception("No se ha encontrado el producto.")
+        raise ValidationError("No se ha encontrado el producto.")
+    compra_directa = producto.compra_directa
+    if not compra_directa:
+        nombre = producto.nombre
+        raise ValidationError("El producto '" + nombre + "' no es de compra directa.")
     cantidad = item["cantidad"]
     if int(cantidad) == 0:
         return None
