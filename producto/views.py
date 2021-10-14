@@ -63,6 +63,9 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(False, "Hubo un error al crear el producto", None, errores)
         serializer.save()
         producto = serializer.instance
+        producto_costo_validos = producto.comprobar_producto_costo_validos()
+        if not producto_costo_validos:
+            return respuesta.get_respuesta(False, "El costo del producto debe ser mayor que el precio del mismo.", None)
         producto.agregar_precio()
         producto.agregar_costo()
         return respuesta.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
@@ -79,6 +82,10 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
         compra_directa = bool(request.data["compra_directa"])
         producto.compra_directa = compra_directa
+
+        producto_costo_validos = producto.comprobar_producto_costo_validos(costo, precio)
+        if not producto_costo_validos:
+            return respuesta.get_respuesta(False, "El costo del producto debe ser mayor que el precio del mismo.", None)
 
         # Si cambia la imagen, borro la anterior.
         if "imagen" in request.data:

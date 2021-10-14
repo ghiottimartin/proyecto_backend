@@ -73,6 +73,15 @@ class Producto(Auditoria, models.Model):
             costo.save()
             self.costos.add(costo)
 
+    # Comprueba que el costo sea menor que el precio.
+    def comprobar_producto_costo_validos(self, costo=None, precio=None):
+        if costo is None:
+            costo = self.costo_vigente
+        if precio is None:
+            precio = self.precio_vigente
+        valido = precio > costo
+        return valido
+
     # Comprueba que el producto pueda borrarse
     def comprobar_puede_borrarse(self):
         cantidad = Pedido.objects.all().filter(lineas__producto__exact=self).count()
