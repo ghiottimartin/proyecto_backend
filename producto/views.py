@@ -83,6 +83,9 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         compra_directa = bool(request.data["compra_directa"])
         producto.compra_directa = compra_directa
 
+        venta_directa = bool(request.data["venta_directa"])
+        producto.venta_directa = venta_directa
+
         producto_costo_validos = producto.comprobar_producto_costo_validos(costo, precio)
         if not producto_costo_validos:
             return respuesta.get_respuesta(False, "El costo del producto debe ser mayor que el precio del mismo.", None)

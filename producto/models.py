@@ -39,7 +39,8 @@ class Producto(Auditoria, models.Model):
     habilitado = models.BooleanField(default=True)
     borrado = models.BooleanField(default=False)
     stock = models.IntegerField(default=0)
-    compra_directa = models.BooleanField(default=True)
+    compra_directa = models.BooleanField(default=False)
+    venta_directa = models.BooleanField(default=True)
 
     # Actualiza el precio vigente y agrego el precio a la colección de precios.
     def agregar_precio(self, nuevo=None):
