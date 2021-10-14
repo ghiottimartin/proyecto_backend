@@ -54,7 +54,7 @@ def crear_linea_ingreso(ingreso, item):
     cantidad = item["cantidad"]
     if int(cantidad) == 0:
         return None
-    precio = item["precio"]
-    linea = IngresoLinea(ingreso=ingreso, producto=producto, cantidad=cantidad, precio=precio)
+    costo = item["costo"]
+    linea = IngresoLinea(ingreso=ingreso, producto=producto, cantidad=cantidad, costo=costo)
     linea.save()
     return linea

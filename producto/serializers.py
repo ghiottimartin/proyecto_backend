@@ -42,13 +42,13 @@ class IngresoLineaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngresoLinea
-        fields = ['id', 'cantidad', 'producto', 'precio', 'total']
+        fields = ['id', 'cantidad', 'producto', 'costo', 'total']
 
     # Método que devuelve los datos de la línea.
     def to_representation(self, instance):
         """Quito password"""
         ret = super().to_representation(instance)
-        ret['precio_texto'] = locale.currency(instance.precio)
+        ret['costo_texto'] = locale.currency(instance.costo)
         ret['total_texto'] = locale.currency(instance.total)
         return ret
 
