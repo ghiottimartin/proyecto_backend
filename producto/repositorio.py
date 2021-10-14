@@ -37,7 +37,7 @@ def crear_ingreso(usuario, lineas):
     ingreso.save()
     for item in lineas:
         crear_linea_ingreso(ingreso, item)
-    ingreso.actualizar_total()
+    ingreso.actualizar()
     return ingreso
 
 

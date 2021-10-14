@@ -44,31 +44,29 @@ class Producto(Auditoria, models.Model):
     # Actualiza el precio vigente y agrego el precio a la colección de precios.
     def agregar_precio(self, nuevo=None):
         anterior = self.precio_vigente
-        if nuevo is not None and round(anterior, 2) != round(nuevo, 2):
-            self.precio_vigente = nuevo
-            self.save()
-        elif nuevo is None:
+        if nuevo is None:
             nuevo = anterior
 
         ultimo = self.precios.last()
         ultimo_precio = ultimo.precio if ultimo is not None else anterior
         if ultimo_precio != nuevo or ultimo is None:
-            precio = Precio(producto=self, precio=self.precio_vigente)
+            self.precio_vigente = nuevo
+            self.save()
+            precio = Precio(producto=self, precio=nuevo)
             precio.save()
             self.precios.add(precio)
 
     # Actualiza el costo vigente y agrego el costo a la colección de costos.
     def agregar_costo(self, nuevo=None):
         anterior = self.costo_vigente
-        if nuevo is not None and round(anterior, 2) != round(nuevo, 2):
-            self.costo_vigente = nuevo
-            self.save()
-        elif nuevo is None:
+        if nuevo is None:
             nuevo = anterior
 
         ultimo = self.costos.last()
         ultimo_costo = ultimo.costo if ultimo is not None else anterior
         if ultimo_costo != nuevo or ultimo is None:
+            self.costo_vigente = nuevo
+            self.save()
             costo = Costo(producto=self, costo=self.costo_vigente)
             costo.save()
             self.costos.add(costo)
@@ -131,6 +129,15 @@ class Ingreso(Auditoria, models.Model):
     fecha = models.DateTimeField(default=datetime.datetime.now)
     total = models.FloatField(default=0)
 
+    def actualizar(self):
+        self.actualizar_lineas()
+        self.actualizar_total()
+
+    def actualizar_lineas(self):
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.actualizar()
+
     # Actualiza el total del ingreso a partir del total de cada línea.
     def actualizar_total(self):
         lineas = self.lineas.all()
@@ -162,12 +169,6 @@ class IngresoLinea(models.Model):
     costo = models.IntegerField()
     total = models.FloatField(default=0)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.actualizar_total()
-        self.actualizar_costo_producto()
-
     # Crea un movimiento de stock a partir del producto ingresado.
     def crear_movimiento(self):
         producto = self.producto
@@ -180,6 +181,10 @@ class IngresoLinea(models.Model):
         producto.stock = nuevo
         producto.save()
 
+    def actualizar(self):
+        self.actualizar_total()
+        self.actualizar_productos()
+
     # Actualiza el total de la línea a partir de la cantidad y el precio.
     def actualizar_total(self):
         costo = self.costo
@@ -188,16 +193,16 @@ class IngresoLinea(models.Model):
         self.save()
 
     # Si el costo del producto cambió se lo actualiza.
-    def actualizar_costo_producto(self):
+    def actualizar_productos(self):
         producto = self.producto
         costo = round(self.costo, 2)
         costo_producto = round(producto.costo_vigente, 2)
 
         precio = producto.precio_vigente
         if costo > precio:
-            costo = precio
+            producto.agregar_precio(nuevo=costo)
         if costo != costo_producto:
-            producto.agregar_costo(costo)
+            producto.agregar_costo(nuevo=costo)
 
     def __str__(self):
         return "Línea de " + self.ingreso.__str__()
