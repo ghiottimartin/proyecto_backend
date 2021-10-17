@@ -3,3 +3,4 @@ db_proyecto.sqlite3
 /.idea/*
 /media/producto/*
 !/media/producto/defecto*
+/proyecto_backend/mysql.cnf
