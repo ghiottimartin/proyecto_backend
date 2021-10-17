@@ -103,6 +103,39 @@ def agregar_usuarios(apps, schema_editor):
     comensal.roles.add(rolComensal)
     comensal.save()
 
+    juan = Usuario(first_name="Juan", dni=11111117, email='juan@gmail.com', username='juan',
+                   password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+                   habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+                   auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+                   is_active=1, date_joined=datetime.datetime.now()
+                   )
+    juan.save()
+
+    juan.roles.add(rolComensal)
+    juan.save()
+
+    pedro = Usuario(first_name="Pedro", dni=11111118, email='pedro@gmail.com', username='pedro',
+                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+                    is_active=1, date_joined=datetime.datetime.now()
+                    )
+    pedro.save()
+
+    pedro.roles.add(rolComensal)
+    pedro.save()
+
+    lucas = Usuario(first_name="Lucas", dni=11111119, email='lucas@gmail.com', username='lucas',
+                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+                    is_active=1, date_joined=datetime.datetime.now()
+                    )
+    lucas.save()
+
+    lucas.roles.add(rolComensal)
+    lucas.save()
+
 
 def borrar_usuarios(apps, schema_editor):
     Usuario = apps.get_model('base', 'Usuario')

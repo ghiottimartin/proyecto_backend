@@ -152,10 +152,10 @@ def agregar_productos(apps, schema_editor):
 
 
 def borrar_productos(apps, schema_editor):
-    Producto = apps.get_model('base', 'Producto')
+    Producto = apps.get_model('producto', 'Producto')
     Producto.objects.all().delete()
 
-    Categoria = apps.get_model('base', 'Categoria')
+    Categoria = apps.get_model('producto', 'Categoria')
     Categoria.objects.all().delete()
 
 
