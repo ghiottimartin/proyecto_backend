@@ -96,9 +96,24 @@ class Producto(Auditoria, models.Model):
         return redondeado + "%"
 
     def actualizar_stock(self, nueva=0):
-        # Todo generar movimientos de stock
         if nueva == 0:
             return
+
+        # Calculo la cantidad de stock generado por la edición.
+        acumulado = 0
+        movimientos = MovimientoStock.objects.filter(producto=self)
+        for movimiento in movimientos:
+            acumulado += movimiento.cantidad
+        diferencia = nueva - acumulado
+
+        # Si no hubo diferencia no hay que actualizar el stock
+        if diferencia == 0:
+            return
+
+        # Si hubo diferencia se actualiza el stock
+        movimiento = MovimientoStock(producto=self, cantidad=diferencia)
+        movimiento.save()
+
         self.stock = int(nueva)
         self.save()
 
@@ -125,8 +140,7 @@ class Costo(Auditoria, models.Model):
 
 
 class MovimientoStock(Auditoria, models.Model):
-    producto = models.ForeignKey(
-        Producto, on_delete=models.PROTECT, related_name="movimientos", default="movimientos")
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="movimientos", default="movimientos")
     cantidad = models.IntegerField()
 
     def __str__(self):

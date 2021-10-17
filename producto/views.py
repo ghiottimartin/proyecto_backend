@@ -87,7 +87,7 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         venta_directa = bool(request.data["venta_directa"])
         producto.venta_directa = venta_directa
 
-        stock = bool(request.data["stock"])
+        stock = int(request.data["stock"])
         producto.actualizar_stock(nueva=stock)
 
         producto_costo_validos = producto.comprobar_producto_costo_validos(costo, precio)
