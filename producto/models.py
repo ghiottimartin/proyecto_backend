@@ -87,6 +87,7 @@ class Producto(Auditoria, models.Model):
         cantidad = Pedido.objects.all().filter(lineas__producto__exact=self).count()
         return cantidad == 0
 
+    # Devuelve el margen de ganancia del producto.
     def get_margen_ganancia(self):
         precio = self.precio_vigente
         costo = self.costo_vigente
@@ -95,6 +96,7 @@ class Producto(Auditoria, models.Model):
         redondeado = str(round(margen, 2))
         return redondeado + "%"
 
+    # Actualiza el stock y sus movimientos en caso de ser necesario.
     def actualizar_stock(self, nueva=0):
         if nueva == 0:
             return
