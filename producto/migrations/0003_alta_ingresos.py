@@ -38,6 +38,7 @@ def agregar_ingresos(apps, schema_editor):
 def nuevo_ingreso(apps, nombre_usuario, fecha, productos):
     Ingreso = apps.get_model('producto', 'Ingreso')
     IngresoLinea = apps.get_model('producto', 'IngresoLinea')
+    MovimientoStock = apps.get_model('producto', 'MovimientoStock')
     Usuario = apps.get_model('base', 'Usuario')
 
     usuario = Usuario.objects.get(username=nombre_usuario)
@@ -56,6 +57,13 @@ def nuevo_ingreso(apps, nombre_usuario, fecha, productos):
         linea = IngresoLinea(ingreso=ingreso, producto=producto, cantidad=cantidad, costo=costo, total=totalLinea)
         linea.save()
 
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidad)
+        movimiento.save()
+
+        anterior = producto.stock
+        producto.stock = anterior + cantidad
+        producto.save()
+
     ingreso.total = total
     ingreso.save()
 
@@ -66,6 +74,9 @@ def borrar_ingresos(apps, schema_editor):
 
     IngresoLinea = apps.get_model('producto', 'IngresoLinea')
     IngresoLinea.objects.all().delete()
+
+    MovimientoStock = apps.get_model('producto', 'MovimientoStock')
+    MovimientoStock.objects.all().delete()
 
 
 class Migration(migrations.Migration):
