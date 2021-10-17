@@ -140,15 +140,15 @@ class PedidoViewSet(viewsets.ModelViewSet):
             pedido = get_pedido(pk=clave)
             serializer = PedidoSerializer(instance=pedido)
             return respuesta.get_respuesta(exito=True, datos=serializer.data)
-        cerrado = None
+        en_curso = None
         if pedido is None:
-            cerrado = get_pedido(pk=None, usuario=usuario, estado=Estado.CERRADO)
-        noHayAbierto = pedido is None
-        hayCerrado = cerrado is not None
-        if noHayAbierto and not hayCerrado:
+            en_curso = get_pedido(pk=None, usuario=usuario, estado=Estado.EN_CURSO)
+        no_hay_abierto = pedido is None
+        hay_en_curso = en_curso is not None
+        if no_hay_abierto and not hay_en_curso:
             return respuesta.get_respuesta(False, "")
-        if noHayAbierto and hayCerrado:
-            return respuesta.get_respuesta(exito=True, datos={"cerrado": True})
+        if no_hay_abierto and hay_en_curso:
+            return respuesta.get_respuesta(exito=True, datos={"en_curso": True})
         return respuesta.get_respuesta(True, "", None, serializer.data)
 
     # Crea un pedido.
@@ -178,7 +178,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         super().destroy(request, *args, **kwargs)
         return respuesta.get_respuesta(True, "Pedido borrado con éxito.")
 
-    # Cambia el estado del pedido a cerrado.
+    # Cambia el estado del pedido a en curso.
     def update(self, request, *args, **kwargs):
         pedido = get_pedido(pk=kwargs["pk"])
         if pedido is None:
@@ -202,8 +202,8 @@ class PedidoViewSet(viewsets.ModelViewSet):
             recibido = pedido.comprobar_estado_recibido()
             if recibido:
                 return respuesta.get_respuesta(exito=False, mensaje="El pedido ya se encuentra en estado entregado.")
-            cerrado = pedido.comprobar_estado_cerrado()
-            if cerrado:
+            en_curso = pedido.comprobar_estado_en_curso()
+            if en_curso:
                 pedido.entregar_pedido()
             else:
                 raise ValidationError("")
