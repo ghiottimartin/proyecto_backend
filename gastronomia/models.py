@@ -130,11 +130,6 @@ class PedidoLinea(models.Model):
     subtotal = models.FloatField()
     total = models.FloatField()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.actualizar_total()
-
     def actualizar_total(self):
         precio = self.producto.precio_vigente
         total = precio * self.cantidad

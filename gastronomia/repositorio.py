@@ -64,6 +64,7 @@ def crear_linea_pedido(pedido, item):
     if int(cantidad) == 0:
         return None
     linea = PedidoLinea(pedido=pedido, producto=producto, cantidad=cantidad)
+    linea.actualizar_total()
     linea.save()
     return linea
 
