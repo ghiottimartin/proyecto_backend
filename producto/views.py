@@ -6,10 +6,11 @@ from django.db import transaction
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria, Ingreso
-from .repositorio import validar_crear_ingreso, crear_ingreso
+from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso
 from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer
 
 respuesta = respuestas.Respuesta()
@@ -224,3 +225,27 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
             "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
+
+    # Anula el ingreso realizado.
+    @transaction.atomic
+    @action(detail=True, methods=['post'])
+    def anular(self, request, pk=None):
+        try:
+            ingreso = get_ingreso(pk)
+            if ingreso is None:
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el ingreso a anular.")
+
+            usuario = request.user
+            puede_anular = ingreso.comprobar_puede_anular(usuario)
+            if not puede_anular:
+                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para anular el ingreso.")
+
+            anulado = ingreso.comprobar_anulado()
+            if anulado:
+                return respuesta.get_respuesta(exito=False, mensaje="El ingreso ya se encuentra anulado.")
+
+            ingreso.anular()
+            ingreso.save()
+            return respuesta.get_respuesta(exito=True, mensaje="El ingreso se ha anulado con éxito.")
+        except:
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular el ingreso.")

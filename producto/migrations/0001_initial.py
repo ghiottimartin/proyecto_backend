@@ -41,6 +41,7 @@ class Migration(migrations.Migration):
                 ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
                 ('fecha', models.DateTimeField(default=datetime.datetime.now)),
                 ('total', models.FloatField(default=0)),
+                ('anulado', models.DateTimeField(null=True)),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_modificado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_creador', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),

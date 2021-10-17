@@ -153,6 +153,7 @@ class Ingreso(Auditoria, models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+")
     fecha = models.DateTimeField(default=datetime.datetime.now)
     total = models.FloatField(default=0)
+    anulado = models.DateTimeField(null=True)
 
     def actualizar(self):
         self.actualizar_lineas()
@@ -182,6 +183,48 @@ class Ingreso(Auditoria, models.Model):
     def comprobar_puede_visualizar(self, usuario):
         es_admin = usuario.esAdmin
         return es_admin
+
+    # Devuelve true si el usuario puede anular el ingreso.
+    def comprobar_puede_anular(self, usuario):
+        es_admin = usuario.esAdmin
+        anulado = self.comprobar_anulado()
+        return es_admin and not anulado
+
+    # Devuelve true si ingreso no está anulado.
+    def comprobar_anulado(self):
+        anulado = self.anulado
+        return anulado is not None
+
+    # Anula el ingreso generando un movimiento de stock a los productos ingresados.
+    def anular(self):
+        self.anulado = datetime.datetime.now()
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.anular()
+
+    # Devuelve la clase del estado del ingreso.
+    def get_estado_clase(self):
+        clase = 'font-weight-bold'
+        anulado = self.comprobar_anulado()
+        if anulado:
+            clase += ' text-danger'
+        else:
+            clase += ' text-success'
+        return clase
+
+    # Devuelve la fecha de anulación del ingreso. En caso que no haya sido anulado devuelve string vacío.
+    def get_fecha_anulado_texto(self):
+        anulado = self.anulado
+        if anulado is None:
+            return ""
+        return anulado.strftime('%d/%m/%Y %H:%M')
+
+    # Devuelve el estado del ingreso. Puede ser activo o anulado.
+    def get_estado_legible(self):
+        anulado = self.comprobar_anulado()
+        if anulado:
+            return 'Anulado'
+        return 'Activo'
 
     def __str__(self):
         return "Ingreso " + self.auditoria_creado_fecha.__str__()
@@ -228,6 +271,22 @@ class IngresoLinea(models.Model):
             producto.agregar_precio(nuevo=costo)
         if costo != costo_producto:
             producto.agregar_costo(nuevo=costo)
+
+    # Crea un nuevo movimiento de stock negativo y actualiza el stock del producto.
+    def anular(self):
+        cantidad = self.cantidad
+        producto = self.producto
+        anterior = producto.stock
+        nueva = anterior - cantidad
+        if nueva < 0:
+            nueva = 0
+
+        producto.stock = nueva
+        producto.save()
+
+        cantidadAnulada = cantidad * -1
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidadAnulada)
+        movimiento.save()
 
     def __str__(self):
         return "Línea de " + self.ingreso.__str__()

@@ -10,6 +10,14 @@ def get_producto(pk):
         return None
 
 
+# Busca un ingreso por id.
+def get_ingreso(pk):
+    try:
+        return Ingreso.objects.get(pk=pk)
+    except Ingreso.DoesNotExist:
+        return None
+
+
 # Valida que los datos del ingreso sean correctos.
 def validar_crear_ingreso(datos):
     lineas = datos["lineas"] if "lineas" in datos else list()

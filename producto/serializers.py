@@ -69,6 +69,10 @@ class IngresoSerializer(serializers.ModelSerializer):
         ret['usuario_nombre'] = instance.usuario.first_name
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
+        ret['estado_texto'] = instance.get_estado_legible()
+        ret['estado_clase'] = instance.get_estado_clase()
+        ret['fecha_anulado'] = instance.get_fecha_anulado_texto()
+        ret['anulado'] = instance.comprobar_anulado()
         return ret
 
     def get_operaciones(self, objeto):
@@ -83,6 +87,16 @@ class IngresoSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-info text-info',
                 'texto': 'Ver',
                 'icono': 'fa fa-eye',
+                'key': str(objeto.id) + "-" + accion,
+            })
+        puede_anular = objeto.comprobar_puede_anular(logueado)
+        if puede_anular:
+            accion = 'anular'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-danger text-danger',
+                'texto': 'Anular',
+                'icono': 'fa fa-window-close',
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones
