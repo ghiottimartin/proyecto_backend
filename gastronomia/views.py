@@ -133,7 +133,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         usuario = request.user
         serializer = None
         estado_valido = Estado.comprobar_estado_valido(clave)
-        if estado_valido:
+        if estado_valido and not isinstance(clave, int):
             pedido = get_pedido(pk=None, usuario=usuario, estado=clave)
             serializer = PedidoSerializer(instance=pedido)
         elif clave.isnumeric():

@@ -17,7 +17,7 @@ class Estado(models.Model):
     # Comprueba si el estado es válido
     @classmethod
     def comprobar_estado_valido(cls, estado):
-        return estado == cls.ABIERTO or estado == cls.EN_CURSO or cls.RECIBIDO or cls.CANCELADO or cls.ENTREGADO
+        return estado == cls.ABIERTO or estado == cls.EN_CURSO or estado == cls.RECIBIDO or estado == cls.CANCELADO or estado == cls.ENTREGADO
 
 
 class Pedido(Auditoria, models.Model):
