@@ -46,6 +46,10 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
         # Agrega filtro por estado
         estado = request.query_params.get('estado', "")
+        estado_entregado = estado == Estado.ENTREGADO
+        if estado_entregado:
+            estado = Estado.RECIBIDO
+
         if estado != "":
             filtros["ultimo_estado"] = estado
 
