@@ -55,7 +55,8 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         if tipoRuta == 'admin' and esAdmin:
             usuario.actualizar_roles(actualizada.data)
             usuario.save()
-        return respuesta.get_respuesta(True, "El usuario se ha actualizado con éxito.", None, {"usuario": serializer.data, "esAdmin": esAdmin})
+        return respuesta.get_respuesta(True, "El usuario se ha actualizado con éxito.", None,
+                                       {"usuario": serializer.data, "esAdmin": esAdmin})
 
     def list(self, request, *args, **kwargs):
         usuarios = Usuario.objects.filter(borrado=False).exclude(roles__in=Rol.objects.filter(nombre=Rol.ADMINISTRADOR))
@@ -64,6 +65,10 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        puede_borrarse = instance.comprobar_puede_borrarse()
+        if puede_borrarse:
+            return respuesta.get_respuesta(False, "El usuario no puede ser borrado debido a que se encuentra "
+                                                  "relacionado a los datos de la web.")
         instance.borrado = True
         instance.save()
         return respuesta.get_respuesta(True, "El usuario se ha borrado con éxito")
