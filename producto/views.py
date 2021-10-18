@@ -95,7 +95,17 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
         limit = filtros.get("limit")
         filtros.pop("offset")
         filtros.pop("limit")
-        productos = Producto.objects.filter(**filtros).order_by('-nombre')[offset:limit]
+
+        orden = request.query_params.get('orden', "nombre")
+        if orden == 'categoria':
+            orden = "categoria__nombre"
+
+        direccion = request.query_params.get('direccion', "")
+        direccion_texto = "" if direccion == "ASC" else "-"
+
+        order_by = direccion_texto + orden
+        
+        productos = Producto.objects.filter(**filtros).order_by(order_by)[offset:limit]
         return productos
 
     # Lista los productos aplicando los filtros.
