@@ -43,6 +43,7 @@ class UsuarioSerializer(CustomModelSerializer):
         """Quito password"""
         ret = super().to_representation(instance)
         ret['password'] = ""
+        ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
         return ret
 
     # Método de creación de un usuario.

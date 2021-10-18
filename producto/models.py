@@ -1,6 +1,5 @@
 import datetime
 from django.db import models
-from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 from base.models import Auditoria, Usuario
 from gastronomia.models import Pedido, Estado
@@ -14,6 +13,8 @@ class Categoria(Auditoria, models.Model):
     descripcion = models.CharField(max_length=255, null=True)
     habilitado = models.BooleanField(default=True)
     borrado = models.BooleanField(default=False)
+    auditoria_creador = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="categorias_creadas", null=True)
+    auditoria_modificado = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="categorias_modificadas", null=True)
 
     def comprobar_puede_borrarse(self):
         cantidad = self.productos.all().filter(borrado=False).count()
@@ -42,6 +43,8 @@ class Producto(Auditoria, models.Model):
     stock = models.IntegerField(default=0)
     compra_directa = models.BooleanField(default=False)
     venta_directa = models.BooleanField(default=True)
+    auditoria_creador = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="productos_creados", null=True)
+    auditoria_modificado = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="productos_modificados", null=True)
 
     # Actualiza el precio vigente y agrego el precio a la colección de precios.
     def agregar_precio(self, nuevo=None):
@@ -150,7 +153,7 @@ class MovimientoStock(Auditoria, models.Model):
 
 
 class Ingreso(Auditoria, models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+")
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="ingresos")
     fecha = models.DateTimeField(default=datetime.datetime.now)
     total = models.FloatField(default=0)
     anulado = models.DateTimeField(null=True)

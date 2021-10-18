@@ -27,8 +27,8 @@ class Migration(migrations.Migration):
                 ('borrado', models.BooleanField(default=False)),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_modificado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
-                ('auditoria_creador', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('auditoria_modificado', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('auditoria_creador', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='categorias_creadas', to=settings.AUTH_USER_MODEL)),
+                ('auditoria_modificado', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='categorias_modificadas', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'abstract': False,
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
             name='Ingreso',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ingresos', to=settings.AUTH_USER_MODEL)),
                 ('fecha', models.DateTimeField(default=datetime.datetime.now)),
                 ('total', models.FloatField(default=0)),
                 ('anulado', models.DateTimeField(null=True)),
@@ -69,8 +69,8 @@ class Migration(migrations.Migration):
                 ('borrado', models.BooleanField(default=False)),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_modificado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
-                ('auditoria_creador', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('auditoria_modificado', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('auditoria_creador', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='productos_creados', to=settings.AUTH_USER_MODEL)),
+                ('auditoria_modificado', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='productos_modificados', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'abstract': False,

@@ -21,7 +21,7 @@ class Estado(models.Model):
 
 
 class Pedido(Auditoria, models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+")
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="pedidos")
     fecha = models.DateTimeField(default=datetime.datetime.now)
     ultimo_estado = models.CharField(max_length=40, default=Estado.ABIERTO)
     total = models.FloatField()
