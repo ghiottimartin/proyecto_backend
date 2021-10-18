@@ -47,6 +47,73 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
     queryset = Producto.objects.filter(borrado=False).order_by('nombre')
     serializer_class = ProductoSerializer
 
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
+        filtros = {}
+
+        # Agrega filtros por nombre de producto
+        nombre = request.query_params.get('nombre', "")
+        if len(nombre) > 0:
+            filtros["nombre__contains"] = nombre
+
+        # Agrega filtros por categoría de producto
+        categoria = request.query_params.get('categoria', None)
+        if categoria is not None and categoria.isnumeric() and int(categoria) > 0:
+            filtros["categoria"] = categoria
+
+        # Agrega filtro por tipo
+        tipo = request.query_params.get('tipo', "")
+        if len(tipo) > 0 and tipo == 'compra':
+            filtros["compra_directa"] = True
+        elif tipo == 'venta':
+            filtros["venta_directa"] = True
+
+        # Agrega filtros por número de página actual
+        pagina = int(request.query_params.get('paginaActual', 1))
+        registros = int(request.query_params.get('registrosPorPagina', 10))
+        offset = (pagina - 1) * registros
+        limit = offset + registros
+        filtros["offset"] = offset
+        filtros["limit"] = limit
+        return filtros
+
+    # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        if id is None:
+            filtros.pop("offset")
+            filtros.pop("limit")
+        cantidad = Producto.objects.filter(**filtros).count()
+        return cantidad
+
+    # Devuelve los ingresos según los filtros de la query
+    def filtrar_productos(self, request):
+        filtros = self.get_filtros(request)
+
+        offset = filtros.get("offset")
+        limit = filtros.get("limit")
+        filtros.pop("offset")
+        filtros.pop("limit")
+        productos = Producto.objects.filter(**filtros).order_by('-nombre')[offset:limit]
+        return productos
+
+    # Lista los productos aplicando los filtros.
+    def list(self, request, *args, **kwargs):
+        productos = self.filtrar_productos(request)
+        if len(productos) > 0:
+            serializer = ProductoSerializer(instance=productos, many=True)
+            productos = serializer.data
+
+        cantidad = self.get_cantidad_registros(request)
+        total = Producto.objects.count()
+        datos = {
+            "total": total,
+            "productos": productos,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
+
 
 # Abm de productos con autorización
 class ABMProductoViewSet(viewsets.ModelViewSet):
