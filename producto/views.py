@@ -104,7 +104,7 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
         direccion_texto = "" if direccion == "ASC" else "-"
 
         order_by = direccion_texto + orden
-        
+
         productos = Producto.objects.filter(**filtros).order_by(order_by)[offset:limit]
         return productos
 

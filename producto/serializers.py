@@ -21,6 +21,7 @@ class ProductoSerializer(CustomModelSerializer):
         ret['costo_texto'] = locale.currency(instance.costo_vigente)
         ret['margen_texto'] = instance.get_margen_ganancia()
         ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
+        ret['tiene_movimientos'] = instance.comprobar_tiene_movimientos()
         return ret
 
 
@@ -89,6 +90,7 @@ class IngresoSerializer(serializers.ModelSerializer):
                 'icono': 'fa fa-eye',
                 'key': str(objeto.id) + "-" + accion,
             })
+
         puede_anular = objeto.comprobar_puede_anular(logueado)
         if puede_anular:
             accion = 'anular'

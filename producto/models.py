@@ -90,6 +90,11 @@ class Producto(Auditoria, models.Model):
         cantidad = Pedido.objects.all().filter(lineas__producto__exact=self).count()
         return cantidad == 0
 
+    # Comprueba que el producto tenga movimientos
+    def comprobar_tiene_movimientos(self):
+        cantidad = MovimientoStock.objects.filter(producto=self).count()
+        return cantidad > 0
+
     # Devuelve el margen de ganancia del producto.
     def get_margen_ganancia(self):
         precio = self.precio_vigente
