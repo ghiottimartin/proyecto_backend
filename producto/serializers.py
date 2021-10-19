@@ -105,8 +105,17 @@ class IngresoSerializer(serializers.ModelSerializer):
 
 
 class MovimientoSerializer(serializers.ModelSerializer):
+    producto = ProductoSerializer(read_only=True)
+
     class Meta:
         model = MovimientoStock
         fields = '__all__'
+
+    # Método que devuelve los datos del movimiento.
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['id_texto'] = "M" + str(instance.id).zfill(5)
+        ret['fecha_texto'] = instance.auditoria_creado_fecha.strftime('%d/%m/%Y %H:%M')
+        return ret
 
 

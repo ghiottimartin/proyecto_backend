@@ -9,9 +9,9 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
-from .models import Producto, Categoria, Ingreso
+from .models import Producto, Categoria, Ingreso, MovimientoStock
 from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso
-from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer
+from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer
 
 respuesta = respuestas.Respuesta()
 
@@ -326,3 +326,76 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=True, mensaje="El ingreso se ha anulado con éxito.")
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular el ingreso.")
+
+
+# Abm de movimientos de stock.
+class MovimientoStockViewSet(viewsets.ModelViewSet):
+    queryset = MovimientoStock.objects.all()
+    serializer_class = MovimientoSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
+
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
+        filtros = {}
+
+        # Agrega filtros por fecha desde y hasta
+        desdeTexto = request.query_params.get('fechaDesde', "")
+        hastaTexto = request.query_params.get('fechaHasta', "")
+        desde = utils.get_fecha_string2objeto(desdeTexto)
+        hasta = utils.get_fecha_string2objeto(hastaTexto, False)
+        filtros = {
+            "auditoria_creado_fecha__range": (desde, hasta),
+        }
+
+        # Agrega filtros por categoría de producto
+        producto = request.query_params.get('producto', None)
+        if producto is not None and producto.isnumeric() and int(producto) > 0:
+            filtros["producto"] = producto
+
+        # Agrega filtros por número de página actual
+        pagina = int(request.query_params.get('paginaActual', 1))
+        registros = int(request.query_params.get('registrosPorPagina', 10))
+        offset = (pagina - 1) * registros
+        limit = offset + registros
+        filtros["offset"] = offset
+        filtros["limit"] = limit
+        return filtros
+
+    # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        if id is None:
+            filtros.pop("offset")
+            filtros.pop("limit")
+        cantidad = MovimientoStock.objects.filter(**filtros).count()
+        return cantidad
+
+    # Devuelve los movimientos según los filtros de la query
+    def filtrar_movimientos(self, request):
+        filtros = self.get_filtros(request)
+
+        offset = filtros.get("offset")
+        limit = filtros.get("limit")
+        filtros.pop("offset")
+        filtros.pop("limit")
+
+        movimientos = MovimientoStock.objects.filter(**filtros)[offset:limit]
+        return movimientos
+
+    # Lista los productos aplicando los filtros.
+    def list(self, request, *args, **kwargs):
+        movimientos = self.filtrar_movimientos(request)
+        if len(movimientos) > 0:
+            serializer = MovimientoSerializer(instance=movimientos, many=True)
+            movimientos = serializer.data
+
+        cantidad = self.get_cantidad_registros(request)
+        total = MovimientoStock.objects.count()
+        datos = {
+            "total": total,
+            "movimientos": movimientos,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
