@@ -121,7 +121,7 @@ class Producto(Auditoria, models.Model):
             return
 
         # Si hubo diferencia se actualiza el stock
-        movimiento = MovimientoStock(producto=self, cantidad=diferencia)
+        movimiento = MovimientoStock(producto=self, cantidad=diferencia, descripcion="Edición de stock del producto")
         movimiento.save()
 
         self.stock = int(nueva)
@@ -152,6 +152,7 @@ class Costo(Auditoria, models.Model):
 class MovimientoStock(Auditoria, models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="movimientos", default="movimientos")
     cantidad = models.IntegerField()
+    descripcion = models.CharField(max_length=255)
 
     def __str__(self):
         return self.auditoria_creado_fecha
@@ -249,7 +250,9 @@ class IngresoLinea(models.Model):
     def crear_movimiento(self):
         producto = self.producto
         cantidad = self.cantidad
-        movimiento = MovimientoStock(producto=producto, cantidad=cantidad)
+        id_texto = str(self.id).zfill(5)
+        descripcion = "Ingreso I" + id_texto
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidad, descripcion=descripcion)
         movimiento.save()
 
         stock = producto.stock
@@ -293,7 +296,9 @@ class IngresoLinea(models.Model):
         producto.save()
 
         cantidadAnulada = cantidad * -1
-        movimiento = MovimientoStock(producto=producto, cantidad=cantidadAnulada)
+        id_texto = str(self.id).zfill(5)
+        descripcion = "Ingreso I" + id_texto + " anulado"
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidadAnulada, descripcion=descripcion)
         movimiento.save()
 
     def __str__(self):
