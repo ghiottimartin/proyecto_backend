@@ -381,7 +381,7 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
         filtros.pop("offset")
         filtros.pop("limit")
 
-        movimientos = MovimientoStock.objects.filter(**filtros)[offset:limit]
+        movimientos = MovimientoStock.objects.filter(**filtros).order_by('-auditoria_creado_fecha')[offset:limit]
         return movimientos
 
     # Lista los productos aplicando los filtros.
