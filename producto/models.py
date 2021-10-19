@@ -151,6 +151,7 @@ class Costo(Auditoria, models.Model):
 
 class MovimientoStock(Auditoria, models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="movimientos", default="movimientos")
+    ingreso_linea = models.ForeignKey('producto.IngresoLinea', on_delete=models.CASCADE, related_name="movimientos", default=None, null=True)
     cantidad = models.IntegerField()
     descripcion = models.CharField(max_length=255)
 
@@ -252,7 +253,7 @@ class IngresoLinea(models.Model):
         cantidad = self.cantidad
         id_texto = str(self.id).zfill(5)
         descripcion = "Ingreso I" + id_texto
-        movimiento = MovimientoStock(producto=producto, cantidad=cantidad, descripcion=descripcion)
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidad, descripcion=descripcion, ingreso_linea=self)
         movimiento.save()
 
         stock = producto.stock
@@ -298,7 +299,7 @@ class IngresoLinea(models.Model):
         cantidadAnulada = cantidad * -1
         id_texto = str(self.id).zfill(5)
         descripcion = "Ingreso I" + id_texto + " anulado"
-        movimiento = MovimientoStock(producto=producto, cantidad=cantidadAnulada, descripcion=descripcion)
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidadAnulada, descripcion=descripcion, ingreso_linea=self)
         movimiento.save()
 
     def __str__(self):

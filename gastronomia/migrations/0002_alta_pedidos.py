@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('gastronomia', '0001_initial'),
-        ('producto', '0002_alta_productos'),
+        ('producto', '0003_alta_productos'),
         ('base', '0003_usuarios'),
     ]
 
