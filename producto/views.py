@@ -395,7 +395,15 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
             movimientos = serializer.data
 
         cantidad = self.get_cantidad_registros(request)
-        total = MovimientoStock.objects.count()
+
+        total = 0
+        idIngreso = request.query_params.get('ingreso', None)
+        producto = request.query_params.get('producto', None)
+        if idIngreso is not None and idIngreso.isnumeric() and int(idIngreso) > 0:
+            total = MovimientoStock.objects.filter(ingreso_linea__ingreso=idIngreso).count()
+        elif producto is not None and producto.isnumeric() and int(producto) > 0:
+            total = MovimientoStock.objects.filter(producto=producto).count()
+
         datos = {
             "total": total,
             "movimientos": movimientos,
