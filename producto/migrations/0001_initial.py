@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('categoria', models.ForeignKey(default='productos', on_delete=django.db.models.deletion.PROTECT, related_name='productos', to='producto.categoria')),
-                ('nombre', models.CharField(max_length=50)),
+                ('nombre', models.CharField(max_length=50, unique=True)),
                 ('imagen', models.ImageField(default='producto/defecto/default.jpg', null=True, upload_to=producto.models.upload_to, verbose_name='Image')),
                 ('imagen_nombre', models.CharField(default='default.jpg', max_length=50)),
                 ('descripcion', models.CharField(default='', max_length=255)),

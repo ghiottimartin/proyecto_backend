@@ -135,6 +135,10 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        existente = Producto.objects.get(nombre=request.data.get('nombre'))
+        if isinstance(existente, Producto):
+            return respuesta.get_respuesta(False, "Ya existe un producto con ese nombre")
+
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid(raise_exception=False):
             errores = serializer.get_errores_lista()
