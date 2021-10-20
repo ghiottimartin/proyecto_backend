@@ -27,6 +27,7 @@ class Pedido(Auditoria, models.Model):
     total = models.FloatField()
     forzar = models.BooleanField(default=False)
     tipo = models.CharField(max_length=15)
+    observaciones = models.CharField(max_length=255, default="")
 
     TIPO_ONLINE = 'online'
     TIPO_MOSTRADOR = 'mostrador'
@@ -83,7 +84,7 @@ class Pedido(Auditoria, models.Model):
         es_vendedor = usuario.esVendedor
         pedido_usuario = self.usuario
         le_pertenece = pedido_usuario == usuario
-        return (abierto and (es_vendedor or le_pertenece)) or (es_vendedor and en_curso)
+        return (en_curso and es_vendedor) or (le_pertenece and abierto)
 
     # Actualiza el total del pedido, según los precios y cantidades de las líneas.
     def actualizar_total(self):

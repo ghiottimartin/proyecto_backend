@@ -226,6 +226,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
             puede_cancelar = pedido.comprobar_puede_cancelar(usuario)
             if not puede_cancelar:
                 return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para cancelar el pedido.")
+
+            motivo = request.query_params.get('motivo', "")
+            abierto = pedido.comprobar_estado_abierto()
+            if not abierto and isinstance(motivo, str) and len(motivo) < 10:
+                return respuesta.get_respuesta(exito=False, mensaje="Debe indicar un motivo de cancelación.")
+            pedido.observaciones = motivo if motivo != "undefined" else ""
             pedido.agregar_estado(Estado.CANCELADO)
             pedido.save()
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha cancelado con éxito.")

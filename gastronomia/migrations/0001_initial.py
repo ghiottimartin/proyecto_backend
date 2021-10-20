@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                 ('fecha', models.DateTimeField(default=datetime.datetime.now)),
                 ('tipo', models.CharField(max_length=15)),
                 ('ultimo_estado', models.CharField(default='abierto', max_length=40)),
+                ('observaciones', models.CharField(max_length=255, default="")),
                 ('total', models.FloatField()),
                 ('forzar', models.BooleanField(default=False)),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
