@@ -1,4 +1,4 @@
-from base.serializers import CustomModelSerializer
+from base.serializers import CustomModelSerializer, UsuarioSerializer
 from base.signals import get_usuario_logueado
 from .models import Producto, Categoria, Ingreso, IngresoLinea, MovimientoStock
 from rest_framework import serializers
@@ -50,6 +50,8 @@ class MovimientoSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         ret['id_texto'] = "M" + str(instance.id).zfill(5)
         ret['fecha_texto'] = instance.auditoria_creado_fecha.strftime('%d/%m/%Y %H:%M')
+        ret['usuario_email'] = instance.auditoria_creador.email
+        ret['usuario_nombre'] = instance.auditoria_creador.first_name
         return ret
 
 
