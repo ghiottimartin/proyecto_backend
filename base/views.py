@@ -41,8 +41,16 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         if tipoRuta == 'admin' and not esAdmin:
             return respuesta.get_respuesta(False, "No está autorizado para realizar esta operación.", None)
 
-        # Actualizo datos del usuario.
+        # Si puede ser habilitado lo habilitado.
         usuario = self.get_object()
+        habilitado = request.query_params.get('habilitado', False)
+        if habilitado == 'true':
+            usuario.habilitado = True
+            usuario.observaciones = ""
+            usuario.save()
+            return respuesta.get_respuesta(True, "Usuario habilitado con éxito")
+
+        # Actualizo datos del usuario.
         actualizada = self.actualizar_campos_request(request, usuario)
         serializer = UsuarioSerializer(data=actualizada.data, instance=usuario)
         valido = serializer.is_valid(raise_exception=False)

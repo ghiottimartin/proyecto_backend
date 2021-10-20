@@ -45,6 +45,7 @@ class UsuarioSerializer(CustomModelSerializer):
         ret['password'] = ""
         ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
         ret['puede_deshabilitarse'] = instance.habilitado
+        ret['puede_habilitarse'] = not instance.habilitado
         ret['habilitado_texto'] = "Activo" if instance.habilitado else "Deshabilitado"
 
         estado = "text-success" if instance.habilitado else "text-danger"
