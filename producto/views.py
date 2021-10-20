@@ -238,7 +238,7 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
             "fecha__range": (desde, hasta),
         }
 
-        # Agrega filtros por pedidos del usuario
+        # Agrega filtros por ingresos del usuario
         idUsuario = request.query_params.get('usuario', None)
         if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
             filtros["usuario"] = idUsuario
@@ -346,12 +346,17 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
         hasta = utils.get_fecha_string2objeto(hastaTexto, False)
         filtros["auditoria_creado_fecha__range"] = (desde, hasta)
 
-        # Agrega filtros por categoría de producto
+        # Agrega filtros por producto del movimiento
         producto = request.query_params.get('producto', None)
         if producto is not None and producto.isnumeric() and int(producto) > 0:
             filtros["producto"] = producto
 
-        # Agrega filtros por ingreso
+        # Agrega filtros por usuario del movimiento
+        usuario = request.query_params.get('usuario', None)
+        if usuario is not None and len(str(usuario)) > 0:
+            filtros["auditoria_creador__first_name__contains"] = usuario
+
+        # Agrega filtros por ingreso del movimiento
         idIngreso = request.query_params.get('ingreso', None)
         if idIngreso is not None and idIngreso.isnumeric() and int(idIngreso) > 0:
             filtros["ingreso_linea__ingreso_id"] = idIngreso
