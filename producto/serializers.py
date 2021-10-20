@@ -90,6 +90,7 @@ class IngresoSerializer(serializers.ModelSerializer):
         ret['estado_clase'] = instance.get_estado_clase()
         ret['fecha_anulado'] = instance.get_fecha_anulado_texto()
         ret['anulado'] = instance.comprobar_anulado()
+        ret['tiene_movimientos'] = instance.comprobar_tiene_movimientos()
         return ret
 
     # Devuelve las operaciones disponibles para el ingreso actual.

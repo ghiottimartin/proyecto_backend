@@ -205,6 +205,11 @@ class Ingreso(Auditoria, models.Model):
         es_admin = usuario.esAdmin
         return es_admin
 
+    # Comprueba que el ingreso tenga movimientos
+    def comprobar_tiene_movimientos(self):
+        cantidad = MovimientoStock.objects.filter(ingreso_linea__ingreso=self).count()
+        return cantidad > 0
+
     # Devuelve true si ingreso no está anulado.
     def comprobar_anulado(self):
         anulado = self.anulado

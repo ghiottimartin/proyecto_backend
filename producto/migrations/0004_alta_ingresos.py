@@ -61,7 +61,7 @@ def nuevo_ingreso(apps, nombre_usuario, fecha, productos):
 
         id_texto = str(ingreso.id).zfill(5)
         descripcion = "Ingreso I" + id_texto
-        movimiento = MovimientoStock(producto=producto, cantidad=cantidad, descripcion=descripcion, ingreso_linea=linea)
+        movimiento = MovimientoStock(producto=producto, cantidad=cantidad, descripcion=descripcion, ingreso_linea=linea, auditoria_creador=usuario, auditoria_modificado=usuario)
         movimiento.save()
 
         anterior = producto.stock
