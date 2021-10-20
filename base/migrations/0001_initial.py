@@ -42,6 +42,7 @@ class Migration(migrations.Migration):
                 ('fecha_token_reset', models.DateTimeField(null=True)),
                 ('token_reset', models.TextField(null=True)),
                 ('token_email', models.TextField(null=True)),
+                ('observaciones', models.CharField(max_length=255, default="")),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_modificado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_creador', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),

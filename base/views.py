@@ -65,8 +65,15 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        motivo = request.query_params.get('motivo', "")
+        if isinstance(motivo, str) and len(motivo) > 0:
+            instance.habilitado = False
+            instance.observaciones = motivo
+            instance.save()
+            return respuesta.get_respuesta(True, "El usuario ha sido inhabilitado con exito")
+
         puede_borrarse = instance.comprobar_puede_borrarse()
-        if puede_borrarse:
+        if not puede_borrarse:
             return respuesta.get_respuesta(False, "El usuario no puede ser borrado debido a que se encuentra "
                                                   "relacionado a los datos de la web.")
         instance.borrado = True
