@@ -344,14 +344,17 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
         hastaTexto = request.query_params.get('fechaHasta', "")
         desde = utils.get_fecha_string2objeto(desdeTexto)
         hasta = utils.get_fecha_string2objeto(hastaTexto, False)
-        filtros = {
-            "auditoria_creado_fecha__range": (desde, hasta),
-        }
+        filtros["auditoria_creado_fecha__range"] = (desde, hasta)
 
         # Agrega filtros por categoría de producto
         producto = request.query_params.get('producto', None)
         if producto is not None and producto.isnumeric() and int(producto) > 0:
             filtros["producto"] = producto
+
+        # Agrega filtros por ingreso
+        idIngreso = request.query_params.get('ingreso', None)
+        if idIngreso is not None and idIngreso.isnumeric() and int(idIngreso) > 0:
+            filtros["ingreso_linea__ingreso_id"] = idIngreso
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))

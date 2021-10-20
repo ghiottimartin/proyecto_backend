@@ -156,7 +156,7 @@ class MovimientoStock(Auditoria, models.Model):
     descripcion = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.auditoria_creado_fecha
+        return self.auditoria_creado_fecha.__str__()
 
 
 class Ingreso(Auditoria, models.Model):
@@ -199,6 +199,11 @@ class Ingreso(Auditoria, models.Model):
         es_admin = usuario.esAdmin
         anulado = self.comprobar_anulado()
         return es_admin and not anulado
+
+    # Devuelve true si el usuario puede visualizar movimientos de stock del ingreso.
+    def comprobar_puede_ver_movimientos(self, usuario):
+        es_admin = usuario.esAdmin
+        return es_admin
 
     # Devuelve true si ingreso no está anulado.
     def comprobar_anulado(self):
@@ -251,7 +256,7 @@ class IngresoLinea(models.Model):
     def crear_movimiento(self):
         producto = self.producto
         cantidad = self.cantidad
-        id_texto = str(self.id).zfill(5)
+        id_texto = str(self.ingreso.id).zfill(5)
         descripcion = "Ingreso I" + id_texto
         movimiento = MovimientoStock(producto=producto, cantidad=cantidad, descripcion=descripcion, ingreso_linea=self)
         movimiento.save()
@@ -297,7 +302,7 @@ class IngresoLinea(models.Model):
         producto.save()
 
         cantidadAnulada = cantidad * -1
-        id_texto = str(self.id).zfill(5)
+        id_texto = str(self.ingreso.id).zfill(5)
         descripcion = "Ingreso I" + id_texto + " anulado"
         movimiento = MovimientoStock(producto=producto, cantidad=cantidadAnulada, descripcion=descripcion, ingreso_linea=self)
         movimiento.save()

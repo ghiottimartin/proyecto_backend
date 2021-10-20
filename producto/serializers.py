@@ -38,12 +38,28 @@ class CategoriaSerializer(serializers.ModelSerializer):
         return ret
 
 
-class IngresoLineaSerializer(serializers.ModelSerializer):
+class MovimientoSerializer(serializers.ModelSerializer):
     producto = ProductoSerializer(read_only=True)
 
     class Meta:
+        model = MovimientoStock
+        fields = '__all__'
+
+    # Método que devuelve los datos del movimiento.
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['id_texto'] = "M" + str(instance.id).zfill(5)
+        ret['fecha_texto'] = instance.auditoria_creado_fecha.strftime('%d/%m/%Y %H:%M')
+        return ret
+
+
+class IngresoLineaSerializer(serializers.ModelSerializer):
+    producto = ProductoSerializer(read_only=True)
+    movimientos = MovimientoSerializer(many=True, read_only=True)
+
+    class Meta:
         model = IngresoLinea
-        fields = ['id', 'cantidad', 'producto', 'costo', 'total']
+        fields = ['id', 'cantidad', 'producto', 'costo', 'total', 'movimientos']
 
     # Método que devuelve los datos de la línea.
     def to_representation(self, instance):
@@ -76,6 +92,7 @@ class IngresoSerializer(serializers.ModelSerializer):
         ret['anulado'] = instance.comprobar_anulado()
         return ret
 
+    # Devuelve las operaciones disponibles para el ingreso actual.
     def get_operaciones(self, objeto):
         logueado = get_usuario_logueado()
         operaciones = []
@@ -102,20 +119,3 @@ class IngresoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones
-
-
-class MovimientoSerializer(serializers.ModelSerializer):
-    producto = ProductoSerializer(read_only=True)
-
-    class Meta:
-        model = MovimientoStock
-        fields = '__all__'
-
-    # Método que devuelve los datos del movimiento.
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret['id_texto'] = "M" + str(instance.id).zfill(5)
-        ret['fecha_texto'] = instance.auditoria_creado_fecha.strftime('%d/%m/%Y %H:%M')
-        return ret
-
-
