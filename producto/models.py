@@ -112,8 +112,8 @@ class Producto(Auditoria, models.Model):
         return redondeado + "%"
 
     # Actualiza el stock y sus movimientos en caso de ser necesario.
-    def actualizar_stock(self, nueva=0):
-        if nueva == 0:
+    def actualizar_stock(self, nueva=0, descripcion="", reemplazo_linea=None):
+        if nueva == 0 and reemplazo_linea is None:
             return
 
         # Calculo la cantidad de stock generado por la edición.
@@ -127,8 +127,13 @@ class Producto(Auditoria, models.Model):
         if diferencia == 0:
             return
 
+        if descripcion == "":
+            descripcion = "Edición de stock del producto"
+
         # Si hubo diferencia se actualiza el stock
-        movimiento = MovimientoStock(producto=self, cantidad=diferencia, descripcion="Edición de stock del producto")
+        movimiento = MovimientoStock(producto=self, cantidad=diferencia, descripcion=descripcion)
+        if reemplazo_linea is not None and isinstance(reemplazo_linea, ReemplazoMercaderiaLinea):
+            movimiento.reemplazo_linea = reemplazo_linea
         movimiento.save()
 
         self.stock = int(nueva)
@@ -159,6 +164,7 @@ class Costo(Auditoria, models.Model):
 class MovimientoStock(Auditoria, models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="movimientos", default="movimientos")
     ingreso_linea = models.ForeignKey('producto.IngresoLinea', on_delete=models.CASCADE, related_name="movimientos", default=None, null=True)
+    reemplazo_linea = models.ForeignKey('producto.ReemplazoMercaderiaLinea', on_delete=models.CASCADE, related_name="reemplazos", default=None, null=True)
     cantidad = models.IntegerField()
     descripcion = models.CharField(max_length=255)
 
@@ -368,6 +374,15 @@ class ReemplazoMercaderia(Auditoria, models.Model):
             return 'Anulado'
         return 'Activo'
 
+    # Devuelve el id en formato de texto del reemplazo de mercadería.
+    def get_id_texto(self):
+        return "RM" + str(self.id).zfill(5)
+
+    def generar_movimientos(self):
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.crear_movimiento()
+
     def __str__(self):
         return "Reemplazo de mercadería " + self.auditoria_creado_fecha.__str__()
 
@@ -378,6 +393,15 @@ class ReemplazoMercaderiaLinea(models.Model):
     stock_anterior = models.IntegerField()
     stock_nuevo = models.IntegerField()
     reemplazo_completo = models.BooleanField(default=False)
+
+    # Crea un movimiento de stock a partir del producto reemplazado.
+    def crear_movimiento(self):
+        producto = self.producto
+        stock_nuevo = self.stock_nuevo
+
+        id_texto = self.reemplazo.get_id_texto()
+        descripcion = "Reemplazo de mercadería " + id_texto
+        producto.actualizar_stock(nueva=stock_nuevo, descripcion=descripcion, reemplazo_linea=self)
 
     def __str__(self):
         return "Línea de " + self.reemplazo.__str__()

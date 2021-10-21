@@ -86,7 +86,7 @@ def borrar_ingresos(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('producto', '0003_alta_productos'),
+        ('producto', '0004_alta_productos'),
     ]
 
     operations = [

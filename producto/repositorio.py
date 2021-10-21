@@ -92,6 +92,7 @@ def crear_reemplazo_mercaderia(usuario, lineas):
     reemplazo.save()
     for item in lineas:
         crear_linea_reemplazo(reemplazo, item)
+    reemplazo.generar_movimientos()
     return reemplazo
 
 

@@ -144,7 +144,7 @@ class ReemplazoMercaderiaSerializer(serializers.ModelSerializer):
     # Método que devuelve los datos del ingreso.
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['id_texto'] = "RM" + str(instance.id).zfill(5)
+        ret['id_texto'] = instance.get_id_texto()
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = instance.usuario.first_name
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')

@@ -164,7 +164,7 @@ def borrar_productos(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('producto', '0002_movimientostock'),
+        ('producto', '0003_movimientostock'),
     ]
 
     operations = [
