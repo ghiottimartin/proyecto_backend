@@ -134,7 +134,13 @@ class Usuario(Auditoria, AbstractUser):
     def get_operaciones(self):
         operaciones_admin = self.get_operaciones_admin()
         operaciones_vendedor = self.get_operaciones_vendedor()
-        return operaciones_admin + operaciones_vendedor
+        generales = [{
+            "roles": [Rol.ADMINISTRADOR, Rol.VENEDEDOR],
+            "ruta": "/usuarios/listar",
+            "titulo": "Usuarios",
+            "descripcion": "Permite gestionar los usuarios del sistema"
+        }]
+        return operaciones_admin + operaciones_vendedor + generales
 
     # Devuele las operaciones para el rol administrador si tiene el rol indicado.
     def get_operaciones_admin(self):
@@ -143,17 +149,12 @@ class Usuario(Auditoria, AbstractUser):
             return list()
 
         operaciones = [{
-            "rol": Rol.ADMINISTRADOR,
+            "roles": [Rol.ADMINISTRADOR],
             "ruta": "/productos/listar/admin",
             "titulo": "Productos",
             "descripcion": "Permite gestionar los productos del sistema"
         }, {
-            "rol": Rol.ADMINISTRADOR,
-            "ruta": "/usuarios/listar",
-            "titulo": "Usuarios",
-            "descripcion": "Permite gestionar los usuarios del sistema"
-        }, {
-            "rol": Rol.ADMINISTRADOR,
+            "roles": [Rol.ADMINISTRADOR],
             "ruta": "/ingreso-mercaderia/",
             "titulo": "Ingreso",
             "descripcion": "Permite ingresar mercadería"
@@ -167,7 +168,7 @@ class Usuario(Auditoria, AbstractUser):
             return list()
 
         operaciones = [{
-            "rol": Rol.VENEDEDOR,
+            "roles": [Rol.VENEDEDOR],
             "ruta": "/pedidos/vendedor",
             "titulo": "Pedidos",
             "descripcion": "Permite gestionar los pedidos"
