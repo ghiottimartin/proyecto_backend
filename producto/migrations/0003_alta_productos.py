@@ -135,7 +135,7 @@ def agregar_productos(apps, schema_editor):
     pizzaFugazeta.save()
 
     pizzaMuzarella = Producto(categoria=pizzas, nombre='Pizza Muzarella', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=0, stock_seguridad=30,
         costo_vigente=550, precio_vigente=600,
         imagen='producto/pizza-muzarella.png', imagen_nombre='pizza-muzarella.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -144,7 +144,7 @@ def agregar_productos(apps, schema_editor):
     pizzaMuzarella.save()
 
     pizzaPollo = Producto(categoria=pizzas, nombre='Pizza Pollo', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=0, stock_seguridad=20,
         costo_vigente=550, precio_vigente=600,
         imagen='producto/pizza-pollo.png', imagen_nombre='pizza-pollo.png',
         auditoria_creado_fecha=datetime.datetime.now(),

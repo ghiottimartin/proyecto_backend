@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria, Ingreso, MovimientoStock
-from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso
+from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, get_producto
 from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer
 
 respuesta = respuestas.Respuesta()
@@ -135,7 +135,12 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        existente = Producto.objects.get(nombre=request.data.get('nombre'))
+
+        try:
+            existente = Producto.objects.get(nombre=request.data.get('nombre'))
+        except Producto.DoesNotExist:
+            existente = None
+
         if isinstance(existente, Producto):
             return respuesta.get_respuesta(False, "Ya existe un producto con ese nombre")
 
@@ -144,10 +149,12 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
             errores = serializer.get_errores_lista()
             return respuesta.get_respuesta(False, "Hubo un error al crear el producto", None, errores)
         serializer.save()
+
         producto = serializer.instance
         producto_costo_validos = producto.comprobar_producto_costo_validos()
         if not producto_costo_validos:
             return respuesta.get_respuesta(False, "El costo del producto debe ser mayor que el precio del mismo.", None)
+
         producto.agregar_precio()
         producto.agregar_costo()
         producto.actualizar_stock()
@@ -171,6 +178,9 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
         stock = int(request.data["stock"])
         producto.actualizar_stock(nueva=stock)
+
+        stock_seguridad = int(request.data["stock_seguridad"])
+        producto.stock_seguridad = stock_seguridad
 
         producto_costo_validos = producto.comprobar_producto_costo_validos(costo, precio)
         if not producto_costo_validos:

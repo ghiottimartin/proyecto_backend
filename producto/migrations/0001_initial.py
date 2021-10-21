@@ -63,6 +63,7 @@ class Migration(migrations.Migration):
                 ('costo_vigente', models.FloatField()),
                 ('precio_vigente', models.FloatField()),
                 ('stock', models.IntegerField(default=0)),
+                ('stock_seguridad', models.IntegerField(default=20)),
                 ('compra_directa', models.BooleanField(default=False)),
                 ('venta_directa', models.BooleanField(default=True)),
                 ('habilitado', models.BooleanField(default=True)),

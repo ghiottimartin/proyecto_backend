@@ -22,6 +22,7 @@ class ProductoSerializer(CustomModelSerializer):
         ret['margen_texto'] = instance.get_margen_ganancia()
         ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
         ret['tiene_movimientos'] = instance.comprobar_tiene_movimientos()
+        ret['alertar'] = instance.comprobar_alerta_stock()
         return ret
 
 

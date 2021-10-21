@@ -41,6 +41,7 @@ class Producto(Auditoria, models.Model):
     habilitado = models.BooleanField(default=True)
     borrado = models.BooleanField(default=False)
     stock = models.IntegerField(default=0)
+    stock_seguridad = models.IntegerField(default=20)
     compra_directa = models.BooleanField(default=False)
     venta_directa = models.BooleanField(default=True)
     auditoria_creador = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="productos_creados", null=True)
@@ -94,6 +95,12 @@ class Producto(Auditoria, models.Model):
     def comprobar_tiene_movimientos(self):
         cantidad = MovimientoStock.objects.filter(producto=self).count()
         return cantidad > 0
+
+    # Comprueba que si hay que alertar de stock faltante.
+    def comprobar_alerta_stock(self):
+        actual = self.stock
+        alerta = self.stock_seguridad
+        return actual < alerta
 
     # Devuelve el margen de ganancia del producto.
     def get_margen_ganancia(self):
