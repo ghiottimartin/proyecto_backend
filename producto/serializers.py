@@ -1,6 +1,6 @@
 from base.serializers import CustomModelSerializer, UsuarioSerializer
 from base.signals import get_usuario_logueado
-from .models import Producto, Categoria, Ingreso, IngresoLinea, MovimientoStock
+from .models import Producto, Categoria, Ingreso, IngresoLinea, MovimientoStock, ReemplazoMercaderia, ReemplazoMercaderiaLinea
 from rest_framework import serializers
 
 import locale
@@ -123,3 +123,34 @@ class IngresoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones
+
+
+class ReemplazoMercaderiaLineaSerializer(serializers.ModelSerializer):
+    producto = ProductoSerializer(read_only=True)
+    movimientos = MovimientoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ReemplazoMercaderiaLinea
+        fields = '__all__'
+
+
+class ReemplazoMercaderiaSerializer(serializers.ModelSerializer):
+    lineas = ReemplazoMercaderiaLineaSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ReemplazoMercaderia
+        fields = '__all__'
+
+    # Método que devuelve los datos del ingreso.
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['id_texto'] = "RM" + str(instance.id).zfill(5)
+        ret['usuario_email'] = instance.usuario.email
+        ret['usuario_nombre'] = instance.usuario.first_name
+        ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
+        ret['estado_texto'] = instance.get_estado_legible()
+        ret['estado_clase'] = instance.get_estado_clase()
+        ret['fecha_anulado'] = instance.get_fecha_anulado_texto()
+        ret['anulado'] = instance.comprobar_anulado()
+        #ret['tiene_movimientos'] = instance.comprobar_tiene_movimientos()
+        return ret

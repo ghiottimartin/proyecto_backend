@@ -321,3 +321,63 @@ class IngresoLinea(models.Model):
 
     def __str__(self):
         return "Línea de " + self.ingreso.__str__()
+
+
+class ReemplazoMercaderia(Auditoria, models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="reemplazos")
+    fecha = models.DateTimeField(default=datetime.datetime.now)
+    anulado = models.DateTimeField(null=True)
+
+    # Devuelve true si el usuario puede visualizar el reemplazo de mercadería.
+    def comprobar_puede_visualizar(self, usuario):
+        es_admin = usuario.esAdmin
+        return es_admin
+
+    # Devuelve true si el usuario puede anular el reemplazo de mercadería.
+    def comprobar_puede_anular(self, usuario):
+        es_admin = usuario.esAdmin
+        anulado = self.comprobar_anulado()
+        return es_admin and not anulado
+
+    # Devuelve true si ingreso no está anulado.
+    def comprobar_anulado(self):
+        anulado = self.anulado
+        return anulado is not None
+
+    # Devuelve la clase del estado del reemplazo de mercadería.
+    def get_estado_clase(self):
+        clase = 'font-weight-bold'
+        anulado = self.comprobar_anulado()
+        if anulado:
+            clase += ' text-danger'
+        else:
+            clase += ' text-success'
+        return clase
+
+    # Devuelve la fecha de anulación del reemplazo de mercadería. En caso que no haya sido anulado devuelve string vacío.
+    def get_fecha_anulado_texto(self):
+        anulado = self.anulado
+        if anulado is None:
+            return ""
+        return anulado.strftime('%d/%m/%Y %H:%M')
+
+    # Devuelve el estado del reemplazo de mercadería. Puede ser activo o anulado.
+    def get_estado_legible(self):
+        anulado = self.comprobar_anulado()
+        if anulado:
+            return 'Anulado'
+        return 'Activo'
+
+    def __str__(self):
+        return "Reemplazo de mercadería " + self.auditoria_creado_fecha.__str__()
+
+
+class ReemplazoMercaderiaLinea(models.Model):
+    reemplazo = models.ForeignKey('producto.ReemplazoMercaderia', on_delete=models.CASCADE, related_name="lineas")
+    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, related_name="reemplazos")
+    stock_anterior = models.IntegerField()
+    stock_nuevo = models.IntegerField()
+    reemplazo_completo = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Línea de " + self.reemplazo.__str__()

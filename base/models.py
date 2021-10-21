@@ -158,6 +158,11 @@ class Usuario(Auditoria, AbstractUser):
             "ruta": "/ingreso-mercaderia/",
             "titulo": "Ingreso",
             "descripcion": "Permite ingresar mercadería"
+        }, {
+            "roles": [Rol.ADMINISTRADOR],
+            "ruta": "/reemplazo-mercaderia/",
+            "titulo": "Reemplazo de mercadería",
+            "descripcion": "Permite reemplazar la mercadería existente"
         }]
         return operaciones
 

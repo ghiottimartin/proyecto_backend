@@ -9,9 +9,9 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
-from .models import Producto, Categoria, Ingreso, MovimientoStock
-from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, get_producto
-from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer
+from .models import Producto, Categoria, Ingreso, MovimientoStock, ReemplazoMercaderia
+from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, get_producto, validar_crear_reemplazo_mercaderia, crear_reemplazo_mercaderia
+from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer, ReemplazoMercaderiaSerializer
 
 respuesta = respuestas.Respuesta()
 
@@ -429,3 +429,29 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
             "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
+
+
+# Abm de ingresos.
+class ReemplazoMercaderiViewSet(viewsets.ModelViewSet):
+    queryset = ReemplazoMercaderia.objects.all()
+    serializer_class = ReemplazoMercaderiaSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        datos = request.data
+        try:
+            validar_crear_reemplazo_mercaderia(datos)
+            lineas = datos["lineas"]
+            usuario = request.user
+            reemplazo = crear_reemplazo_mercaderia(usuario, lineas)
+            if reemplazo is not None:
+                serializer = ReemplazoMercaderiaSerializer(instance=reemplazo)
+                datos = serializer.data
+            else:
+                return respuesta.get_respuesta(False, "Hubo un error al crear el reemplazo de mercadería")
+            #reemplazo.crear_movimientos()
+            return respuesta.get_respuesta(True, "", None, datos)
+        except ValidationError as e:
+            return respuesta.get_respuesta(False, e.messages)

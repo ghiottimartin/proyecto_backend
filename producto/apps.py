@@ -14,4 +14,5 @@ class ProductoConfig(AppConfig):
     pre_save.connect(agregar_auditorias, sender='producto.MovimientoStock')
     pre_save.connect(agregar_auditorias, sender='producto.Precio')
     pre_save.connect(agregar_auditorias, sender='producto.Costo')
+    pre_save.connect(agregar_auditorias, sender='producto.ReemplazoMercaderia')
 

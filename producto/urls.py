@@ -13,6 +13,7 @@ router.register('categorias/', views.CategoriaViewSet)
 router.register('abm/categorias/', views.ABMCategoriaViewSet)
 router.register('ingreso/', views.ABMIngresoViewSet)
 router.register('movimientos/', views.MovimientoStockViewSet)
+router.register('reemplazos/', views.ReemplazoMercaderiViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
