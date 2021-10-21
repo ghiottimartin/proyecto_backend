@@ -149,10 +149,16 @@ class PedidoViewSet(viewsets.ModelViewSet):
             en_curso = get_pedido(pk=None, usuario=usuario, estado=Estado.EN_CURSO)
         no_hay_abierto = pedido is None
         hay_en_curso = en_curso is not None
-        if no_hay_abierto and not hay_en_curso:
-            return respuesta.get_respuesta(False, "")
         if no_hay_abierto and hay_en_curso:
             return respuesta.get_respuesta(exito=True, datos={"en_curso": True})
+
+        disponible = get_pedido(pk=None, usuario=usuario, estado=Estado.DISPONIBLE)
+        hay_disponible = disponible is not None
+        if no_hay_abierto and hay_disponible:
+            return respuesta.get_respuesta(exito=True, datos={"disponible": True})
+
+        if no_hay_abierto and not hay_en_curso and not hay_disponible:
+            return respuesta.get_respuesta(False, "")
         return respuesta.get_respuesta(True, "", None, serializer.data)
 
     # Crea un pedido.
@@ -197,8 +203,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         try:
             pedido = get_pedido(pk)
             if pedido is None:
-                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido a marcar como "
-                                                                    "recibido.")
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido a actualizar.")
             abierto = pedido.comprobar_estado_abierto()
             if abierto:
                 return respuesta.get_respuesta(exito=False, mensaje="No se puede marcar como entregado el pedido "
@@ -206,11 +211,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
             recibido = pedido.comprobar_estado_recibido()
             if recibido:
                 return respuesta.get_respuesta(exito=False, mensaje="El pedido ya se encuentra en estado entregado.")
-            en_curso = pedido.comprobar_estado_en_curso()
-            if en_curso:
+            disponible = pedido.comprobar_estado_disponible()
+            if disponible:
                 pedido.entregar_pedido()
             else:
-                raise ValidationError("")
+                return respuesta.get_respuesta(exito=False, mensaje="No se puede entregar el pedido porque no tiene "
+                                                                    "estado disponible.")
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha entregado con éxito.")
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al entregar el pedido.")
@@ -237,3 +243,21 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha cancelado con éxito.")
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al cancelar el pedido.")
+
+    # Cambia el estado del pedido a disponible.
+    @action(detail=True, methods=['post'])
+    def disponible(self, request, pk=None):
+        try:
+            pedido = get_pedido(pk)
+            if pedido is None:
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido a actualizar.")
+            usuario = request.user
+            puede_marcar_disponible = pedido.comprobar_puede_marcar_disponible(usuario)
+            if not puede_marcar_disponible:
+                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para actualziar el pedido.")
+
+            pedido.agregar_estado(Estado.DISPONIBLE)
+            pedido.save()
+            return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha actualizado con éxito.")
+        except:
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al actualizar  el pedido.")

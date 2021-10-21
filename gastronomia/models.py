@@ -10,6 +10,7 @@ class Estado(models.Model):
 
     ABIERTO = 'abierto'
     EN_CURSO = 'en curso'
+    DISPONIBLE = 'disponible'
     RECIBIDO = 'recibido'
     CANCELADO = 'cancelado'
     ENTREGADO = 'entregado'
@@ -17,7 +18,8 @@ class Estado(models.Model):
     # Comprueba si el estado es válido
     @classmethod
     def comprobar_estado_valido(cls, estado):
-        return estado == cls.ABIERTO or estado == cls.EN_CURSO or estado == cls.RECIBIDO or estado == cls.CANCELADO or estado == cls.ENTREGADO
+        return estado == cls.ABIERTO or estado == cls.EN_CURSO or estado == cls.RECIBIDO or estado == cls.CANCELADO \
+               or estado == cls.ENTREGADO or estado == cls.DISPONIBLE
 
 
 class Pedido(Auditoria, models.Model):
@@ -63,6 +65,11 @@ class Pedido(Auditoria, models.Model):
         ultimo_estado = self.ultimo_estado
         return ultimo_estado == Estado.CANCELADO
 
+    # Devuelve true si el estado del pedido es disponible.
+    def comprobar_estado_disponible(self):
+        ultimo_estado = self.ultimo_estado
+        return ultimo_estado == Estado.DISPONIBLE
+
     # Devuelve true si el usuario actual puede visualizar el pedido.
     def comprobar_puede_visualizar(self, usuario):
         es_admin = usuario.esAdmin
@@ -73,18 +80,25 @@ class Pedido(Auditoria, models.Model):
 
     # Devuelve true si el usuario actual puede entregar el pedido.
     def comprobar_puede_entregar(self, usuario):
-        en_curso = self.comprobar_estado_en_curso()
+        disponible = self.comprobar_estado_disponible()
         es_vendedor = usuario.esVendedor
-        return en_curso and es_vendedor
+        return disponible and es_vendedor
 
     # Devuelve true si el usuario actual puede cancelar el pedido.
     def comprobar_puede_cancelar(self, usuario):
         abierto = self.comprobar_estado_abierto()
         en_curso = self.comprobar_estado_en_curso()
+        disponible = self.comprobar_estado_disponible()
         es_vendedor = usuario.esVendedor
         pedido_usuario = self.usuario
         le_pertenece = pedido_usuario == usuario
-        return (en_curso and es_vendedor) or (le_pertenece and abierto)
+        return ((en_curso or disponible) and es_vendedor) or (le_pertenece and (abierto or en_curso or disponible))
+
+    # Devuelve true si el pedido puese ser marcado como disponible para ser retirado.
+    def comprobar_puede_marcar_disponible(self, usuario):
+        en_curso = self.comprobar_estado_en_curso()
+        es_vendedor = usuario.esVendedor
+        return en_curso and es_vendedor
 
     # Actualiza el total del pedido, según los precios y cantidades de las líneas.
     def actualizar_total(self):
@@ -103,6 +117,9 @@ class Pedido(Auditoria, models.Model):
             objeto.save()
             self.ultimo_estado = estado
             self.estados.add(objeto)
+        else:
+            ultimo.fecha = datetime.datetime.now()
+            ultimo.save()
 
     # Borra todos los estados y líneas del pedido.
     def borrar_datos_pedido(self):

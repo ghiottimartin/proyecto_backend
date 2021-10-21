@@ -72,6 +72,17 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
 
+        puede_marcar_disponible = objeto.comprobar_puede_marcar_disponible(logueado)
+        if puede_marcar_disponible:
+            accion = 'disponible'
+            operaciones.append({
+                'accion': 'disponible',
+                'clase': 'btn btn-sm btn-success text-success',
+                'texto': 'Disponible',
+                'icono': 'fa fa-check-circle',
+                'key': str(objeto.id) + "-" + accion,
+            })
+
         puede_cancelar = objeto.comprobar_puede_cancelar(logueado)
         if puede_cancelar:
             accion = 'cancelar'
