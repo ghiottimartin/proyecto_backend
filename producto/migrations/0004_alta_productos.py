@@ -28,7 +28,7 @@ def agregar_productos(apps, schema_editor):
     pizzas = Categoria(nombre='Pizzas')
     pizzas.save()
 
-    agua = Producto(categoria=bebidas, nombre='Agua sin gas 0.5L', compra_directa=True, venta_directa=True, stock=0,
+    agua = Producto(categoria=bebidas, nombre='Agua sin gas 0.5L', compra_directa=True, venta_directa=True, stock=200,
         costo_vigente=200, precio_vigente=250,
         imagen='producto/agua-sin-gas.jpg', imagen_nombre='agua-sin-gas.jpg',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -36,7 +36,7 @@ def agregar_productos(apps, schema_editor):
     )
     agua.save()
 
-    cervezaSF = Producto(categoria=cervezas, nombre='Cerveza Santa Fe 473ml', compra_directa=True, venta_directa=True, stock=0,
+    cervezaSF = Producto(categoria=cervezas, nombre='Cerveza Santa Fe 473ml', compra_directa=True, venta_directa=True, stock=100,
         costo_vigente=100, precio_vigente=150,
         imagen='producto/cerveza-santa-fe.jpg', imagen_nombre='cerveza-santa-fe.jpg',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -45,7 +45,7 @@ def agregar_productos(apps, schema_editor):
     cervezaSF.save()
 
     cervezaStella = Producto(categoria=cervezas, nombre='Cerveza Stella 473ml', compra_directa=True, venta_directa=True,
-        stock=0,
+        stock=50,
         costo_vigente=150, precio_vigente=200,
         imagen='producto/cerveza-stella.png', imagen_nombre='cerveza-stella.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -54,7 +54,7 @@ def agregar_productos(apps, schema_editor):
     cervezaStella.save()
 
     cocaCola = Producto(categoria=bebidas, nombre='Coca Cola 500ml', compra_directa=True, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=150, precio_vigente=200,
         imagen='producto/coca-cola.jpg', imagen_nombre='coca-cola.jpg',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -63,7 +63,7 @@ def agregar_productos(apps, schema_editor):
     cocaCola.save()
 
     fanta = Producto(categoria=bebidas, nombre='Fanta 500ml', compra_directa=True, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=100, precio_vigente=180,
         imagen='producto/fanta.png', imagen_nombre='fanta.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -72,7 +72,7 @@ def agregar_productos(apps, schema_editor):
     fanta.save()
 
     hamburguesa = Producto(categoria=hamburguesas, nombre='Hamburguesa completa', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=500, precio_vigente=600,
         imagen='producto/hamburguesa.png', imagen_nombre='hamburguesa.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -81,7 +81,7 @@ def agregar_productos(apps, schema_editor):
     hamburguesa.save()
 
     lomito = Producto(categoria=lomitos, nombre='Lomito simple', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=550, precio_vigente=650,
         imagen='producto/lomito.png', imagen_nombre='lomito.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -90,7 +90,7 @@ def agregar_productos(apps, schema_editor):
     lomito.save()
 
     lomitoPapas = Producto(categoria=lomitos, nombre='Lomito con papas', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=650, precio_vigente=750,
         imagen='producto/lomito_papas.png', imagen_nombre='lomito_papas.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -99,7 +99,7 @@ def agregar_productos(apps, schema_editor):
     lomitoPapas.save()
 
     pizza4Quesos = Producto(categoria=pizzas, nombre='Pizza 4 Quesos', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=500, precio_vigente=550,
         imagen='producto/pizza-4-quesos.png', imagen_nombre='pizza-4-quesos.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -108,7 +108,7 @@ def agregar_productos(apps, schema_editor):
     pizza4Quesos.save()
 
     pizzaCalabresa = Producto(categoria=pizzas, nombre='Pizza Calabresa', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=50,
         costo_vigente=550, precio_vigente=600,
         imagen='producto/pizza-calabresa.png', imagen_nombre='pizza-calabresa.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -117,7 +117,7 @@ def agregar_productos(apps, schema_editor):
     pizzaCalabresa.save()
 
     pizzaEspecial = Producto(categoria=pizzas, nombre='Pizza Especial', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=550, precio_vigente=600,
         imagen='producto/pizza-especial.png', imagen_nombre='pizza-especial.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -126,7 +126,7 @@ def agregar_productos(apps, schema_editor):
     pizzaEspecial.save()
 
     pizzaFugazeta = Producto(categoria=pizzas, nombre='Pizza Fugazeta', compra_directa=False, venta_directa=True,
-        stock=0,
+        stock=40,
         costo_vigente=550, precio_vigente=600,
         imagen='producto/pizza-fugazeta.jfif', imagen_nombre='pizza-fugazeta.jfif',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -135,7 +135,7 @@ def agregar_productos(apps, schema_editor):
     pizzaFugazeta.save()
 
     pizzaMuzarella = Producto(categoria=pizzas, nombre='Pizza Muzarella', compra_directa=False, venta_directa=True,
-        stock=0, stock_seguridad=30,
+        stock=40, stock_seguridad=30,
         costo_vigente=550, precio_vigente=600,
         imagen='producto/pizza-muzarella.png', imagen_nombre='pizza-muzarella.png',
         auditoria_creado_fecha=datetime.datetime.now(),
@@ -144,7 +144,7 @@ def agregar_productos(apps, schema_editor):
     pizzaMuzarella.save()
 
     pizzaPollo = Producto(categoria=pizzas, nombre='Pizza Pollo', compra_directa=False, venta_directa=True,
-        stock=0, stock_seguridad=20,
+        stock=40, stock_seguridad=20,
         costo_vigente=550, precio_vigente=600,
         imagen='producto/pizza-pollo.png', imagen_nombre='pizza-pollo.png',
         auditoria_creado_fecha=datetime.datetime.now(),
