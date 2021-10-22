@@ -18,6 +18,14 @@ def get_ingreso(pk):
         return None
 
 
+# Busca un reemplazo de mercadería por id.
+def get_reemplazo(pk):
+    try:
+        return ReemplazoMercaderia.objects.get(pk=pk)
+    except ReemplazoMercaderia.DoesNotExist:
+        return None
+
+
 # Valida que los datos del ingreso sean correctos.
 def validar_crear_ingreso(datos):
     lineas = datos["lineas"] if "lineas" in datos else list()

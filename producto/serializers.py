@@ -170,4 +170,15 @@ class ReemplazoMercaderiaSerializer(serializers.ModelSerializer):
                 'icono': 'fa fa-eye',
                 'key': str(objeto.id) + "-" + accion,
             })
+
+        puede_anular = objeto.comprobar_puede_anular(logueado)
+        if puede_anular:
+            accion = 'anular'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-danger text-danger',
+                'texto': 'Anular',
+                'icono': 'fa fa-window-close',
+                'key': str(objeto.id) + "-" + accion,
+            })
         return operaciones

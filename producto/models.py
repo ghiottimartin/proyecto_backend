@@ -378,10 +378,18 @@ class ReemplazoMercaderia(Auditoria, models.Model):
     def get_id_texto(self):
         return "RM" + str(self.id).zfill(5)
 
+    # Genera los movimientos de movimientos de stock generados por los reemplazo de mercadería.
     def generar_movimientos(self):
         lineas = self.lineas.all()
         for linea in lineas:
             linea.crear_movimiento()
+
+    # Anula el reemplazo de mercadería generando un movimiento de stock por productos reemplazados.
+    def anular(self):
+        self.anulado = datetime.datetime.now()
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.anular()
 
     def __str__(self):
         return "Reemplazo de mercadería " + self.auditoria_creado_fecha.__str__()
@@ -402,6 +410,12 @@ class ReemplazoMercaderiaLinea(models.Model):
         id_texto = self.reemplazo.get_id_texto()
         descripcion = "Reemplazo de mercadería " + id_texto
         producto.actualizar_stock(nueva=stock_nuevo, descripcion=descripcion, reemplazo_linea=self)
+
+    # Crea un nuevo movimiento de stock negativo y actualiza el stock del producto.
+    def anular(self):
+        anterior = self.stock_anterior
+        producto = self.producto
+        producto.actualizar_stock(nueva=anterior, reemplazo_linea=self)
 
     def __str__(self):
         return "Línea de " + self.reemplazo.__str__()

@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria, Ingreso, MovimientoStock, ReemplazoMercaderia
-from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, validar_crear_reemplazo_mercaderia, crear_reemplazo_mercaderia
+from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, validar_crear_reemplazo_mercaderia, crear_reemplazo_mercaderia, get_reemplazo
 from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer, ReemplazoMercaderiaSerializer
 
 respuesta = respuestas.Respuesta()
@@ -538,3 +538,27 @@ class ReemplazoMercaderiViewSet(viewsets.ModelViewSet):
             "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
+
+    # Anula el reemplazo de mercadería realizado.
+    @transaction.atomic
+    @action(detail=True, methods=['post'])
+    def anular(self, request, pk=None):
+        try:
+            reemplazo = get_reemplazo(pk)
+            if reemplazo is None:
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el reemplazo de mercadería a anular.")
+
+            usuario = request.user
+            puede_anular = reemplazo.comprobar_puede_anular(usuario)
+            if not puede_anular:
+                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para anular el reemplazo de mercadería.")
+
+            anulado = reemplazo.comprobar_anulado()
+            if anulado:
+                return respuesta.get_respuesta(exito=False, mensaje="El reemplazo de mercadería ya se encuentra anulado.")
+
+            reemplazo.anular()
+            reemplazo.save()
+            return respuesta.get_respuesta(exito=True, mensaje="El reemplazo de mercadería se ha anulado con éxito.")
+        except:
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular el reemplazo de mercadería.")
