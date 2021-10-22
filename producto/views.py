@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria, Ingreso, MovimientoStock, ReemplazoMercaderia
-from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, get_producto, validar_crear_reemplazo_mercaderia, crear_reemplazo_mercaderia
+from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, validar_crear_reemplazo_mercaderia, crear_reemplazo_mercaderia
 from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer, ReemplazoMercaderiaSerializer
 
 respuesta = respuestas.Respuesta()
@@ -454,3 +454,87 @@ class ReemplazoMercaderiViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(True, "", None, datos)
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)
+
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
+        # Agrega filtro por id de reemplazo y lo devuelve sin el resto.
+        id = request.query_params.get('numero', "")
+        if id is not None and id.isnumeric() and int(id) > 0:
+            filtros = {
+                "id": id
+            }
+            return filtros
+
+        # Agrega filtros por fecha desde y hasta
+        desdeTexto = request.query_params.get('fechaDesde', "")
+        hastaTexto = request.query_params.get('fechaHasta', "")
+        desde = utils.get_fecha_string2objeto(desdeTexto)
+        hasta = utils.get_fecha_string2objeto(hastaTexto, False)
+        filtros = {
+            "fecha__range": (desde, hasta),
+        }
+
+        # Agrega filtros por reemplazos del usuario
+        idUsuario = request.query_params.get('usuario', None)
+        if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
+            filtros["usuario"] = idUsuario
+
+        # Agrega filtro por estado
+        estado = request.query_params.get('estado', "")
+        if estado != "":
+            filtros["anulado__isnull"] = True if estado == "anulado" else False
+
+        # Agrega filtro por usuario
+        usuario = request.query_params.get('nombreUsuario', "")
+        if usuario != "":
+            filtros["usuario__first_name__contains"] = usuario
+
+        # Agrega filtros por número de página actual
+        pagina = int(request.query_params.get('paginaActual', 1))
+        registros = int(request.query_params.get('registrosPorPagina', 10))
+        offset = (pagina - 1) * registros
+        limit = offset + registros
+        filtros["offset"] = offset
+        filtros["limit"] = limit
+        return filtros
+
+    # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        if id is None:
+            filtros.pop("offset")
+            filtros.pop("limit")
+        cantidad = ReemplazoMercaderia.objects.filter(**filtros).count()
+        return cantidad
+
+    # Devuelve los reemplazos según los filtros de la query
+    def filtrar_reemplazos(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        id_valido = id is not None and int(id) > 0
+        if id_valido:
+            return ReemplazoMercaderia.objects.filter(id=id)
+
+        offset = filtros.get("offset")
+        limit = filtros.get("limit")
+        filtros.pop("offset")
+        filtros.pop("limit")
+        pedidos = ReemplazoMercaderia.objects.filter(**filtros).order_by('-fecha')[offset:limit]
+        return pedidos
+
+    # Lista los reemplazos aplicando los filtros.
+    def list(self, request, *args, **kwargs):
+        reemplazos = self.filtrar_reemplazos(request)
+        if len(reemplazos) > 0:
+            serializer = ReemplazoMercaderiaSerializer(instance=reemplazos, many=True)
+            reemplazos = serializer.data
+
+        cantidad = self.get_cantidad_registros(request)
+        total = ReemplazoMercaderia.objects.count()
+        datos = {
+            "total": total,
+            "reemplazos": reemplazos,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
