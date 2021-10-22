@@ -136,6 +136,7 @@ class ReemplazoMercaderiaLineaSerializer(serializers.ModelSerializer):
 
 class ReemplazoMercaderiaSerializer(serializers.ModelSerializer):
     lineas = ReemplazoMercaderiaLineaSerializer(many=True, read_only=True)
+    operaciones = serializers.SerializerMethodField()
 
     class Meta:
         model = ReemplazoMercaderia
@@ -152,5 +153,21 @@ class ReemplazoMercaderiaSerializer(serializers.ModelSerializer):
         ret['estado_clase'] = instance.get_estado_clase()
         ret['fecha_anulado'] = instance.get_fecha_anulado_texto()
         ret['anulado'] = instance.comprobar_anulado()
-        #ret['tiene_movimientos'] = instance.comprobar_tiene_movimientos()
         return ret
+
+    # Devuelve las operaciones disponibles para el reemplazo de mercadería actual.
+    def get_operaciones(self, objeto):
+        logueado = get_usuario_logueado()
+        operaciones = []
+
+        puede_visualizar = objeto.comprobar_puede_visualizar(logueado)
+        if puede_visualizar:
+            accion = 'visualizar'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-info text-info',
+                'texto': 'Ver',
+                'icono': 'fa fa-eye',
+                'key': str(objeto.id) + "-" + accion,
+            })
+        return operaciones
