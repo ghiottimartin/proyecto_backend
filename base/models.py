@@ -176,8 +176,14 @@ class Usuario(Auditoria, AbstractUser):
             "roles": [Rol.VENEDEDOR],
             "ruta": "/pedidos/vendedor",
             "titulo": "Pedidos",
-            "descripcion": "Permite gestionar los pedidos"
-        }]
+            "descripcion": "Permite gestionar los pedidos online"
+        }, {
+            "roles": [Rol.VENEDEDOR],
+            "ruta": "/venta-almacen/listado",
+            "titulo": "Venta en almacén",
+            "descripcion": "Permite gestionar los ventas de almacén"
+        }
+        ]
         return operaciones
 
     def __str__(self):
