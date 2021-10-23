@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('superior', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='inferiores', to='producto.categoria')),
-                ('nombre', models.CharField(max_length=30)),
+                ('nombre', models.CharField(max_length=30, unique=True)),
                 ('descripcion', models.CharField(max_length=255, null=True)),
                 ('habilitado', models.BooleanField(default=True)),
                 ('borrado', models.BooleanField(default=False)),

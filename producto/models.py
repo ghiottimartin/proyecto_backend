@@ -9,7 +9,7 @@ import uuid
 class Categoria(Auditoria, models.Model):
     superior = models.ForeignKey(
         'Categoria', on_delete=models.PROTECT, related_name="inferiores", null=True, blank=True)
-    nombre = models.CharField(max_length=30)
+    nombre = models.CharField(max_length=30, unique=True)
     descripcion = models.CharField(max_length=255, null=True)
     habilitado = models.BooleanField(default=True)
     borrado = models.BooleanField(default=False)
