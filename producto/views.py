@@ -260,7 +260,7 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
         # Agrega filtro por estado
         estado = request.query_params.get('estado', "")
         if estado != "":
-            filtros["anulado__isnull"] = True if estado == "anulado" else False
+            filtros["anulado__isnull"] = True if estado == "activo" else False
 
         # Agrega filtro por usuario
         usuario = request.query_params.get('nombreUsuario', "")
