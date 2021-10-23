@@ -10,16 +10,27 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria, Ingreso, MovimientoStock, ReemplazoMercaderia
-from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, validar_crear_reemplazo_mercaderia, crear_reemplazo_mercaderia, get_reemplazo
-from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer, ReemplazoMercaderiaSerializer
+from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, validar_crear_reemplazo_mercaderia, \
+    crear_reemplazo_mercaderia, get_reemplazo
+from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer, \
+    ReemplazoMercaderiaSerializer
 
 respuesta = respuestas.Respuesta()
 
 
 # Obtención de categorías sin autorización
-class CategoriaViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,  mixins.RetrieveModelMixin):
+class CategoriaViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
+
+    def list(self, request, *args, **kwargs):
+        buscadas = Categoria.objects.filter(borrado=False).order_by('nombre')
+        serializer = CategoriaSerializer(instance=buscadas, many=True)
+        categorias = serializer.data
+        datos = {
+            "categorias": categorias
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
 
 
 # Abm de categorías con autorización
@@ -28,6 +39,17 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, TieneRolAdmin]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            existente = Categoria.objects.filter(nombre=request.data.get('nombre')).first()
+        except Categoria.DoesNotExist:
+            existente = None
+
+        if isinstance(existente, Categoria):
+            return respuesta.get_respuesta(False, "Ya existe una categoría con ese nombre")
+
+        return super().create(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         categoria = self.get_object()
@@ -193,7 +215,8 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(producto, data=request.data, partial=False)
         valido = serializer.is_valid(raise_exception=False)
         if not valido:
-            return respuesta.get_respuesta(False, "Hubo un error al actualizar el producto", None, serializer.get_errores_lista())
+            return respuesta.get_respuesta(False, "Hubo un error al actualizar el producto", None,
+                                           serializer.get_errores_lista())
 
         serializer.save()
         return respuesta.get_respuesta(True, "El producto fue actualizado con éxito", None, serializer.data)
@@ -202,7 +225,8 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         puede_borrarse = instance.comprobar_puede_borrarse()
         if not puede_borrarse:
-            return respuesta.get_respuesta(False, "El producto no se puede borrar porque está relacionado con un pedido")
+            return respuesta.get_respuesta(False,
+                                           "El producto no se puede borrar porque está relacionado con un pedido")
 
         super().destroy(self, request, *args, **kwargs)
         return respuesta.get_respuesta(True, "El producto se ha borrado con éxito")
@@ -551,19 +575,23 @@ class ReemplazoMercaderiViewSet(viewsets.ModelViewSet):
         try:
             reemplazo = get_reemplazo(pk)
             if reemplazo is None:
-                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el reemplazo de mercadería a anular.")
+                return respuesta.get_respuesta(exito=False,
+                                               mensaje="No se ha encontrado el reemplazo de mercadería a anular.")
 
             usuario = request.user
             puede_anular = reemplazo.comprobar_puede_anular(usuario)
             if not puede_anular:
-                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para anular el reemplazo de mercadería.")
+                return respuesta.get_respuesta(exito=False,
+                                               mensaje="No está habilitado para anular el reemplazo de mercadería.")
 
             anulado = reemplazo.comprobar_anulado()
             if anulado:
-                return respuesta.get_respuesta(exito=False, mensaje="El reemplazo de mercadería ya se encuentra anulado.")
+                return respuesta.get_respuesta(exito=False,
+                                               mensaje="El reemplazo de mercadería ya se encuentra anulado.")
 
             reemplazo.anular()
             reemplazo.save()
             return respuesta.get_respuesta(exito=True, mensaje="El reemplazo de mercadería se ha anulado con éxito.")
         except:
-            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular el reemplazo de mercadería.")
+            return respuesta.get_respuesta(exito=False,
+                                           mensaje="Ha ocurrido un error al anular el reemplazo de mercadería.")
