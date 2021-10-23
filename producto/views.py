@@ -375,6 +375,11 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
         if idIngreso is not None and idIngreso.isnumeric() and int(idIngreso) > 0:
             filtros["ingreso_linea__ingreso_id"] = idIngreso
 
+        # Agrega filtro por estado
+        estado = request.query_params.get('estado', "")
+        if estado != "":
+            filtros["anulado__isnull"] = True if estado == "activo" else False
+
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
         registros = int(request.query_params.get('registrosPorPagina', 10))
@@ -482,7 +487,7 @@ class ReemplazoMercaderiViewSet(viewsets.ModelViewSet):
         # Agrega filtro por estado
         estado = request.query_params.get('estado', "")
         if estado != "":
-            filtros["anulado__isnull"] = True if estado == "anulado" else False
+            filtros["anulado__isnull"] = True if estado == "activo" else False
 
         # Agrega filtro por usuario
         usuario = request.query_params.get('nombreUsuario', "")
