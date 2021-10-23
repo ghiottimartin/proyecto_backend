@@ -3,6 +3,7 @@ from base import utils
 from base.permisos import TieneRolAdmin
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import F
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -87,6 +88,12 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
             filtros["compra_directa"] = True
         elif tipo == 'venta':
             filtros["venta_directa"] = True
+
+        # Agrega filtro por alerta de stock
+        alerta_stock = request.query_params.get('alerta_stock', "")
+        if len(alerta_stock) > 0 and alerta_stock != '':
+            filtro_stock = 'stock__lt' if alerta_stock == 'con' else 'stock__gt'
+            filtros[filtro_stock] = F('stock_seguridad')
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
