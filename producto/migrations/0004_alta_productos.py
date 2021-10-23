@@ -36,6 +36,14 @@ def agregar_productos(apps, schema_editor):
     )
     agua.save()
 
+    aguaConGas = Producto(categoria=bebidas, nombre='Agua con gas 0.5L', compra_directa=True, venta_directa=True, stock=200,
+        costo_vigente=200, precio_vigente=250,
+        imagen='producto/agua-con-gas.jpg', imagen_nombre='agua-con-gas.jpg',
+        auditoria_creado_fecha=datetime.datetime.now(),
+        auditoria_modificado_fecha=datetime.datetime.now()
+    )
+    aguaConGas.save()
+
     cervezaSF = Producto(categoria=cervezas, nombre='Cerveza Santa Fe 473ml', compra_directa=True, venta_directa=True, stock=100,
         costo_vigente=100, precio_vigente=150,
         imagen='producto/cerveza-santa-fe.jpg', imagen_nombre='cerveza-santa-fe.jpg',
