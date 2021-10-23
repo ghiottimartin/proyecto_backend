@@ -153,6 +153,10 @@ class Pedido(Auditoria, models.Model):
             return ""
         return clase
 
+    # Devuelve el id legible del pedido.
+    def get_id_texto(self):
+        return "P" + str(self.id).zfill(5)
+
 
 class PedidoLinea(models.Model):
     pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="lineas")

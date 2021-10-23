@@ -35,7 +35,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         logueado = get_usuario_logueado()
 
         ret = super().to_representation(instance)
-        ret['id_texto'] = "P" + str(instance.id).zfill(5)
+        ret['id_texto'] = instance.get_id_texto()
         ret['cancelado'] = instance.comprobar_estado_cancelado()
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
@@ -46,6 +46,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['mostrar_usuario'] = logueado.esAdmin or logueado.esVendedor
         return ret
 
+    # Devuelve las operaciones de un pedido.
     def get_operaciones(self, objeto):
         logueado = get_usuario_logueado()
         operaciones = []
@@ -58,6 +59,7 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-info text-info',
                 'texto': 'Ver',
                 'icono': 'fa fa-eye',
+                'title': 'Ver Pedido ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
 
@@ -69,6 +71,7 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-success text-success',
                 'texto': 'Entregar',
                 'icono': 'fa fa-check-circle',
+                'title': 'Entregar Pedido ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
 
@@ -80,6 +83,7 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-success text-success',
                 'texto': 'Disponible',
                 'icono': 'fa fa-check-circle',
+                'title': 'Marcar Pedido ' + objeto.get_id_texto() + " como disponible",
                 'key': str(objeto.id) + "-" + accion,
             })
 
@@ -91,6 +95,7 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-danger text-danger',
                 'texto': 'Cancelar',
                 'icono': 'fa fa-window-close',
+                'title': 'Cancelar Pedido ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones

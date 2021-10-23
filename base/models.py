@@ -138,7 +138,7 @@ class Usuario(Auditoria, AbstractUser):
             "roles": [Rol.ADMINISTRADOR, Rol.VENEDEDOR],
             "ruta": "/usuarios/listar",
             "titulo": "Usuarios",
-            "descripcion": "Permite gestionar los usuarios del sistema"
+            "descripcion": "Permite gestionar los usuarios"
         }]
         return operaciones_admin + operaciones_vendedor + generales
 
@@ -152,7 +152,7 @@ class Usuario(Auditoria, AbstractUser):
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/productos/listar/admin",
             "titulo": "Productos",
-            "descripcion": "Permite gestionar los productos del sistema"
+            "descripcion": "Permite gestionar los productos"
         }, {
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/ingreso-mercaderia/",

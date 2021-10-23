@@ -111,6 +111,10 @@ class Producto(Auditoria, models.Model):
         redondeado = str(round(margen, 2))
         return redondeado + "%"
 
+    # Devuelve el id legible del producto.
+    def get_id_texto(self):
+        return "P" + str(self.id).zfill(5)
+
     # Actualiza el stock y sus movimientos en caso de ser necesario.
     def actualizar_stock(self, nueva=0, descripcion="", reemplazo_linea=None):
         if nueva == 0 and reemplazo_linea is None:
@@ -258,6 +262,10 @@ class Ingreso(Auditoria, models.Model):
         if anulado:
             return 'Anulado'
         return 'Activo'
+
+    # Devuelve el id legible del ingreso.
+    def get_id_texto(self):
+        return "I" + str(self.id).zfill(5)
 
     def __str__(self):
         return "Ingreso " + self.auditoria_creado_fecha.__str__()

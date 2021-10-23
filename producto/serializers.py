@@ -16,6 +16,7 @@ class ProductoSerializer(CustomModelSerializer):
     def to_representation(self, instance):
         """Quito password"""
         ret = super().to_representation(instance)
+        ret['id_texto'] = instance.get_id_texto()
         ret['categoria_texto'] = instance.categoria.nombre
         ret['precio_texto'] = locale.currency(instance.precio_vigente)
         ret['costo_texto'] = locale.currency(instance.costo_vigente)
@@ -84,7 +85,7 @@ class IngresoSerializer(serializers.ModelSerializer):
     # Método que devuelve los datos del ingreso.
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['id_texto'] = "I" + str(instance.id).zfill(5)
+        ret['id_texto'] = instance.get_id_texto()
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = instance.usuario.first_name
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
@@ -109,6 +110,7 @@ class IngresoSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-info text-info',
                 'texto': 'Ver',
                 'icono': 'fa fa-eye',
+                'title': 'Ver Ingreso ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
 
@@ -120,6 +122,7 @@ class IngresoSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-danger text-danger',
                 'texto': 'Anular',
                 'icono': 'fa fa-window-close',
+                'title': 'Anular Ingreso ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones
@@ -168,6 +171,7 @@ class ReemplazoMercaderiaSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-info text-info',
                 'texto': 'Ver',
                 'icono': 'fa fa-eye',
+                'title': 'Ver Reemplazo ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
 
@@ -179,6 +183,7 @@ class ReemplazoMercaderiaSerializer(serializers.ModelSerializer):
                 'clase': 'btn btn-sm btn-danger text-danger',
                 'texto': 'Anular',
                 'icono': 'fa fa-window-close',
+                'title': 'Anular Reemplazo ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones
