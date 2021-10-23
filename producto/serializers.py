@@ -36,6 +36,7 @@ class CategoriaSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Quito password"""
         ret = super().to_representation(instance)
+        ret['id_texto'] = instance.get_id_texto()
         ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
         return ret
 

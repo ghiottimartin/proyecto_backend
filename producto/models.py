@@ -16,6 +16,10 @@ class Categoria(Auditoria, models.Model):
     auditoria_creador = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="categorias_creadas", null=True)
     auditoria_modificado = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="categorias_modificadas", null=True)
 
+    # Devuelve el id legible de la categoría.
+    def get_id_texto(self):
+        return "C" + str(self.id).zfill(5)
+
     def comprobar_puede_borrarse(self):
         cantidad = self.productos.all().filter(borrado=False).count()
         return cantidad == 0
