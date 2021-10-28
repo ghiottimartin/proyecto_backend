@@ -160,13 +160,16 @@ def crear_linea_venta(venta, item):
     producto = get_producto(id_producto)
     if producto is None:
         raise ValidationError("No se ha encontrado el producto.")
+    nombre = producto.nombre
     venta_directa = producto.venta_directa
     if not venta_directa:
-        nombre = producto.nombre
         raise ValidationError("El producto '" + nombre + "' no es de venta directa.")
     cantidad = item["cantidad"]
     if int(cantidad) == 0:
         return None
+    stock = producto.stock
+    if cantidad > stock:
+        raise ValidationError("No hay suficiente stock para el producto '" + nombre + "', quedan " + str(stock))
     precio = producto.precio_vigente
     linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio)
     linea.save()
