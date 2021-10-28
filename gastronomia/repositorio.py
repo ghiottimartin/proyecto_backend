@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from .models import Pedido, PedidoLinea, Estado
+from .models import Pedido, PedidoLinea, Estado, Venta, VentaLinea
 from producto.repositorio import get_producto
 
 
@@ -11,6 +11,14 @@ def get_pedido(pk=None, usuario=None, estado=None):
         if usuario is not None and estado is not None:
             return Pedido.objects.filter(ultimo_estado=estado, usuario=usuario).first()
     except Pedido.DoesNotExist:
+        return None
+
+
+# Busca una venta por id.
+def get_venta(pk):
+    try:
+        return Venta.objects.get(pk=pk)
+    except Venta.DoesNotExist:
         return None
 
 
@@ -116,3 +124,50 @@ def cerrar_pedido(pedido):
     pedido.agregar_estado(Estado.EN_CURSO)
     pedido.save()
     return pedido
+
+
+# Valida que los datos de la venta sean correctos.
+def validar_crear_venta(datos):
+    lineas = datos["lineas"] if "lineas" in datos else list()
+    if not isinstance(lineas, list):
+        raise ValidationError("Debe seleccionar al menos un producto.")
+    else:
+        for linea in lineas:
+            try:
+                id_producto = linea["producto"]["id"]
+            except:
+                id_producto = 0
+            if id_producto <= 0:
+                raise ValidationError("No se ha encontrado el producto.")
+            cantidad = int(linea["cantidad"]) if "cantidad" in linea else 0
+            if not isinstance(cantidad, int):
+                raise ValidationError("La cantidad del producto debe tener un valor numérico.")
+
+
+# Crea una nueva venta.
+def crear_venta(usuario, lineas):
+    venta = Venta(usuario=usuario)
+    venta.save()
+    for item in lineas:
+        crear_linea_venta(venta, item)
+    venta.actualizar()
+    return venta
+
+
+# Crea una nueva línea de venta.
+def crear_linea_venta(venta, item):
+    id_producto = item["producto"]["id"]
+    producto = get_producto(id_producto)
+    if producto is None:
+        raise ValidationError("No se ha encontrado el producto.")
+    venta_directa = producto.venta_directa
+    if not venta_directa:
+        nombre = producto.nombre
+        raise ValidationError("El producto '" + nombre + "' no es de venta directa.")
+    cantidad = item["cantidad"]
+    if int(cantidad) == 0:
+        return None
+    precio = producto.precio_vigente
+    linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio)
+    linea.save()
+    return linea

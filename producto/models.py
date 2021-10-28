@@ -2,7 +2,7 @@ import datetime
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from base.models import Auditoria, Usuario
-from gastronomia.models import Pedido, Estado
+from gastronomia.models import Pedido, Estado, VentaLinea
 import uuid
 
 
@@ -120,8 +120,8 @@ class Producto(Auditoria, models.Model):
         return "P" + str(self.id).zfill(5)
 
     # Actualiza el stock y sus movimientos en caso de ser necesario.
-    def actualizar_stock(self, nueva=0, descripcion="", reemplazo_linea=None):
-        if nueva == 0 and reemplazo_linea is None:
+    def actualizar_stock(self, nueva=0, descripcion="", reemplazo_linea=None, venta_linea=None):
+        if nueva == 0 and reemplazo_linea is None and venta_linea is None:
             return
 
         # Calculo la cantidad de stock generado por la edición.
@@ -142,6 +142,8 @@ class Producto(Auditoria, models.Model):
         movimiento = MovimientoStock(producto=self, cantidad=diferencia, descripcion=descripcion)
         if reemplazo_linea is not None and isinstance(reemplazo_linea, ReemplazoMercaderiaLinea):
             movimiento.reemplazo_linea = reemplazo_linea
+        if venta_linea is not None and isinstance(venta_linea, VentaLinea):
+            movimiento.venta_linea = venta_linea
         movimiento.save()
 
         self.stock = int(nueva)
@@ -172,6 +174,7 @@ class Costo(Auditoria, models.Model):
 class MovimientoStock(Auditoria, models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="movimientos", default="movimientos")
     ingreso_linea = models.ForeignKey('producto.IngresoLinea', on_delete=models.CASCADE, related_name="movimientos", default=None, null=True)
+    venta_linea = models.ForeignKey('gastronomia.VentaLinea', on_delete=models.CASCADE, related_name="movimientos", default=None, null=True)
     reemplazo_linea = models.ForeignKey('producto.ReemplazoMercaderiaLinea', on_delete=models.CASCADE, related_name="reemplazos", default=None, null=True)
     cantidad = models.IntegerField()
     descripcion = models.CharField(max_length=255)

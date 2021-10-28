@@ -1,9 +1,10 @@
-from .models import Pedido, Estado
-from .serializers import PedidoSerializer
+from .models import Pedido, Estado, Venta
+from .serializers import PedidoSerializer, VentaSerializer
 from base.respuestas import Respuesta
+from base.permisos import TieneRolAdmin
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido
+from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido, get_venta, validar_crear_venta, crear_venta
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
@@ -261,3 +262,137 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha actualizado con éxito.")
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al actualizar  el pedido.")
+
+
+# Abm de ventas.
+class ABMVentaViewSet(viewsets.ModelViewSet):
+    queryset = Venta.objects.all()
+    serializer_class = VentaSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        datos = request.data
+        try:
+            validar_crear_venta(datos)
+            lineas = datos["lineas"]
+            usuario = request.user
+            venta = crear_venta(usuario, lineas)
+            if venta is not None:
+                serializer = VentaSerializer(instance=venta)
+                datos = serializer.data
+            else:
+                return respuesta.get_respuesta(False, "Hubo un error al crear la venta")
+            venta.crear_movimientos()
+            return respuesta.get_respuesta(True, "", None, datos)
+        except ValidationError as e:
+            return respuesta.get_respuesta(False, e.messages)
+
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
+        # Agrega filtro por id de ingreso y lo devuelve sin el resto.
+        id = request.query_params.get('numero', "")
+        if id is not None and id.isnumeric() and int(id) > 0:
+            filtros = {
+                "id": id
+            }
+            return filtros
+
+        # Agrega filtros por fecha desde y hasta
+        desdeTexto = request.query_params.get('fechaDesde', "")
+        hastaTexto = request.query_params.get('fechaHasta', "")
+        desde = utils.get_fecha_string2objeto(desdeTexto)
+        hasta = utils.get_fecha_string2objeto(hastaTexto, False)
+        filtros = {
+            "auditoria_creado_fecha__range": (desde, hasta),
+        }
+
+        # Agrega filtros por ingresos del usuario
+        idUsuario = request.query_params.get('usuario', None)
+        if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
+            filtros["usuario"] = idUsuario
+
+        # Agrega filtro por estado
+        estado = request.query_params.get('estado', "")
+        if estado != "":
+            filtros["anulado__isnull"] = True if estado == "activo" else False
+
+        # Agrega filtro por usuario
+        usuario = request.query_params.get('nombreUsuario', "")
+        if usuario != "":
+            filtros["usuario__first_name__contains"] = usuario
+
+        # Agrega filtros por número de página actual
+        pagina = int(request.query_params.get('paginaActual', 1))
+        registros = int(request.query_params.get('registrosPorPagina', 10))
+        offset = (pagina - 1) * registros
+        limit = offset + registros
+        filtros["offset"] = offset
+        filtros["limit"] = limit
+        return filtros
+
+    # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        if id is None:
+            filtros.pop("offset")
+            filtros.pop("limit")
+        cantidad = Venta.objects.filter(**filtros).count()
+        return cantidad
+
+    # Devuelve las ventas según los filtros de la query
+    def filtrar_ingresos(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        id_valido = id is not None and int(id) > 0
+        if id_valido:
+            return Venta.objects.filter(id=id)
+
+        offset = filtros.get("offset")
+        limit = filtros.get("limit")
+        filtros.pop("offset")
+        filtros.pop("limit")
+        ventas = Venta.objects.filter(**filtros).order_by('-auditoria_creado_fecha')[offset:limit]
+        return ventas
+
+    # Lista los ingresos aplicando los filtros.
+    def list(self, request, *args, **kwargs):
+        ventas = self.filtrar_ingresos(request)
+        if len(ventas) > 0:
+            serializer = VentaSerializer(instance=ventas, many=True)
+            ventas = serializer.data
+
+        cantidad = self.get_cantidad_registros(request)
+        total = Venta.objects.count()
+        datos = {
+            "total": total,
+            "ventas": ventas,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
+
+    # Anula la venta.
+    @transaction.atomic
+    @action(detail=True, methods=['post'])
+    def anular(self, request, pk=None):
+        try:
+            venta = get_venta(pk)
+            if venta is None:
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a anular.")
+
+            usuario = request.user
+            puede_anular = venta.comprobar_puede_anular(usuario)
+            if not puede_anular:
+                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para anular la venta.")
+
+            anulado = venta.comprobar_anulada()
+            if anulado:
+                return respuesta.get_respuesta(exito=False, mensaje="La venta ya se encuentra anulado.")
+
+            venta.anular()
+            venta.save()
+            return respuesta.get_respuesta(exito=True, mensaje="La venta se ha anulado con éxito.")
+        except:
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular la venta.")

@@ -181,9 +181,8 @@ class Usuario(Auditoria, AbstractUser):
             "roles": [Rol.VENEDEDOR],
             "ruta": "/venta-almacen/listado",
             "titulo": "Venta en almacén",
-            "descripcion": "Permite gestionar los ventas de almacén"
-        }
-        ]
+            "descripcion": "Permite gestionar las ventas de almacén"
+        }]
         return operaciones
 
     def __str__(self):

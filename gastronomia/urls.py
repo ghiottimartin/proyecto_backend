@@ -6,6 +6,7 @@ app_name = "gastronomia"
 
 router = routers.SimpleRouter()
 router.register('pedido', views.PedidoViewSet)
+router.register('venta/', views.ABMVentaViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -172,3 +172,129 @@ class PedidoLinea(models.Model):
         self.subtotal = precio
         self.total = total
         self.save()
+
+
+class Venta(Auditoria, models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="ventas")
+    total = models.FloatField(default=0)
+    anulado = models.DateTimeField(null=True)
+
+    def actualizar(self):
+        self.actualizar_lineas()
+        self.actualizar_total()
+
+    def actualizar_lineas(self):
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.actualizar()
+
+    # Actualiza el total de la venta a partir del total de cada línea.
+    def actualizar_total(self):
+        lineas = self.lineas.all()
+        total = 0
+        for linea in lineas:
+            total += linea.total
+        self.total = total
+        self.save()
+
+    # Crea un movimiento de stock por cada producto vendido.
+    def crear_movimientos(self):
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.crear_movimiento()
+
+    # Devuelve true si el usuario puede visualizar el ingreso.
+    def comprobar_puede_visualizar(self, usuario):
+        es_admin = usuario.esAdmin
+        return es_admin
+
+    # Devuelve true si el usuario puede anular la venta.
+    def comprobar_puede_anular(self, usuario):
+        es_admin = usuario.esAdmin
+        anulado = self.comprobar_anulada()
+        return es_admin and not anulado
+
+    # Devuelve true si la venta no está anulada.
+    def comprobar_anulada(self):
+        anulado = self.anulado
+        return anulado is not None
+
+    # Anula la venta generando un movimiento de stock a los productos ingresados.
+    def anular(self):
+        self.anulado = datetime.datetime.now()
+        lineas = self.lineas.all()
+        for linea in lineas:
+            linea.anular()
+
+    # Devuelve la clase del estado de la venta.
+    def get_estado_clase(self):
+        clase = 'font-weight-bold'
+        anulado = self.comprobar_anulada()
+        if anulado:
+            clase += ' text-danger'
+        else:
+            clase += ' text-success'
+        return clase
+
+    # Devuelve la fecha de anulación de la venta. En caso que no haya sido anulada devuelve string vacío.
+    def get_fecha_anulada_texto(self):
+        anulado = self.anulado
+        if anulado is None:
+            return ""
+        return anulado.strftime('%d/%m/%Y %H:%M')
+
+    # Devuelve el estado de la venta. Puede ser activa o anulado.
+    def get_estado_legible(self):
+        anulado = self.comprobar_anulada()
+        if anulado:
+            return 'Anulada'
+        return 'Activa'
+
+    # Devuelve el id legible de la venta.
+    def get_id_texto(self):
+        return "V" + str(self.id).zfill(5)
+
+    def __str__(self):
+        id_texto = self.get_id_texto()
+        return "Venta " + id_texto
+
+
+class VentaLinea(models.Model):
+    venta = models.ForeignKey('gastronomia.Venta', on_delete=models.CASCADE, related_name="lineas")
+    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, related_name="+")
+    cantidad = models.IntegerField()
+    precio = models.IntegerField()
+    total = models.FloatField(default=0)
+
+    # Crea un movimiento de stock a partir del producto vendido.
+    def crear_movimiento(self):
+        producto = self.producto
+        cantidad = self.cantidad
+        descripcion = self.venta.__str__()
+
+        producto.actualizar_stock(nueva=cantidad, descripcion=descripcion)
+        producto.save()
+
+    def actualizar(self):
+        self.actualizar_total()
+
+    # Actualiza el total de la línea a partir de la cantidad y el precio.
+    def actualizar_total(self):
+        precio = self.precio
+        total = precio * self.cantidad
+        self.total = total
+        self.save()
+
+    # Crea un nuevo movimiento de stock negativo y actualiza el stock del producto.
+    def anular(self):
+        cantidad = self.cantidad
+        producto = self.producto
+        anterior = producto.stock
+        nueva = anterior - cantidad
+
+        descripcion = self.venta.__str__() + " anulada"
+        producto.actualizar_stock(nueva=nueva, descripcion=descripcion, venta_linea=self)
+        producto.save()
+
+    def __str__(self):
+        return "Línea de " + self.venta.__str__()
