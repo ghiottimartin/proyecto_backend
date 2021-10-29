@@ -32,6 +32,7 @@ class RolSerializer(serializers.ModelSerializer):
 # Serializador del usuario.
 class UsuarioSerializer(CustomModelSerializer):
     roles = RolSerializer(many=True, read_only=True)
+    operaciones = serializers.SerializerMethodField()
 
     class Meta:
         model = Usuario
@@ -43,7 +44,6 @@ class UsuarioSerializer(CustomModelSerializer):
         """Quito password"""
         ret = super().to_representation(instance)
         ret['password'] = ""
-        ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
         ret['puede_deshabilitarse'] = instance.habilitado
         ret['puede_habilitarse'] = not instance.habilitado
         ret['habilitado_texto'] = "Activo" if instance.habilitado else "Deshabilitado"
@@ -51,6 +51,56 @@ class UsuarioSerializer(CustomModelSerializer):
         estado = "text-success" if instance.habilitado else "text-danger"
         ret['habilitado_clase'] = estado + " font-weight-bold"
         return ret
+
+    # Devuelve las operaciones disponibles para el usuario actual.
+    def get_operaciones(self, objeto):
+        operaciones = []
+
+        accion = 'editar'
+        operaciones.append({
+            'accion': accion,
+            'clase': 'btn btn-sm btn-success text-success',
+            'texto': 'Editar',
+            'icono': 'fas fa-pencil-alt',
+            'title': 'Editar Usuario ' + objeto.get_id_texto(),
+            'key': str(objeto.id) + "-" + accion,
+        })
+
+        puede_borrar = objeto.comprobar_puede_borrarse()
+        if puede_borrar:
+            accion = 'borrar'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-danger text-danger',
+                'texto': 'Borrar',
+                'icono': 'fas fa-trash-alt',
+                'title': 'Borrar Usuario ' + objeto.get_id_texto(),
+                'key': str(objeto.id) + "-" + accion,
+            })
+
+        habilitado = objeto.habilitado
+        if habilitado:
+            accion = 'deshabilitar'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-secondary text-secondary',
+                'texto': 'Deshabilitar',
+                'icono': 'fas fa-ban',
+                'title': 'Deshabilitar Usuario ' + objeto.get_id_texto(),
+                'key': str(objeto.id) + "-" + accion,
+            })
+        else:
+            accion = 'habilitar'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-primary text-primary',
+                'texto': 'Habilitar',
+                'icono': 'fas fa-trash-alt',
+                'title': 'Habilitar Usuario ' + objeto.get_id_texto(),
+                'key': str(objeto.id) + "-" + accion,
+            })
+
+        return operaciones
 
     # Método de creación de un usuario.
     def create(self, validated_data):

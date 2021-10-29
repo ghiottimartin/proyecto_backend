@@ -185,6 +185,10 @@ class Usuario(Auditoria, AbstractUser):
         }]
         return operaciones
 
+    # Devuelve el id legible del usuario.
+    def get_id_texto(self):
+        return "U" + str(self.id).zfill(5)
+
     def __str__(self):
         return self.username
 
