@@ -32,12 +32,12 @@ class RolSerializer(serializers.ModelSerializer):
 # Serializador del usuario.
 class UsuarioSerializer(CustomModelSerializer):
     roles = RolSerializer(many=True, read_only=True)
-    operaciones = serializers.SerializerMethodField()
+    operaciones_listado = serializers.SerializerMethodField()
 
     class Meta:
         model = Usuario
         fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password', 'dni', 'operaciones',
-                  'esAdmin', 'esMozo', 'esComensal', 'esVendedor', 'observaciones']
+                  'esAdmin', 'esMozo', 'esComensal', 'esVendedor', 'observaciones', 'operaciones_listado']
 
     # Método que devuelve los datos del usuario. Quito la contraseña para que no sea mostrada al usuario.
     def to_representation(self, instance):
@@ -53,7 +53,7 @@ class UsuarioSerializer(CustomModelSerializer):
         return ret
 
     # Devuelve las operaciones disponibles para el usuario actual.
-    def get_operaciones(self, objeto):
+    def get_operaciones_listado(self, objeto):
         operaciones = []
 
         accion = 'editar'
