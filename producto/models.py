@@ -106,6 +106,12 @@ class Producto(Auditoria, models.Model):
         alerta = self.stock_seguridad
         return actual < alerta
 
+    # Comprueba si hay stock para vender el producto.
+    def comprobar_tiene_stock(self, cantidad):
+        stock = self.stock
+        stock_seguridad = self.stock_seguridad
+        return cantidad < stock and cantidad < stock_seguridad
+
     # Devuelve el margen de ganancia del producto.
     def get_margen_ganancia(self):
         precio = self.precio_vigente

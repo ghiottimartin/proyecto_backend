@@ -71,6 +71,11 @@ def crear_linea_pedido(pedido, item):
     cantidad = item["cantidad"]
     if int(cantidad) == 0:
         return None
+    tiene_stock = producto.comprobar_tiene_stock(cantidad)
+    nombre = producto.nombre
+    if not tiene_stock:
+        raise Exception("No hay suficiente stock a la venta para el producto '" + nombre)
+
     linea = PedidoLinea(pedido=pedido, producto=producto, cantidad=cantidad)
     linea.actualizar_total()
     linea.save()
@@ -106,6 +111,12 @@ def actualizar_lineas_pedido(pedido, lineas):
             objeto.delete()
         elif objeto is not None:
             objeto.cantidad = linea["cantidad"]
+
+        producto = objeto.producto
+        tiene_stock = producto.comprobar_tiene_stock(cantidad)
+        nombre = producto.nombre
+        if not tiene_stock:
+            raise ValidationError("No hay suficiente stock a la venta para el producto '" + nombre)
 
         if objeto is not None and objeto.id is not None:
             objeto.actualizar_total()
@@ -167,9 +178,10 @@ def crear_linea_venta(venta, item):
     cantidad = item["cantidad"]
     if int(cantidad) == 0:
         return None
-    stock = producto.stock
-    if cantidad > stock:
-        raise ValidationError("No hay suficiente stock para el producto '" + nombre + "', quedan " + str(stock))
+    tiene_stock = producto.comprobar_tiene_stock(cantidad)
+    if not tiene_stock:
+        stock = producto.stock
+        raise ValidationError("No hay suficiente stock a la venta para el producto '" + nombre + " quedan " + str(stock))
     precio = producto.precio_vigente
     linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio)
     linea.save()
