@@ -66,10 +66,75 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(True, "El usuario se ha actualizado con éxito.", None,
                                        {"usuario": serializer.data, "esAdmin": esAdmin})
 
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
+        filtros = {}
+
+        # Agrega filtros por nombre de usuario
+        nombre = request.query_params.get('nombre', None)
+        if nombre != "":
+            filtros["first_name__contains"] = nombre
+
+        # Agrega filtros por dni
+        dni = request.query_params.get('dni', None)
+        if dni is not None and dni.isnumeric() and int(dni) > 0:
+            filtros["dni__contains"] = dni
+
+        # Agrega filtros por rol
+        rol = request.query_params.get('rol', None)
+        if rol != '':
+            filtros["roles__nombre__contains"] = rol
+
+        # Agrega filtro por estado
+        estado = request.query_params.get('estado', "")
+        if estado != "":
+            filtros["habilitado"] = True if estado == "activo" else False
+
+        # Agrega filtros por número de página actual
+        pagina = int(request.query_params.get('paginaActual', 1))
+        registros = int(request.query_params.get('registrosPorPagina', 10))
+        offset = (pagina - 1) * registros
+        limit = offset + registros
+        filtros["offset"] = offset
+        filtros["limit"] = limit
+        return filtros
+
+        # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        if id is None:
+            filtros.pop("offset")
+            filtros.pop("limit")
+        cantidad = Usuario.objects.filter(**filtros).exclude(roles__nombre__contains=Rol.ADMINISTRADOR).count()
+        return cantidad
+
+    # Devuelve los usuarios según los filtros de la query
+    def filtrar_usuarios(self, request):
+        filtros = self.get_filtros(request)
+        offset = filtros.get("offset")
+        limit = filtros.get("limit")
+        filtros.pop("offset")
+        filtros.pop("limit")
+        usuarios = Usuario.objects.filter(**filtros).exclude(roles__nombre__contains=Rol.ADMINISTRADOR).order_by('-auditoria_creado_fecha')[offset:limit]
+        return usuarios
+
+    # Lista los usuarios aplicando los filtros.
     def list(self, request, *args, **kwargs):
-        usuarios = Usuario.objects.filter(borrado=False).exclude(roles__in=Rol.objects.filter(nombre=Rol.ADMINISTRADOR))
-        serializer = UsuarioSerializer(instance=usuarios, many=True)
-        return respuesta.get_respuesta(True, "", None, {"usuarios": serializer.data})
+        usuarios = self.filtrar_usuarios(request)
+        if len(usuarios) > 0:
+            serializer = UsuarioSerializer(instance=usuarios, many=True)
+            usuarios = serializer.data
+
+        cantidad = self.get_cantidad_registros(request)
+        total = Usuario.objects.exclude(roles__nombre__contains=Rol.ADMINISTRADOR).count()
+        datos = {
+            "total": total,
+            "usuarios": usuarios,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
