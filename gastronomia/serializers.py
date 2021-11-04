@@ -174,7 +174,7 @@ class VentaSerializer(serializers.ModelSerializer):
         accion = 'pdf'
         operaciones.append({
             'accion': accion,
-            'clase': 'btn btn-sm btn-warning text-warning',
+            'clase': 'btn btn-sm btn-primary text-primary',
             'texto': 'Pdf',
             'icono': 'fas fa-file-pdf',
             'title': 'Descargar Pdf Venta ' + objeto.get_id_texto(),
