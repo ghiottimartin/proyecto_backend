@@ -4,7 +4,9 @@ from base.respuestas import Respuesta
 from base.permisos import TieneRolAdmin
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido, get_venta, validar_crear_venta, crear_venta
+from base.exportador import render_to_pdf
+from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido, \
+    get_venta, validar_crear_venta, crear_venta
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
@@ -396,3 +398,18 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=True, mensaje="La venta se ha anulado con éxito.")
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular la venta.")
+
+    @action(detail=True, methods=['get'])
+    def pdf(self, request, pk=None):
+        objeto = get_venta(pk)
+        if objeto is None:
+            return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a exportar.")
+        serializer = VentaSerializer(instance=objeto)
+        venta = serializer.data
+        return render_to_pdf(
+            'gastronomia/venta.html',
+            {
+                'pagesize': 'A4',
+                'venta': venta,
+            }
+        )

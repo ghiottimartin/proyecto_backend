@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Pedido, PedidoLinea, VentaLinea, Venta
 from producto.serializers import ProductoSerializer, MovimientoSerializer
 from base.signals import get_usuario_logueado
-
+import unidecode
 import locale
 
 locale.setlocale(locale.LC_ALL, '')
@@ -133,7 +133,7 @@ class VentaSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         ret['id_texto'] = instance.get_id_texto()
         ret['usuario_email'] = instance.usuario.email
-        ret['usuario_nombre'] = instance.usuario.first_name
+        ret['usuario_nombre'] = unidecode.unidecode(instance.usuario.first_name)
         ret['fecha_texto'] = instance.auditoria_creado_fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
         ret['estado_texto'] = instance.get_estado_legible()
@@ -170,4 +170,14 @@ class VentaSerializer(serializers.ModelSerializer):
                 'title': 'Anular Venta ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
+
+        accion = 'pdf'
+        operaciones.append({
+            'accion': accion,
+            'clase': 'btn btn-sm btn-warning text-warning',
+            'texto': 'Pdf',
+            'icono': 'fas fa-file-pdf',
+            'title': 'Descargar Pdf Venta ' + objeto.get_id_texto(),
+            'key': str(objeto.id) + "-" + accion,
+        })
         return operaciones
