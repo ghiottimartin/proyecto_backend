@@ -12,13 +12,13 @@ class Estado(models.Model):
     EN_CURSO = 'en curso'
     DISPONIBLE = 'disponible'
     RECIBIDO = 'recibido'
-    CANCELADO = 'cancelado'
+    ANULADO = 'anulado'
     ENTREGADO = 'entregado'
 
     # Comprueba si el estado es válido
     @classmethod
     def comprobar_estado_valido(cls, estado):
-        return estado == cls.ABIERTO or estado == cls.EN_CURSO or estado == cls.RECIBIDO or estado == cls.CANCELADO \
+        return estado == cls.ABIERTO or estado == cls.EN_CURSO or estado == cls.RECIBIDO or estado == cls.ANULADO \
                or estado == cls.ENTREGADO or estado == cls.DISPONIBLE
 
 
@@ -60,10 +60,10 @@ class Pedido(Auditoria, models.Model):
         ultimo_estado = self.ultimo_estado
         return ultimo_estado == Estado.RECIBIDO
 
-    # Devuelve true si el estado del pedido es cancelado.
-    def comprobar_estado_cancelado(self):
+    # Devuelve true si el estado del pedido es anulado.
+    def comprobar_estado_anulado(self):
         ultimo_estado = self.ultimo_estado
-        return ultimo_estado == Estado.CANCELADO
+        return ultimo_estado == Estado.ANULADO
 
     # Devuelve true si el estado del pedido es disponible.
     def comprobar_estado_disponible(self):
@@ -84,8 +84,8 @@ class Pedido(Auditoria, models.Model):
         es_vendedor = usuario.esVendedor
         return disponible and es_vendedor
 
-    # Devuelve true si el usuario actual puede cancelar el pedido.
-    def comprobar_puede_cancelar(self, usuario):
+    # Devuelve true si el usuario actual puede anular el pedido.
+    def comprobar_puede_anular(self, usuario):
         abierto = self.comprobar_estado_abierto()
         en_curso = self.comprobar_estado_en_curso()
         disponible = self.comprobar_estado_disponible()
@@ -145,7 +145,7 @@ class Pedido(Auditoria, models.Model):
     def get_estado_clase(self):
         clase = "font-weight-bold"
         estado = self.ultimo_estado
-        if estado == Estado.CANCELADO:
+        if estado == Estado.ANULADO:
             clase = clase + " text-danger"
         if estado == Estado.RECIBIDO:
             clase = clase + " text-success"

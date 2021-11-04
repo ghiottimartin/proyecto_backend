@@ -16,22 +16,22 @@ def agregar_pedidos(apps, schema_editor):
 
     nuevo_pedido(apps, 'juan', datetime.date(2020, 5, 1), [producto1, producto2], 'recibido')
     nuevo_pedido(apps, 'juan', datetime.date(2021, 7, 23), [producto2, producto3], 'recibido')
-    nuevo_pedido(apps, 'juan', datetime.date(2021, 7, 23), [producto1, producto2, producto3], 'cancelado')
+    nuevo_pedido(apps, 'juan', datetime.date(2021, 7, 23), [producto1, producto2, producto3], 'anulado')
     nuevo_pedido(apps, 'juan', datetime.date(2021, 3, 21), [producto3, producto4, producto5], 'recibido')
 
     nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 10), [producto5, producto6], 'recibido')
     nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 11), [producto2, producto4], 'recibido')
-    nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 12), [producto3, producto4, producto5], 'cancelado')
+    nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 12), [producto3, producto4, producto5], 'anulado')
     nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 13), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
 
     nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 1), [producto5, producto6], 'recibido')
     nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 5), [producto2, producto4], 'recibido')
-    nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 10), [producto3, producto4, producto5], 'cancelado')
+    nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 10), [producto3, producto4, producto5], 'anulado')
     nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 11), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
 
     nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 5), [producto5, producto6], 'recibido')
     nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 7), [producto2, producto4], 'recibido')
-    nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 8), [producto3, producto4, producto5], 'cancelado')
+    nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 8), [producto3, producto4, producto5], 'anulado')
     nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 9), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
 
 

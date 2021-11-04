@@ -38,7 +38,7 @@ class PedidoSerializer(serializers.ModelSerializer):
 
         ret = super().to_representation(instance)
         ret['id_texto'] = instance.get_id_texto()
-        ret['cancelado'] = instance.comprobar_estado_cancelado()
+        ret['anulado'] = instance.comprobar_estado_anulado()
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
         ret['estado_texto'] = instance.get_estado_texto(logueado)
@@ -89,15 +89,15 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
 
-        puede_cancelar = objeto.comprobar_puede_cancelar(logueado)
-        if puede_cancelar:
-            accion = 'cancelar'
+        puede_anular = objeto.comprobar_puede_anular(logueado)
+        if puede_anular:
+            accion = 'anular'
             operaciones.append({
-                'accion': 'cancelar',
+                'accion': 'anular',
                 'clase': 'btn btn-sm btn-danger text-danger',
-                'texto': 'Cancelar',
+                'texto': 'Anular',
                 'icono': 'fa fa-window-close',
-                'title': 'Cancelar Pedido ' + objeto.get_id_texto(),
+                'title': 'Anular Pedido ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
         return operaciones

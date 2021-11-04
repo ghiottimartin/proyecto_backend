@@ -197,8 +197,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         if pedido is None:
             return respuesta.get_respuesta(True, "No se ha encontrado el pedido.")
         cerrar_pedido(pedido)
-        return respuesta.get_respuesta(True, "Pedido realizado con éxito, podrá retirarlo por el local en "
-                                             "aproximadamente 45 minutos.")
+        return respuesta.get_respuesta(True, "Pedido realizado con éxito, se le notificará por email cuando esté listo.")
 
     # Cambia el estado del pedido a entregado. Es decir, el mismo fue recibido por el comensal.
     @action(detail=True, methods=['post'])
@@ -224,28 +223,28 @@ class PedidoViewSet(viewsets.ModelViewSet):
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al entregar el pedido.")
 
-    # Cambia el estado del pedido a cancelado.
+    # Cambia el estado del pedido a anulado.
     @action(detail=True, methods=['post'])
-    def cancelar(self, request, pk=None):
+    def anular(self, request, pk=None):
         try:
             pedido = get_pedido(pk)
             if pedido is None:
-                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido a cancelar.")
+                return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido a anular.")
             usuario = request.user
-            puede_cancelar = pedido.comprobar_puede_cancelar(usuario)
-            if not puede_cancelar:
-                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para cancelar el pedido.")
+            puede_anular = pedido.comprobar_puede_anular(usuario)
+            if not puede_anular:
+                return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para anular el pedido.")
 
             motivo = request.query_params.get('motivo', "")
             abierto = pedido.comprobar_estado_abierto()
             if not abierto and isinstance(motivo, str) and len(motivo) < 10:
                 return respuesta.get_respuesta(exito=False, mensaje="Debe indicar un motivo de cancelación.")
             pedido.observaciones = motivo if motivo != "undefined" else ""
-            pedido.agregar_estado(Estado.CANCELADO)
+            pedido.agregar_estado(Estado.ANULADO)
             pedido.save()
-            return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha cancelado con éxito.")
+            return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha anulado con éxito.")
         except:
-            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al cancelar el pedido.")
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular el pedido.")
 
     # Cambia el estado del pedido a disponible.
     @action(detail=True, methods=['post'])
