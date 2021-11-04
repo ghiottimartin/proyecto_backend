@@ -75,7 +75,7 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
         # Agrega filtros por nombre de producto
         nombre = request.query_params.get('nombre', "")
         if len(nombre) > 0:
-            filtros["nombre__contains"] = nombre
+            filtros["nombre__icontains"] = nombre
 
         # Agrega filtros por categoría de producto
         categoria = request.query_params.get('categoria', None)
@@ -294,7 +294,7 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
         # Agrega filtro por usuario
         usuario = request.query_params.get('nombreUsuario', "")
         if usuario != "":
-            filtros["usuario__first_name__contains"] = usuario
+            filtros["usuario__first_name__icontains"] = usuario
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
@@ -397,7 +397,7 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
         # Agrega filtros por usuario del movimiento
         usuario = request.query_params.get('usuario', None)
         if usuario is not None and len(str(usuario)) > 0:
-            filtros["auditoria_creador__first_name__contains"] = usuario
+            filtros["auditoria_creador__first_name__icontains"] = usuario
 
         # Agrega filtros por ingreso del movimiento
         idIngreso = request.query_params.get('ingreso', None)
@@ -521,7 +521,7 @@ class ReemplazoMercaderiViewSet(viewsets.ModelViewSet):
         # Agrega filtro por usuario
         usuario = request.query_params.get('nombreUsuario', "")
         if usuario != "":
-            filtros["usuario__first_name__contains"] = usuario
+            filtros["usuario__first_name__icontains"] = usuario
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))

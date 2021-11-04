@@ -73,12 +73,12 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         # Agrega filtros por nombre de usuario
         nombre = request.query_params.get('nombre', None)
         if nombre != "":
-            filtros["first_name__contains"] = nombre
+            filtros["first_name__icontains"] = nombre
 
         # Agrega filtros por dni
         dni = request.query_params.get('dni', None)
         if dni is not None and dni.isnumeric() and int(dni) > 0:
-            filtros["dni__contains"] = dni
+            filtros["dni__icontains"] = dni
 
         # Agrega filtros por rol
         rol = request.query_params.get('rol', None)

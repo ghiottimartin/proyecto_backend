@@ -59,7 +59,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         # Agrega filtro por usuario
         usuario = request.query_params.get('nombreUsuario', "")
         if usuario != "":
-            filtros["usuario__first_name__contains"] = usuario
+            filtros["usuario__first_name__icontains"] = usuario
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
@@ -323,7 +323,7 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         # Agrega filtro por usuario
         usuario = request.query_params.get('nombreUsuario', "")
         if usuario != "":
-            filtros["usuario__first_name__contains"] = usuario
+            filtros["usuario__first_name__icontains"] = usuario
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
