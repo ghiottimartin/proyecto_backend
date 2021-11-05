@@ -136,6 +136,39 @@ def agregar_usuarios(apps, schema_editor):
     lucas.roles.add(rolComensal)
     lucas.save()
 
+    mozo1 = Usuario(first_name="Mozo1", dni=11111120, email='mozo1@gmail.com', username='mozo1',
+                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+                    is_active=1, date_joined=datetime.datetime.now()
+                    )
+    mozo1.save()
+
+    mozo1.roles.add(rolMozo)
+    mozo1.save()
+
+    mozo2 = Usuario(first_name="Mozo2", dni=11111121, email='mozo2@gmail.com', username='mozo2',
+                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+                    is_active=1, date_joined=datetime.datetime.now()
+                    )
+    mozo2.save()
+
+    mozo2.roles.add(rolMozo)
+    mozo2.save()
+
+    mozo3 = Usuario(first_name="Mozo3", dni=11111122, email='mozo3@gmail.com', username='mozo3',
+                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+                    is_active=1, date_joined=datetime.datetime.now()
+                    )
+    mozo3.save()
+
+    mozo3.roles.add(rolMozo)
+    mozo3.save()
+
 
 def borrar_usuarios(apps, schema_editor):
     Usuario = apps.get_model('base', 'Usuario')
