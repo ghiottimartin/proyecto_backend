@@ -139,6 +139,12 @@ class Usuario(Auditoria, AbstractUser):
             "ruta": "/usuarios/listar",
             "titulo": "Usuarios",
             "descripcion": "Permite gestionar los usuarios"
+        },
+        {
+            "roles": [Rol.ADMINISTRADOR, Rol.MOZO],
+            "ruta": "/mesas/listar",
+            "titulo": "Mesas",
+            "descripcion": "Permite gestionar las mesas"
         }]
         return operaciones_admin + operaciones_vendedor + generales
 
