@@ -1,8 +1,10 @@
 from django.contrib.auth.hashers import make_password
+from django.views.static import serve
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.authtoken.views import Token
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from .models import Usuario, Rol
@@ -168,6 +170,17 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         if request.data["dni"] == "":
             request.data["dni"] = None
         return request
+
+    @action(detail=False, methods=['get'])
+    def mozos(self, request, pk=None):
+        try:
+            objetos = Usuario.objects.filter(roles__nombre__contains=Rol.MOZO).exclude(roles__nombre__contains=Rol.ADMINISTRADOR)
+            serializer = UsuarioSerializer(instance=objetos, many=True)
+            mozos = serializer.data
+        except:
+            return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al buscar los mozos.")
+        return respuesta.get_respuesta(exito=True, datos={"mozos": mozos})
+
 
 
 def crear_usuario(enviar, request):
