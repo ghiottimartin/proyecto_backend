@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'base',
     'producto',
     'gastronomia',
+    'mesas',
     'corsheaders',
     'request_middleware',
     'django_extensions'
