@@ -65,9 +65,72 @@ class MesaViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=True, mensaje="La mesa se ha editado con éxito.")
         return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al editar la mesa.")
 
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
+        filtros = {}
+
+        # Agrega filtro por id de mesa y lo devuelve sin el resto.
+        id = request.query_params.get('numero', "")
+        if id is not None and id.isnumeric() and int(id) > 0:
+            filtros = {
+                "id": id
+            }
+            return filtros
+
+        # Agrega filtros por ingresos del usuario
+        idMozo = request.query_params.get('mozo', None)
+        if idMozo is not None and idMozo.isnumeric() and int(idMozo) > 0:
+            filtros["mozo"] = idMozo
+
+        # Agrega filtros por número de página actual
+        pagina = int(request.query_params.get('paginaActual', 1))
+        registros = int(request.query_params.get('registrosPorPagina', 10))
+        offset = (pagina - 1) * registros
+        limit = offset + registros
+        filtros["offset"] = offset
+        filtros["limit"] = limit
+        return filtros
+
+    # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        if id is None:
+            filtros.pop("offset")
+            filtros.pop("limit")
+        cantidad = Mesa.objects.filter(**filtros).count()
+        return cantidad
+
+    # Devuelve las mesas según los filtros de la query
+    def filtrar_ingresos(self, request):
+        filtros = self.get_filtros(request)
+        id = filtros.get("id")
+        id_valido = id is not None and int(id) > 0
+        if id_valido:
+            return Mesa.objects.filter(id=id)
+
+        offset = filtros.get("offset")
+        limit = filtros.get("limit")
+        filtros.pop("offset")
+        filtros.pop("limit")
+        mesas = Mesa.objects.filter(**filtros).order_by('-auditoria_creado_fecha')[offset:limit]
+        return mesas
+
+    # Lista los ingresos aplicando los filtros.
     def list(self, request, *args, **kwargs):
-        # Falta implementación.
-        return super().list(request, *args, **kwargs)
+        mesas = self.filtrar_ingresos(request)
+        if len(mesas) > 0:
+            serializer = MesaSerializer(instance=mesas, many=True)
+            mesas = serializer.data
+
+        cantidad = self.get_cantidad_registros(request)
+        total = Mesa.objects.count()
+        datos = {
+            "total": total,
+            "mesas": mesas,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
