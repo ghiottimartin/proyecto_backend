@@ -123,5 +123,11 @@ class MesaViewSet(viewsets.ModelViewSet):
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
 
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        puede_borrarse = instance.comprobar_puede_borrarse()
+        if not puede_borrarse:
+            return respuesta.get_respuesta(False, "La mesa no puede borrase porque ya se han realizado turnos sobre"
+                                                  "la misma.")
+        instance.delete()
+        return respuesta.get_respuesta(True, "La mesa se ha borrado con éxito")

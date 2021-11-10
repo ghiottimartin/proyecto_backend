@@ -30,3 +30,7 @@ class Mesa(Auditoria, models.Model):
         if not tiene_descripcion:
             return "Sin observaciones"
         return descripcion
+
+    def comprobar_puede_borrarse(self):
+        # Falta implementar la comprobación de si tiene turnos.
+        return True
