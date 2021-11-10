@@ -2,7 +2,6 @@ from .models import Mesa
 from .serializers import MesaSerializer
 from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa
 from base import respuestas
-from base.repositorio import buscar_mozos
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -34,9 +33,8 @@ class MesaViewSet(viewsets.ModelViewSet):
                                                                 "número disponible es el " + str(proximo_disponible))
 
         descripcion = request.data.get('descripcion')
-        buscar = request.data.get('mozos')
-        mozos = buscar_mozos(buscar)
-        mesa = crear_mesa(numero, mozos, descripcion)
+
+        mesa = crear_mesa(numero, descripcion)
         if isinstance(mesa, Mesa):
             return respuesta.get_respuesta(exito=True, mensaje="La mesa se ha creado con éxito.")
         return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al crear la mesa.")
@@ -58,9 +56,7 @@ class MesaViewSet(viewsets.ModelViewSet):
                                                                 "número disponible es el " + str(proximo_disponible))
 
         descripcion = request.data.get('descripcion')
-        buscar = request.data.get('mozos')
-        mozos = buscar_mozos(buscar)
-        actualizar_mesa(mesa=mesa, numero=numero, mozos=mozos, descripcion=descripcion)
+        actualizar_mesa(mesa=mesa, numero=numero, descripcion=descripcion)
         if isinstance(mesa, Mesa):
             return respuesta.get_respuesta(exito=True, mensaje="La mesa se ha editado con éxito.")
         return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al editar la mesa.")
@@ -76,11 +72,6 @@ class MesaViewSet(viewsets.ModelViewSet):
                 "id": id
             }
             return filtros
-
-        # Agrega filtros por ingresos del usuario
-        idMozo = request.query_params.get('mozo', None)
-        if idMozo is not None and idMozo.isnumeric() and int(idMozo) > 0:
-            filtros["mozo"] = idMozo
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))

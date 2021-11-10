@@ -19,7 +19,6 @@ class Migration(migrations.Migration):
             name='Mesa',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('mozos', models.ManyToManyField(blank=True, related_name='mesas_mozos', to=settings.AUTH_USER_MODEL)),
                 ('numero', models.BigIntegerField()),
                 ('estado', models.CharField(max_length=10, default="desocupada")),
                 ('descripcion', models.CharField(max_length=100)),
