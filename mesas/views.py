@@ -113,7 +113,7 @@ class MesaViewSet(viewsets.ModelViewSet):
         limit = filtros.get("limit")
         filtros.pop("offset")
         filtros.pop("limit")
-        mesas = Mesa.objects.filter(**filtros).order_by('-auditoria_creado_fecha')[offset:limit]
+        mesas = Mesa.objects.filter(**filtros).order_by('numero')[offset:limit]
         return mesas
 
     # Lista los ingresos aplicando los filtros.
