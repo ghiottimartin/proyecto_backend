@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('numero', models.BigIntegerField()),
-                ('estado', models.CharField(max_length=10, default="desocupada")),
+                ('estado', models.CharField(max_length=10, default="disponible")),
                 ('descripcion', models.CharField(max_length=100)),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_modificado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),

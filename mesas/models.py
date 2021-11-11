@@ -11,10 +11,10 @@ class Mesa(Auditoria, models.Model):
     """
 
     OCUPADA = "ocupada"
-    DESOCUPADA = "desocupada"
+    DISPONIBLE = "disponible"
 
     numero = models.BigIntegerField()
-    estado = models.CharField(max_length=10, default=DESOCUPADA)
+    estado = models.CharField(max_length=10, default=DISPONIBLE)
     descripcion = models.CharField(max_length=100)
 
     def get_numero_texto(self):
@@ -51,7 +51,7 @@ class Mesa(Auditoria, models.Model):
         estado = self.estado
         if estado == Mesa.OCUPADA:
             clase = clase + " badge-danger"
-        if estado == Mesa.DESOCUPADA:
+        if estado == Mesa.DISPONIBLE:
             clase = clase + " badge-success"
         return clase
 
@@ -62,6 +62,15 @@ class Mesa(Auditoria, models.Model):
         """
         turnos = self.turnos.all().count()
         return turnos == 0
+
+    def comprobar_puede_editarse(self):
+        """
+            Comprueba si la mesa puede editarse, para ello verifica que tenga estado disponible.
+            @return: bool
+        """
+        estado = self.estado
+        disponible = estado == Mesa.DISPONIBLE
+        return disponible
 
 
 class Turno(Auditoria, models.Model):
