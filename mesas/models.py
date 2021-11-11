@@ -34,6 +34,27 @@ class Mesa(Auditoria, models.Model):
             return "Sin observaciones"
         return descripcion
 
+    def get_estado_texto(self):
+        """
+            Devuelve el estado en formato legible para el usuario.
+            @return:
+        """
+        estado = self.estado.capitalize()
+        return estado
+
+    def get_estado_clase(self):
+        """
+            Devuelve la clase css del estado de la mesa.
+            @return:
+        """
+        clase = "font-weight-bold badge"
+        estado = self.estado
+        if estado == Mesa.OCUPADA:
+            clase = clase + " badge-danger"
+        if estado == Mesa.DESOCUPADA:
+            clase = clase + " badge-success"
+        return clase
+
     def comprobar_puede_borrarse(self):
         """
             Comprueba si la mesa puede borrarse, para ello verifica que no tenga turnos.

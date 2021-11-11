@@ -15,6 +15,8 @@ class MesaSerializer(serializers.ModelSerializer):
         ret['numero_texto'] = instance.get_numero_texto()
         ret['descripcion_texto'] = instance.get_descripcion_texto()
         ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
+        ret['estado_texto'] = instance.get_estado_texto()
+        ret['estado_clase'] = instance.get_estado_clase()
         return ret
 
 
