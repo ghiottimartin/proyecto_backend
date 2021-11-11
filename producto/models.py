@@ -34,8 +34,7 @@ def upload_to(instance, filename):
 
 
 class Producto(Auditoria, models.Model):
-    categoria = models.ForeignKey(
-        Categoria, on_delete=models.PROTECT, related_name="productos", default="productos")
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, related_name="productos", default="productos")
     nombre = models.CharField(max_length=50, unique=True)
     imagen = models.ImageField(_("Image"), upload_to=upload_to, null=True, default="producto/defecto/default.jpg")
     imagen_nombre = models.CharField(max_length=50, default="default.jpg")

@@ -1,5 +1,8 @@
+import datetime
+
 from django.db import models
 from base.models import Auditoria, Usuario
+from producto.models import Producto
 
 
 class Mesa(Auditoria, models.Model):
@@ -32,5 +35,43 @@ class Mesa(Auditoria, models.Model):
         return descripcion
 
     def comprobar_puede_borrarse(self):
-        # Falta implementar la comprobación de si tiene turnos.
-        return True
+        """
+            Comprueba si la mesa puede borrarse, para ello verifica que no tenga turnos.
+            @return: bool
+        """
+        turnos = self.turnos.all().count()
+        return turnos == 0
+
+
+class Turno(Auditoria, models.Model):
+    """
+        Representa un turno de una mesa.
+    """
+
+    class Meta:
+        db_table = 'mesas_turnos'
+
+    ABIERTO = "abierto"
+    CERRADO = "cerrado"
+
+    mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE, related_name="turnos")
+    mozo = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+")
+    hora_inicio = models.DateTimeField(default=datetime.datetime.now)
+    hora_fin = models.DateTimeField(default=datetime.datetime.now)
+
+
+class OrdenProducto(models.Model):
+    """
+        Representa una producto pedido en un turno. Puede tener estado solicitado, cuando fue solicitado a la moza o
+        entregado cuando ya fue entregado a la mesa.
+    """
+
+    class Meta:
+        db_table = 'mesas_ordenes_productos'
+
+    SOLICITADO = 'solicitado'
+    ENTREGADO = 'entregado'
+
+    turno = models.ForeignKey(Turno, on_delete=models.CASCADE, related_name="ordenes")
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="ordenes")
+    estado = models.CharField(max_length=40, default=SOLICITADO)
