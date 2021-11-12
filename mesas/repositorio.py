@@ -49,3 +49,16 @@ def actualizar_mesa(mesa, numero, descripcion=""):
     mesa.numero = numero
     mesa.descripcion = descripcion
     mesa.save()
+
+
+def get_mesa(pk=None):
+    """
+        Busca y devuelve una mesa por id, si no la encuentra devuelve none
+        @param pk: Mesa
+        @return: Mesa|None
+    """
+    try:
+        mesa = Mesa.objects.get(pk=pk)
+    except Mesa.DoesNotExist:
+        return None
+    return mesa

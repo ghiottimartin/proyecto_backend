@@ -1,10 +1,11 @@
-from .models import Mesa
-from .serializers import MesaSerializer
-from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa
+from .models import Mesa, Turno
+from .serializers import MesaSerializer, TurnoSerializer
+from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa, get_mesa
 from base import respuestas
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from base.permisos import TieneRolAdmin
 
@@ -131,3 +132,21 @@ class MesaViewSet(viewsets.ModelViewSet):
                                                   "la misma.")
         instance.delete()
         return respuesta.get_respuesta(True, "La mesa se ha borrado con éxito")
+
+    @transaction.atomic
+    @action(detail=True, methods=['post'])
+    def crear_turno(self, request, pk=None, *args, **kwargs):
+        mesa = get_mesa(pk)
+        if mesa is None:
+            return respuesta.get_respuesta(False, "No se encontró la mesa para crear el turno, intente recargar la "
+                                                  "página.")
+        nombre = request.data.get('first_name')
+        turno = mesa.crear_turno(nombre)
+        if isinstance(turno, Turno):
+            datos = MesaSerializer(instance=mesa)
+            mesa_json = datos.data
+            datos = {
+                "mesa": mesa_json
+            }
+            return respuesta.get_respuesta(exito=True, datos=datos, mensaje="El turno se creó con éxito.")
+        return respuesta.get_respuesta(False, "Hubo un error al crear el turno.")

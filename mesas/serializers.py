@@ -5,11 +5,12 @@ from rest_framework import serializers
 
 
 class MesaSerializer(serializers.ModelSerializer):
+    ultimo_turno = serializers.SerializerMethodField()
+
     class Meta:
         model = Mesa
-        fields = ['id', 'numero', 'descripcion']
+        fields = ['id', 'numero', 'ultimo_turno', 'estado', 'descripcion']
 
-    # Método que devuelve los datos de la línea.
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['numero_texto'] = instance.get_numero_texto()
@@ -19,6 +20,18 @@ class MesaSerializer(serializers.ModelSerializer):
         ret['estado_clase'] = instance.get_estado_clase()
         ret['puede_editarse'] = instance.comprobar_puede_editarse()
         return ret
+
+    def get_ultimo_turno(self, objeto):
+        """
+            Devuelve el último turno de la mesa en formato json.
+            @param objeto: Mesa
+            @return: JSON<Turno>
+        """
+        ultimo = objeto.turnos.last()
+        if ultimo is None:
+            return None
+        json = TurnoSerializer(instance=ultimo).data
+        return json
 
 
 class OrdenProductoSerializer(serializers.ModelSerializer):
@@ -36,3 +49,9 @@ class TurnoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turno
         fields = '__all__'
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['abierto'] = instance.comprobar_abierto()
+        ret['cerrado'] = instance.comprobar_cerrado()
+        return ret

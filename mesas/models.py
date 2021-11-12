@@ -1,5 +1,5 @@
 import datetime
-
+from django.core.exceptions import ValidationError
 from django.db import models
 from base.models import Auditoria, Usuario
 from producto.models import Producto
@@ -72,6 +72,25 @@ class Mesa(Auditoria, models.Model):
         disponible = estado == Mesa.DISPONIBLE
         return disponible
 
+    def crear_turno(self, nombre):
+        """
+            Crea un turno para la mesa actual, si el último turno de la mesa ya tiene un mozo se lo asigna al turno.
+            Luego cambia el estado de la meza a ocupada.
+            @return: Turno
+        """
+        try:
+            mozo = Usuario.objects.get(first_name=nombre)
+        except Usuario.DoesNotExist:
+            mozo = None
+        if mozo is None:
+            raise ValidationError({"Error": "No se ha encontrado el mozo del turno."})
+        turno = Turno(mesa=self, mozo=mozo)
+        turno.save()
+
+        self.estado = Mesa.OCUPADA
+        self.save()
+        return turno
+
 
 class Turno(Auditoria, models.Model):
     """
@@ -85,9 +104,25 @@ class Turno(Auditoria, models.Model):
     CERRADO = "cerrado"
 
     mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE, related_name="turnos")
-    mozo = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+")
+    mozo = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+", null=True)
     hora_inicio = models.DateTimeField(default=datetime.datetime.now)
-    hora_fin = models.DateTimeField(default=datetime.datetime.now)
+    hora_fin = models.DateTimeField(null=True)
+
+    def comprobar_abierto(self):
+        """
+            Comprueba si el turno está abierto, para ello verifica que la última hora sea None.
+            @return: bool
+        """
+        hora_fin = self.hora_fin
+        return hora_fin is None
+
+    def comprobar_cerrado(self):
+        """
+            Comprueba si el turno está cerrado, para ello verifica que tenga hora de cierre.
+            @return: bool
+        """
+        hora_fin = self.hora_fin
+        return hora_fin is not None
 
 
 class OrdenProducto(models.Model):
