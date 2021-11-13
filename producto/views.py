@@ -96,8 +96,11 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
             filtros[filtro_stock] = F('stock_seguridad')
 
         # Agrega filtros por número de página actual
-        pagina = int(request.query_params.get('paginaActual', 1))
-        registros = int(request.query_params.get('registrosPorPagina', 10))
+        pagina = int(request.query_params.get('paginaActual', 0))
+        registros = int(request.query_params.get('registrosPorPagina', 0))
+        if pagina == 0 and registros == 0:
+            return filtros
+
         offset = (pagina - 1) * registros
         limit = offset + registros
         filtros["offset"] = offset
@@ -108,8 +111,9 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
     def get_cantidad_registros(self, request):
         filtros = self.get_filtros(request)
         id = filtros.get("id")
-        if id is None:
+        if id is None and filtros.get("offset") is not None:
             filtros.pop("offset")
+        if id is None and filtros.get("limit") is not None:
             filtros.pop("limit")
         cantidad = Producto.objects.filter(**filtros).count()
         return cantidad
@@ -120,8 +124,10 @@ class ProductoViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
 
         offset = filtros.get("offset")
         limit = filtros.get("limit")
-        filtros.pop("offset")
-        filtros.pop("limit")
+        if isinstance(offset, int):
+            filtros.pop("offset")
+        if isinstance(limit, int):
+            filtros.pop("limit")
 
         orden = request.query_params.get('orden', "nombre")
         if orden == 'categoria':
