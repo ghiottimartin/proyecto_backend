@@ -2,12 +2,10 @@ from .models import Mesa, Turno
 from .serializers import MesaSerializer, TurnoSerializer
 from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa, get_mesa, comprobar_ordenes_validas
 from base import respuestas
-from base.models import Usuario
 from base.repositorio import get_usuario
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from base.permisos import TieneRolAdmin
 
@@ -25,7 +23,10 @@ class MesaViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        numero = request.data.get('numero')
+        numero = request.data.get('numero', '')
+        if numero.isnumeric() and (numero == 0 or numero == '0'):
+            return respuesta.get_respuesta(exito=False, mensaje="El número de la mesa debe ser mayor a cero.")
+
         repetido = comprobar_numero_repetido(numero)
         if repetido:
             proximo_disponible = "1"
