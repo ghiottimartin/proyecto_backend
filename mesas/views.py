@@ -1,7 +1,9 @@
 from .models import Mesa, Turno
 from .serializers import MesaSerializer, TurnoSerializer
-from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa, get_mesa
+from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa, get_mesa, comprobar_ordenes_validas
 from base import respuestas
+from base.models import Usuario
+from base.repositorio import get_usuario
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -33,7 +35,7 @@ class MesaViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=False, mensaje="Ya existe una mesa con ese número. El próximo mayor "
                                                                 "número disponible es el " + str(proximo_disponible))
 
-        descripcion = request.data.get('descripcion')
+        descripcion = request.data.get('descripcion', '')
 
         mesa = crear_mesa(numero, descripcion)
         if isinstance(mesa, Mesa):
@@ -150,3 +152,41 @@ class MesaViewSet(viewsets.ModelViewSet):
             }
             return respuesta.get_respuesta(exito=True, datos=datos, mensaje="El turno se creó con éxito.")
         return respuesta.get_respuesta(False, "Hubo un error al crear el turno.")
+
+
+class TurnoViewSet(viewsets.ModelViewSet):
+    """
+        Se encarga del alta, edición y borrado de los turno.
+    """
+    queryset = Turno.objects.all()
+    serializer_class = TurnoSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
+
+    @transaction.atomic
+    def update(self, request, pk=None, *args, **kwargs):
+        """
+            Guarda el turno en estado borrador actualizando las órdenes del mismo
+            @param request:
+            @param pk:
+            @param args:
+            @param kwargs:
+            @return:
+        """
+        turno = self.get_object()
+        if turno is None:
+            return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el turno a guardar.")
+
+        ordenes = request.data.get('ordenes')
+        comprobar_ordenes_validas(ordenes)
+        turno.agregar_editar_ordenes(ordenes)
+        turno.save()
+
+        mozo_buscar = request.data.get('mozo')
+        mozo_id = mozo_buscar["id"]
+        mozo = get_usuario(pk=mozo_id)
+        if mozo is None:
+            return respuesta.get_respuesta(exito=False, mensaje="Debe seleccionar un mozo para el turno actual.")
+        turno.mozo = mozo
+        turno.save()
+        return respuesta.get_respuesta(exito=True, mensaje="El turno se actualizó con éxito.")

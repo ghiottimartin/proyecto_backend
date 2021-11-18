@@ -1,4 +1,5 @@
 from .models import Mesa
+from django.core.exceptions import ValidationError
 
 
 def buscar_mesa(pk):
@@ -62,3 +63,21 @@ def get_mesa(pk=None):
     except Mesa.DoesNotExist:
         return None
     return mesa
+
+
+def comprobar_ordenes_validas(ordenes):
+    """
+        Comprueba que las órdenes contengan los datos suficientes para ser guardadas.
+        @param ordenes: List
+        @return:
+    """
+    for orden in ordenes:
+        try:
+            id_producto = orden["producto"]["id"]
+        except:
+            id_producto = 0
+        if id_producto <= 0:
+            raise ValidationError("No se ha encontrado el producto.")
+        cantidad = int(orden["cantidad"]) if "cantidad" in orden else 0
+        if not isinstance(cantidad, int):
+            raise ValidationError("La cantidad del producto debe tener un valor numérico.")

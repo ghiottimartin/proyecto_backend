@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('numero', models.BigIntegerField()),
                 ('estado', models.CharField(max_length=10, default="disponible")),
-                ('descripcion', models.CharField(max_length=100)),
+                ('descripcion', models.CharField(max_length=100, default="")),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_modificado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),
                 ('auditoria_creador', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),

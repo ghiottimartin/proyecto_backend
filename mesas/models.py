@@ -2,7 +2,9 @@ import datetime
 from django.core.exceptions import ValidationError
 from django.db import models
 from base.models import Auditoria, Usuario
+import pandas as pd
 from producto.models import Producto
+from producto.repositorio import get_producto
 
 
 class Mesa(Auditoria, models.Model):
@@ -15,7 +17,7 @@ class Mesa(Auditoria, models.Model):
 
     numero = models.BigIntegerField()
     estado = models.CharField(max_length=10, default=DISPONIBLE)
-    descripcion = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100, default="")
 
     def get_numero_texto(self):
         """
@@ -124,6 +126,86 @@ class Turno(Auditoria, models.Model):
         hora_fin = self.hora_fin
         return hora_fin is not None
 
+    def borrar_orden_por_id_producto(self, id_producto):
+        """
+            Borra la orden de producto según el id de producto.
+            @param id_producto: int
+            @return: None
+        """
+        orden = self.get_orden_por_id_producto(id_producto)
+        if orden is not None:
+            orden.delete()
+
+    def borrar_ordenes_no_existentes(self, nuevos):
+        """
+            Borra las órdenes que no se encuentren dentro de la lista de ids de productos.
+            @param nuevos: List
+            @return: None
+        """
+        anteriores = self.get_ids_productos_anteriores()
+        for anterior in anteriores:
+            no_existe = anterior not in nuevos
+            if no_existe:
+                self.borrar_orden_por_id_producto(anterior)
+
+    def agregar_editar_ordenes(self, ordenes):
+        """
+            Agrega o edita las órdenes del turno.
+            @param ordenes: List
+            @return: None
+        """
+        # Borro las órdenes eliminadas por el usuario.
+        df_productos = pd.DataFrame(ordenes)
+        nuevos_productos = df_productos['producto'].tolist()
+        df_ids_productos = pd.DataFrame(nuevos_productos)
+        nuevos = df_ids_productos['id'].tolist()
+        self.borrar_ordenes_no_existentes(nuevos)
+
+        # Actualizo o creo las órdenes.
+        for orden in ordenes:
+            id_producto = orden["producto"]["id"]
+            cantidad = orden["cantidad"]
+            producto = get_producto(id_producto)
+            if producto is None:
+                raise ValidationError("No se ha encontrado el producto a agregar al turno.")
+            existe = self.get_orden_por_producto(producto)
+            if isinstance(existe, OrdenProducto):
+                existe.cantidad = cantidad
+                existe.save()
+            else:
+                orden = OrdenProducto(turno=self, producto=producto, cantidad=cantidad)
+                orden.save()
+
+    def get_ids_productos_anteriores(self):
+        """
+            Devuelve los ids de los productos del turno actual.
+            @return: List
+        """
+        ordenes = self.ordenes.all()
+        productos = []
+        for orden in ordenes:
+            producto = orden.producto
+            productos.append(producto.id)
+        return productos
+
+    def get_orden_por_producto(self, producto):
+        """
+            Devuelve una orden filtrando por producto de la misma.
+            @param producto: Producto
+            @return: OrdenProducto|None
+        """
+        orden = self.ordenes.filter(producto=producto).first()
+        return orden
+
+    def get_orden_por_id_producto(self, id_producto):
+        """
+            Devuelve una orden filtrando por el id del producto.
+            @param id_producto: int
+            @return: OrdenProducto|None
+        """
+        orden = self.ordenes.filter(producto__id=id_producto).first()
+        return orden
+
 
 class OrdenProducto(models.Model):
     """
@@ -140,3 +222,4 @@ class OrdenProducto(models.Model):
     turno = models.ForeignKey(Turno, on_delete=models.CASCADE, related_name="ordenes")
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="ordenes")
     estado = models.CharField(max_length=40, default=SOLICITADO)
+    cantidad = models.IntegerField()

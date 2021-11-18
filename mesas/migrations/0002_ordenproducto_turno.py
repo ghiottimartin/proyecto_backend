@@ -38,6 +38,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('turno', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes', to='mesas.turno')),
                 ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes', to='producto.producto')),
+                ('cantidad', models.IntegerField()),
                 ('estado', models.CharField(default='solicitado', max_length=40)),
             ],
             options={

@@ -37,7 +37,7 @@ class MesaSerializer(serializers.ModelSerializer):
 class OrdenProductoSerializer(serializers.ModelSerializer):
     producto = ProductoSerializer(read_only=True)
 
-    class Mesa:
+    class Meta:
         model = OrdenProducto
         fields = '__all__'
 
@@ -54,4 +54,5 @@ class TurnoSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         ret['abierto'] = instance.comprobar_abierto()
         ret['cerrado'] = instance.comprobar_cerrado()
+        ret['puede_cerrar'] = False
         return ret
