@@ -135,9 +135,19 @@ class MesaViewSet(viewsets.ModelViewSet):
         instance.delete()
         return respuesta.get_respuesta(True, "La mesa se ha borrado con éxito")
 
+
+class TurnoViewSet(viewsets.ModelViewSet):
+    """
+        Se encarga del alta, edición y borrado de los turno.
+    """
+    queryset = Turno.objects.all()
+    serializer_class = TurnoSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, TieneRolAdmin]
+
     @transaction.atomic
-    @action(detail=True, methods=['post'])
-    def crear_turno(self, request, pk=None, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
+        pk = request.data.get('id_mesa', 0)
         mesa = get_mesa(pk)
         if mesa is None:
             return respuesta.get_respuesta(False, "No se encontró la mesa para crear el turno, intente recargar la "
@@ -152,16 +162,6 @@ class MesaViewSet(viewsets.ModelViewSet):
             }
             return respuesta.get_respuesta(exito=True, datos=datos, mensaje="El turno se creó con éxito.")
         return respuesta.get_respuesta(False, "Hubo un error al crear el turno.")
-
-
-class TurnoViewSet(viewsets.ModelViewSet):
-    """
-        Se encarga del alta, edición y borrado de los turno.
-    """
-    queryset = Turno.objects.all()
-    serializer_class = TurnoSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, TieneRolAdmin]
 
     @transaction.atomic
     def update(self, request, pk=None, *args, **kwargs):
