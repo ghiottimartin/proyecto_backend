@@ -2,6 +2,7 @@ from .models import Mesa, Turno, OrdenProducto
 from base.serializers import UsuarioSerializer
 from producto.serializers import ProductoSerializer
 from rest_framework import serializers
+import locale
 
 
 class MesaSerializer(serializers.ModelSerializer):
@@ -42,6 +43,11 @@ class OrdenProductoSerializer(serializers.ModelSerializer):
         model = OrdenProducto
         fields = '__all__'
 
+    def to_representation(self, orden):
+        ret = super().to_representation(orden)
+        ret['total_texto'] = orden.get_total_texto()
+        return ret
+
 
 class TurnoSerializer(serializers.ModelSerializer):
     mozo = UsuarioSerializer(read_only=True)
@@ -61,4 +67,5 @@ class TurnoSerializer(serializers.ModelSerializer):
         ret['estado_texto'] = turno.get_estado_texto()
         ret['estado_clase'] = turno.get_estado_clase()
         ret['color_fondo'] = turno.get_color_fondo()
+        ret['total_texto'] = turno.get_total_texto()
         return ret

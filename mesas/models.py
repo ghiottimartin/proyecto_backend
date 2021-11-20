@@ -6,6 +6,7 @@ from gastronomia.models import Venta, VentaLinea
 import pandas as pd
 from producto.models import Producto
 from producto.repositorio import get_producto
+import locale
 
 
 class Mesa(Auditoria, models.Model):
@@ -280,6 +281,9 @@ class Turno(Auditoria, models.Model):
 
         ordenes = self.ordenes.all()
         for orden in ordenes:
+            orden.estado = OrdenProducto.ENTREGADO
+            orden.save()
+
             producto = orden.producto
             cantidad = orden.cantidad
             precio = producto.precio_vigente
@@ -342,6 +346,21 @@ class Turno(Auditoria, models.Model):
             return "rgb(220 53 69 / 20%)"
         return "rgb(0 123 255 / 20%)"
 
+    def get_total(self):
+        total = 0
+        ordenes = self.ordenes.all()
+        for orden in ordenes:
+            total += orden.get_total()
+        return total
+
+    def get_total_texto(self):
+        """
+            Devuelve el total en formato de texto.
+            @return: str
+        """
+        total = self.get_total()
+        return locale.currency(total)
+
 
 class OrdenProducto(models.Model):
     """
@@ -359,3 +378,21 @@ class OrdenProducto(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="ordenes")
     estado = models.CharField(max_length=40, default=SOLICITADO)
     cantidad = models.IntegerField()
+
+    def get_total(self):
+        """
+            Devuelve el total de la orden multiplicando el precio del producto por la cantidad.
+            @return: decimal
+        """
+        producto = self.producto
+        cantidad = self.cantidad
+        precio = producto.precio_vigente
+        return precio * cantidad
+
+    def get_total_texto(self):
+        """
+            Devuelve el total en formato de texto.
+            @return: str
+        """
+        total = self.get_total()
+        return locale.currency(total)
