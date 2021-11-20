@@ -309,10 +309,15 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
             "auditoria_creado_fecha__range": (desde, hasta),
         }
 
-        # Agrega filtros por ingresos del usuario
+        # Agrega filtros por ventas del usuario
         idUsuario = request.query_params.get('usuario', None)
         if idUsuario is not None and idUsuario.isnumeric() and int(idUsuario) > 0:
             filtros["usuario"] = idUsuario
+
+        # Agrega filtros por tipo de venta
+        tipo = request.query_params.get('tipo', '')
+        if tipo != "":
+            filtros["tipo"] = tipo
 
         # Agrega filtro por estado
         estado = request.query_params.get('estado', "")
