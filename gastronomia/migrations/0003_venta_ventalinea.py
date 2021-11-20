@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ventas', to=settings.AUTH_USER_MODEL)),
+                ('tipo', models.CharField(default='almacen', max_length=30)),
                 ('total', models.FloatField(default=0)),
                 ('anulado', models.DateTimeField(null=True)),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),

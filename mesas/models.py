@@ -2,6 +2,7 @@ import datetime
 from django.core.exceptions import ValidationError
 from django.db import models
 from base.models import Auditoria, Usuario
+from gastronomia.models import Venta, VentaLinea
 import pandas as pd
 from producto.models import Producto
 from producto.repositorio import get_producto
@@ -138,6 +139,14 @@ class Turno(Auditoria, models.Model):
         estado = self.estado
         return estado == self.CANCELADO
 
+    def comprobar_puede_cerrar(self):
+        """
+            Devuelve true si el turno puede cerrarse. Para ello debe tener al menos un producto cargado.
+            @return: bool
+        """
+        cantidad_ordenes = self.ordenes.count()
+        return cantidad_ordenes > 0
+
     def borrar_orden_por_id_producto(self, id_producto):
         """
             Borra la orden de producto según el id de producto.
@@ -229,6 +238,47 @@ class Turno(Auditoria, models.Model):
         mesa = self.mesa
         mesa.estado = Mesa.DISPONIBLE
         mesa.save()
+
+    def get_razon_no_puede_cerrar(self):
+        """
+            Devuelve el mensaje por el cual no puede cerrar la mesa.
+            @return: str
+        """
+        mensaje = ""
+        ordenes = self.ordenes.count()
+        if ordenes == 0:
+            mensaje = "Debe al menos tener un producto cargado."
+        return mensaje
+
+    def cerrar(self):
+        """
+            Cierra el turno de la mesa actual, dejándolo en estado cerrado y la mesa en estado disponible. Luego de
+            cerrarlo crea la venta correspondiente.
+            @return: None
+        """
+        self.estado = Turno.CERRADO
+        self.hora_fin = datetime.datetime.now()
+        self.save()
+
+        mesa = self.mesa
+        mesa.estado = Mesa.DISPONIBLE
+        mesa.save()
+
+        usuario = self.auditoria_creador
+        venta = Venta(usuario=usuario, tipo=Venta.MESA)
+        venta.save()
+
+        ordenes = self.ordenes.all()
+        for orden in ordenes:
+            producto = orden.producto
+            cantidad = orden.cantidad
+            precio = producto.precio_vigente
+            total = precio * cantidad
+            linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio, total=total)
+            linea.save()
+
+        venta.actualizar()
+        venta.save()
 
 
 class OrdenProducto(models.Model):

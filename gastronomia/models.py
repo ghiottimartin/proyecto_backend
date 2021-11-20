@@ -175,8 +175,13 @@ class PedidoLinea(models.Model):
 
 
 class Venta(Auditoria, models.Model):
+
+    ALMACEN = 'almacen'
+    MESA = 'mesa'
+
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="ventas")
     total = models.FloatField(default=0)
+    tipo = models.CharField(max_length=30, default=ALMACEN)
     anulado = models.DateTimeField(null=True)
 
     def actualizar(self):

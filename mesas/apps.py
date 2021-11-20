@@ -9,3 +9,4 @@ class MesasConfig(AppConfig):
 
     # registering signals with the model's string label
     pre_save.connect(agregar_auditorias, sender='mesas.Mesa')
+    pre_save.connect(agregar_auditorias, sender='mesas.Turno')

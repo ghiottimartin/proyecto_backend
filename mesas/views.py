@@ -194,10 +194,21 @@ class TurnoViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(exito=True, mensaje="El turno se actualizó con éxito.")
 
     @action(detail=True, methods=['delete'])
-    def cancelar(self, request, pk=None):
+    def cancelar(self, request):
         turno = self.get_object()
         cancelado = turno.comprobar_cancelado()
         if cancelado:
             return respuesta.get_respuesta(exito=False, mensaje="El turno ya se encuentra cancelado.")
         turno.cancelar()
         return respuesta.get_respuesta(exito=True, mensaje="El turno se canceló con éxito.")
+
+    @action(detail=True, methods=['put'])
+    def cerrar(self, request):
+        self.update(request)
+        turno = self.get_object()
+        puede = turno.comprobar_puede_cerrar()
+        if not puede:
+            mensaje = turno.get_razon_no_puede_cerrar()
+            return respuesta.get_respuesta(exito=False, mensaje=mensaje)
+        turno.cerrar()
+        return respuesta.get_respuesta(exito=True, mensaje="El turno se cerró con éxito.")
