@@ -132,6 +132,7 @@ class VentaSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['id_texto'] = instance.get_id_texto()
+        ret['tipo_venta'] = instance.get_tipo_texto()
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = unidecode.unidecode(instance.usuario.first_name)
         ret['fecha_texto'] = instance.auditoria_creado_fecha.strftime('%d/%m/%Y %H:%M')

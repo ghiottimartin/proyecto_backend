@@ -259,6 +259,17 @@ class Venta(Auditoria, models.Model):
     def get_id_texto(self):
         return "V" + str(self.id).zfill(5)
 
+    def get_tipo_texto(self):
+        """
+            Devuelve el tipo de venta legible.
+            @return: str
+        """
+        tipo = self.tipo
+        if tipo == self.ALMACEN:
+            return "Almacén"
+        if tipo == self.MESA:
+            return "Mesa"
+
     def __str__(self):
         id_texto = self.get_id_texto()
         return "Venta " + id_texto
