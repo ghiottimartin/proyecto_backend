@@ -104,27 +104,39 @@ class Turno(Auditoria, models.Model):
 
     ABIERTO = "abierto"
     CERRADO = "cerrado"
+    CANCELADO = "cancelado"
 
     mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE, related_name="turnos")
     mozo = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+", null=True)
+    estado = models.CharField(max_length=30, default=ABIERTO)
     hora_inicio = models.DateTimeField(default=datetime.datetime.now)
     hora_fin = models.DateTimeField(null=True)
 
     def comprobar_abierto(self):
         """
-            Comprueba si el turno está abierto, para ello verifica que la última hora sea None.
+            Comprueba si el turno está abierto, para ello verifica que la última hora sea None y tenga estado abierto.
             @return: bool
         """
         hora_fin = self.hora_fin
-        return hora_fin is None
+        estado = self.estado
+        return hora_fin is None and estado == self.ABIERTO
 
     def comprobar_cerrado(self):
         """
-            Comprueba si el turno está cerrado, para ello verifica que tenga hora de cierre.
+            Comprueba si el turno está cerrado, para ello verifica que tenga hora de cierre y tenga estado cerrado.
             @return: bool
         """
         hora_fin = self.hora_fin
-        return hora_fin is not None
+        estado = self.estado
+        return hora_fin is not None and estado == self.CERRADO
+
+    def comprobar_cancelado(self):
+        """
+            Devuelve true si el turno está cancelado.
+            @return: bool
+        """
+        estado = self.estado
+        return estado == self.CANCELADO
 
     def borrar_orden_por_id_producto(self, id_producto):
         """
@@ -205,6 +217,18 @@ class Turno(Auditoria, models.Model):
         """
         orden = self.ordenes.filter(producto__id=id_producto).first()
         return orden
+
+    def cancelar(self):
+        """
+            Cancela el turno actual.
+            @return: None
+        """
+        self.estado = self.CANCELADO
+        self.hora_fin = datetime.datetime.now()
+        self.save()
+        mesa = self.mesa
+        mesa.estado = Mesa.DISPONIBLE
+        mesa.save()
 
 
 class OrdenProducto(models.Model):

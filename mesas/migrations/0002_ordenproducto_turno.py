@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('mesa', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='turnos', to='mesas.mesa')),
                 ('mozo', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('estado', models.CharField(default='abierto', max_length=30)),
                 ('hora_inicio', models.DateTimeField(default=datetime.datetime.now)),
                 ('hora_fin', models.DateTimeField(null=True)),
                 ('auditoria_creado_fecha', models.DateTimeField(blank=True, default=datetime.datetime.now)),

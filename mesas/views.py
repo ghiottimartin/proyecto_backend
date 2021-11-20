@@ -6,6 +6,7 @@ from base.repositorio import get_usuario
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from base.permisos import TieneRolAdmin
 
@@ -191,3 +192,12 @@ class TurnoViewSet(viewsets.ModelViewSet):
         turno.mozo = mozo
         turno.save()
         return respuesta.get_respuesta(exito=True, mensaje="El turno se actualizó con éxito.")
+
+    @action(detail=True, methods=['delete'])
+    def cancelar(self, request, pk=None):
+        turno = self.get_object()
+        cancelado = turno.comprobar_cancelado()
+        if cancelado:
+            return respuesta.get_respuesta(exito=False, mensaje="El turno ya se encuentra cancelado.")
+        turno.cancelar()
+        return respuesta.get_respuesta(exito=True, mensaje="El turno se canceló con éxito.")
