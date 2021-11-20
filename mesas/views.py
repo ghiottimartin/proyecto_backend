@@ -70,13 +70,15 @@ class MesaViewSet(viewsets.ModelViewSet):
     def get_filtros(self, request):
         filtros = {}
 
-        # Agrega filtro por id de mesa y lo devuelve sin el resto.
-        id = request.query_params.get('numero', "")
-        if id is not None and id.isnumeric() and int(id) > 0:
-            filtros = {
-                "id": id
-            }
-            return filtros
+        # Agrega filtro por número de mesa.
+        numero = request.query_params.get('numero', "")
+        if numero is not None and numero.isnumeric() and int(numero) > 0:
+            filtros["numero"] = numero
+
+        # Agrega filtro por estado de mesa.
+        estado = request.query_params.get('estado', "")
+        if estado is not None and isinstance(estado, str) and (estado == Mesa.DISPONIBLE or estado == Mesa.OCUPADA):
+            filtros["estado"] = estado
 
         # Agrega filtros por número de página actual
         pagina = int(request.query_params.get('paginaActual', 1))
@@ -98,7 +100,7 @@ class MesaViewSet(viewsets.ModelViewSet):
         return cantidad
 
     # Devuelve las mesas según los filtros de la query
-    def filtrar_ingresos(self, request):
+    def filtrar_mesas(self, request):
         filtros = self.get_filtros(request)
         id = filtros.get("id")
         id_valido = id is not None and int(id) > 0
@@ -112,9 +114,9 @@ class MesaViewSet(viewsets.ModelViewSet):
         mesas = Mesa.objects.filter(**filtros).order_by('numero')[offset:limit]
         return mesas
 
-    # Lista los ingresos aplicando los filtros.
+    # Lista las mesas aplicando los filtros.
     def list(self, request, *args, **kwargs):
-        mesas = self.filtrar_ingresos(request)
+        mesas = self.filtrar_mesas(request)
         if len(mesas) > 0:
             serializer = MesaSerializer(instance=mesas, many=True)
             mesas = serializer.data
