@@ -185,9 +185,9 @@ class Usuario(Auditoria, AbstractUser):
             "descripcion": "Permite gestionar los pedidos online"
         }, {
             "roles": [Rol.VENEDEDOR],
-            "ruta": "/venta-almacen/listado",
-            "titulo": "Venta en almacén",
-            "descripcion": "Permite gestionar las ventas de almacén"
+            "ruta": "/venta/listado",
+            "titulo": "Venta",
+            "descripcion": "Permite gestionar las ventas"
         }]
         return operaciones
 
