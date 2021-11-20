@@ -290,6 +290,46 @@ class Turno(Auditoria, models.Model):
         venta.actualizar()
         venta.save()
 
+    def get_hora_inicio_texto(self):
+        """
+            Devuelve la hora que se inicio el turno.
+            @return: str (HH:mm)
+        """
+        return self.hora_inicio.strftime('%H:%M')
+
+    def get_hora_fin_texto(self):
+        """
+            Devuelve la hora que se inicio el turno.
+            @return: str (HH:mm)
+        """
+        hora_fin = self.hora_fin
+        if hora_fin is None:
+            return "--"
+        return self.hora_inicio.strftime('%H:%M')
+
+    def get_estado_texto(self):
+        """
+            Devuelve el estado en formato legible para el usuario.
+            @return:
+        """
+        estado = self.estado.capitalize()
+        return estado
+
+    def get_estado_clase(self):
+        """
+            Devuelve la clase css del estado del turno.
+            @return:
+        """
+        clase = "font-weight-bold badge"
+        estado = self.estado
+        if estado == Turno.CANCELADO:
+            clase = clase + " badge-danger"
+        if estado == Turno.ABIERTO:
+            clase = clase + " badge-success"
+        if estado == Turno.CERRADO:
+            clase = clase + " badge-primary"
+        return clase
+
 
 class OrdenProducto(models.Model):
     """

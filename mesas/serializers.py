@@ -51,9 +51,13 @@ class TurnoSerializer(serializers.ModelSerializer):
         model = Turno
         fields = '__all__'
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret['abierto'] = instance.comprobar_abierto()
-        ret['cerrado'] = instance.comprobar_cerrado()
-        ret['puede_cerrar'] = False
+    def to_representation(self, turno):
+        ret = super().to_representation(turno)
+        ret['fecha'] = turno.hora_inicio.strftime('%d/%m/%Y')
+        ret['hora_inicio_texto'] = turno.get_hora_inicio_texto()
+        ret['hora_fin_texto'] = turno.get_hora_fin_texto()
+        ret['abierto'] = turno.comprobar_abierto()
+        ret['cerrado'] = turno.comprobar_cerrado()
+        ret['estado_texto'] = turno.get_estado_texto()
+        ret['estado_clase'] = turno.get_estado_clase()
         return ret

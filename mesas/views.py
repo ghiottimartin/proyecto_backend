@@ -2,6 +2,7 @@ from .models import Mesa, Turno
 from .serializers import MesaSerializer, TurnoSerializer
 from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa, get_mesa, comprobar_ordenes_validas
 from base import respuestas
+from base import utils
 from base.repositorio import get_usuario
 from django.db import transaction
 from rest_framework import viewsets
@@ -196,7 +197,7 @@ class TurnoViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(exito=True, mensaje="El turno se actualizó con éxito.")
 
     @action(detail=True, methods=['delete'])
-    def cancelar(self, request):
+    def cancelar(self, request, pk=None):
         turno = self.get_object()
         cancelado = turno.comprobar_cancelado()
         if cancelado:
@@ -205,7 +206,7 @@ class TurnoViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(exito=True, mensaje="El turno se canceló con éxito.")
 
     @action(detail=True, methods=['put'])
-    def cerrar(self, request):
+    def cerrar(self, request, pk=None):
         self.update(request)
         turno = self.get_object()
         puede = turno.comprobar_puede_cerrar()
@@ -214,3 +215,58 @@ class TurnoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=False, mensaje=mensaje)
         turno.cerrar()
         return respuesta.get_respuesta(exito=True, mensaje="El turno se cerró con éxito.")
+
+    # Devuelve los filtros de la query.
+    def get_filtros(self, request):
+        idMesa = request.query_params.get('idMesa', 0)
+        filtros = {
+            "mesa": idMesa
+        }
+
+        # Agrega filtro por estado de turno.
+        estado = request.query_params.get('estado', "")
+        if estado is not None and isinstance(estado, str) and (estado == Turno.ABIERTO or estado == Turno.CERRADO or estado == Turno.CANCELADO):
+            filtros["estado"] = estado
+
+        # Agrega filtros por fecha desde y hasta
+        desdeTexto = request.query_params.get('fechaDesde', "")
+        hastaTexto = request.query_params.get('fechaHasta', "")
+        desde = utils.get_fecha_string2objeto(desdeTexto)
+        hasta = utils.get_fecha_string2objeto(hastaTexto, False)
+        filtros["auditoria_creado_fecha__range"] = (desde, hasta)
+        return filtros
+
+    # Devuelve los cantidad de registros sin tener en cuenta la página actual.
+    def get_cantidad_registros(self, request):
+        filtros = self.get_filtros(request)
+        cantidad = Turno.objects.filter(**filtros).count()
+        return cantidad
+
+    # Devuelve los turnos según los filtros de la query
+    def filtrar_turnos(self, request):
+        filtros = self.get_filtros(request)
+        turnos = Turno.objects.filter(**filtros).order_by('-id')
+        return turnos
+
+    @action(detail=False, methods=['get'])
+    def turnos(self, request):
+        turnos = self.filtrar_turnos(request)
+        if len(turnos) > 0:
+            serializer = TurnoSerializer(instance=turnos, many=True)
+            turnos = serializer.data
+
+        idMesa = request.query_params.get('idMesa', 0)
+        cantidad = self.get_cantidad_registros(request)
+        total = Turno.objects.filter(mesa=idMesa).count()
+
+        mesa = get_mesa(idMesa)
+        if mesa is not None:
+            serializer = MesaSerializer(instance=mesa)
+            mesa = serializer.data
+        datos = {
+            "total": total,
+            "mesa": mesa,
+            "turnos": turnos,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
