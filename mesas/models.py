@@ -330,6 +330,18 @@ class Turno(Auditoria, models.Model):
             clase = clase + " badge-primary"
         return clase
 
+    def get_color_fondo(self):
+        """
+            Devuelve el color de fondo del turno.
+            @return: str
+        """
+        estado = self.estado
+        if estado == self.ABIERTO:
+            return "rgb(40 167 69 / 20%)"
+        if estado == self.CANCELADO:
+            return "rgb(220 53 69 / 20%)"
+        return "rgb(0 123 255 / 20%)"
+
 
 class OrdenProducto(models.Model):
     """

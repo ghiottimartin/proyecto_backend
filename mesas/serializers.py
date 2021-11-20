@@ -11,15 +11,15 @@ class MesaSerializer(serializers.ModelSerializer):
         model = Mesa
         fields = ['id', 'numero', 'ultimo_turno', 'estado', 'descripcion']
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret['numero_texto'] = instance.get_numero_texto()
-        ret['descripcion_texto'] = instance.get_descripcion_texto()
-        ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
-        ret['estado_texto'] = instance.get_estado_texto()
-        ret['estado_clase'] = instance.get_estado_clase()
-        ret['color_fondo'] = instance.get_color_fondo()
-        ret['puede_editarse'] = instance.comprobar_puede_editarse()
+    def to_representation(self, mesa):
+        ret = super().to_representation(mesa)
+        ret['numero_texto'] = mesa.get_numero_texto()
+        ret['descripcion_texto'] = mesa.get_descripcion_texto()
+        ret['puede_borrarse'] = mesa.comprobar_puede_borrarse()
+        ret['estado_texto'] = mesa.get_estado_texto()
+        ret['estado_clase'] = mesa.get_estado_clase()
+        ret['color_fondo'] = mesa.get_color_fondo()
+        ret['puede_editarse'] = mesa.comprobar_puede_editarse()
         return ret
 
     def get_ultimo_turno(self, objeto):
@@ -60,4 +60,5 @@ class TurnoSerializer(serializers.ModelSerializer):
         ret['cerrado'] = turno.comprobar_cerrado()
         ret['estado_texto'] = turno.get_estado_texto()
         ret['estado_clase'] = turno.get_estado_clase()
+        ret['color_fondo'] = turno.get_color_fondo()
         return ret
