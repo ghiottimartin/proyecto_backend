@@ -58,6 +58,16 @@ class Mesa(Auditoria, models.Model):
             clase = clase + " badge-success"
         return clase
 
+    def get_color_fondo(self):
+        """
+            Devuelve el color de fondo de la mesa. Si esta ocupada es rojo claro, sino es verde claro.
+            @return: str
+        """
+        estado = self.estado
+        if estado == self.DISPONIBLE:
+            return "rgb(40 167 69 / 20%)"
+        return "rgb(220 53 69 / 20%)"
+
     def comprobar_puede_borrarse(self):
         """
             Comprueba si la mesa puede borrarse, para ello verifica que no tenga turnos.

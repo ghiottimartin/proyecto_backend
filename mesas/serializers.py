@@ -18,6 +18,7 @@ class MesaSerializer(serializers.ModelSerializer):
         ret['puede_borrarse'] = instance.comprobar_puede_borrarse()
         ret['estado_texto'] = instance.get_estado_texto()
         ret['estado_clase'] = instance.get_estado_clase()
+        ret['color_fondo'] = instance.get_color_fondo()
         ret['puede_editarse'] = instance.comprobar_puede_editarse()
         return ret
 
