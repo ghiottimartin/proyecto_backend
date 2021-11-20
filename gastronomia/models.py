@@ -130,7 +130,29 @@ class Pedido(Auditoria, models.Model):
     # Agrega al pedido un nuevo estado Entregado
     def entregar_pedido(self):
         self.agregar_estado(Estado.RECIBIDO)
+        self.crear_venta()
         self.save()
+
+    def crear_venta(self):
+        """
+            Crea una venta de tipo online.
+            @return: None
+        """
+        usuario = self.usuario
+        venta = Venta(usuario=usuario, tipo=Venta.ONLINE)
+        venta.save()
+
+        lineas = self.lineas.all()
+        for linea in lineas:
+            producto = linea.producto
+            cantidad = linea.cantidad
+            precio = producto.precio_vigente
+            total = precio * cantidad
+            linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio, total=total)
+            linea.save()
+
+        venta.actualizar()
+        venta.save()
 
     # Devuelve el estado en formato legible.
     def get_estado_texto(self, logueado):
@@ -177,6 +199,7 @@ class PedidoLinea(models.Model):
 class Venta(Auditoria, models.Model):
 
     ALMACEN = 'almacen'
+    ONLINE = 'online'
     MESA = 'mesa'
 
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="ventas")
@@ -267,8 +290,14 @@ class Venta(Auditoria, models.Model):
         tipo = self.tipo
         if tipo == self.ALMACEN:
             return "Almacén"
+
         if tipo == self.MESA:
             return "Mesa"
+
+        if tipo == self.ONLINE:
+            return "Online"
+        
+        return""
 
     def __str__(self):
         id_texto = self.get_id_texto()
