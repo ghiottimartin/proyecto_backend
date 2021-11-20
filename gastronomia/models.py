@@ -296,7 +296,7 @@ class Venta(Auditoria, models.Model):
 
         if tipo == self.ONLINE:
             return "Online"
-        
+
         return""
 
     def __str__(self):
