@@ -1,4 +1,4 @@
-from builtins import object
+from builtins import object, all
 
 from .models import Pedido, Estado, Venta
 from .serializers import PedidoSerializer, VentaSerializer
@@ -425,86 +425,91 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         pdf.setTitle(nombre)
 
         # Defino tamaño de pdf
-        # TODO calcular la altura
-        width = 200
-        height = 400
+        lineas = venta["lineas"]
+        width = 220
+        height = 210 + len(lineas) * 45
         pdf.setPageSize((width, height))
 
         # Agrego línea id de venta
         id_venta = str(venta["id_texto_limpio"])
         pdf.setFont("Helvetica-Bold", 18)
-        pdf.drawString(70, 275, id_venta)
+        altura_id_venta = height - 25
+        pdf.drawString(70, altura_id_venta, id_venta)
 
         # Agrego la fecha.
         pdf.setFont("Helvetica-Bold", 10)
         fecha_texto = "Fecha: " + venta['fecha_texto']
-        pdf.drawString(80, 250, fecha_texto)
+        altura_fecha = altura_id_venta - 25
+        pdf.drawString(100, altura_fecha, fecha_texto)
 
         # Agrego texto cantidad / precio unitario
-        pdf.drawString(5, 210, "CANT ./ PRECIO UNIT.")
-        pdf.drawString(5, 195, "DESCRIPCION")
-        pdf.drawString(150, 195, "IMPORTE")
+        altura_cantidad = altura_fecha - 40
+        altura_descripcion = altura_cantidad - 10
+        pdf.drawString(5, altura_cantidad, "CANT ./ PRECIO UNIT.")
+        pdf.drawString(5, altura_descripcion, "DESCRIPCION")
+        pdf.drawString(170, altura_descripcion, "IMPORTE")
 
-        altura = 180
-        lineas = venta["lineas"]
+        altura_lineas = altura_descripcion - 15
         pdf.setFont("Helvetica", 10)
         for linea in lineas:
             cantidad = linea['cantidad']
             subtotal = linea['precio_texto']
             cantidad_precio = str(cantidad) + " x " + str(subtotal)
-            pdf.drawString(5, altura, cantidad_precio)
+            pdf.drawString(5, altura_lineas, cantidad_precio)
 
-            altura -= 15
+            altura_lineas -= 15
             producto = linea['producto']
             id_producto = producto['id']
             nombre = producto['nombre']
             id_nombre = "(" + str(id_producto) + ")  " + nombre
-            pdf.drawString(5, altura, id_nombre)
+            pdf.drawString(5, altura_lineas, id_nombre)
 
             total = str(linea['total_texto'])
-            pdf.drawString(150, altura, total)
+            pdf.drawString(170, altura_lineas, total)
 
-            altura -= 15
+            altura_lineas -= 15
 
         total_texto = venta['total_texto']
-        altura_calculada = 180 - len(lineas) * 30 - 10
+        altura_total = altura_lineas - 15
         pdf.setFont("Helvetica-Bold", 11)
-        pdf.drawString(105, altura_calculada, "TOTAL: " + total_texto)
+        pdf.drawString(105, altura_total, "TOTAL: " + total_texto)
 
-        altura_calculada -= 25
+        altura_actual = altura_total
         tipo = venta['tipo']
         pdf.setFont("Helvetica-Bold", 10)
         if tipo == Venta.MESA:
             id_mesa = str(objeto.turno.mesa_id)
-            pdf.drawString(5, altura_calculada, "Mesa: " + id_mesa)
+            altura_actual -= 15
+            pdf.drawString(5, altura_actual, "Mesa: " + id_mesa)
 
-            altura_calculada -= 15
+            altura_actual -= 15
             id_mozo = str(objeto.turno.mozo_id)
-            pdf.drawString(5, altura_calculada, "Mozo: " + id_mozo)
+            pdf.drawString(5, altura_actual, "Mozo: " + id_mozo)
 
         if tipo == Venta.ONLINE:
             id_pedido = str(objeto.pedido_id)
-            pdf.drawString(5, altura_calculada, "Pedido: " + id_pedido)
+            altura_actual -= 15
+            pdf.drawString(5, altura_actual, "Pedido: " + id_pedido)
 
         if tipo == Venta.ALMACEN:
+            altura_actual -= 15
             id_vendedor = str(objeto.auditoria_creador_id)
-            pdf.drawString(5, altura_calculada, "Cajero: " + id_vendedor)
+            pdf.drawString(5, altura_actual, "Cajero: " + id_vendedor)
 
-        altura_calculada -= 15
-        pdf.drawString(5, altura_calculada, "-----------------------------------------------------------------")
+        altura_actual -= 15
+        pdf.drawString(5, altura_actual, "-----------------------------------------------------------------")
 
-        altura_calculada -= 15
-        pdf.drawString(5, altura_calculada, "Indique su Cond. de I.V.A al mozo,")
+        altura_actual -= 15
+        pdf.drawString(5, altura_actual, "Indique su Cond. de I.V.A al mozo,")
 
-        altura_calculada -= 15
-        pdf.drawString(5, altura_calculada, "para la correcta confección")
+        altura_actual -= 15
+        pdf.drawString(5, altura_actual, "para la correcta confección")
 
-        altura_calculada -= 15
-        pdf.drawString(5, altura_calculada, "del Ticket/Factura")
+        altura_actual -= 15
+        pdf.drawString(5, altura_actual, "del Ticket/Factura")
 
-        altura_calculada -= 15
-        pdf.drawString(5, altura_calculada, "-----------------------------------------------------------------")
-
+        altura_actual -= 15
+        pdf.drawString(5, altura_actual, "-----------------------------------------------------------------")
 
         # Cierro y guardo el pdf
         pdf.showPage()
