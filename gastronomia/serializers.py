@@ -37,6 +37,7 @@ class VentaSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['id_texto'] = instance.get_id_texto()
+        ret['id_texto_limpio'] = instance.get_id_texto_limpio()
         ret['tipo_venta'] = instance.get_tipo_texto()
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = unidecode.unidecode(instance.usuario.first_name)
@@ -46,6 +47,7 @@ class VentaSerializer(serializers.ModelSerializer):
         ret['estado_clase'] = instance.get_estado_clase()
         ret['fecha_anulado'] = instance.get_fecha_anulada_texto()
         ret['anulada'] = instance.comprobar_anulada()
+        ret['nombre'] = instance.get_nombre()
         return ret
 
     # Devuelve las operaciones disponibles para la venta actual.

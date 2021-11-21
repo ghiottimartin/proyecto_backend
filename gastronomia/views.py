@@ -4,7 +4,7 @@ from base.respuestas import Respuesta
 from base.permisos import TieneRolAdmin
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from base.exportador import render_to_pdf
+from base.exportador import pdf_venta
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido, \
     get_venta, validar_crear_venta, crear_venta
 from rest_framework import viewsets
@@ -409,10 +409,4 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a exportar.")
         serializer = VentaSerializer(instance=objeto)
         venta = serializer.data
-        return render_to_pdf(
-            'gastronomia/venta.html',
-            {
-                'pagesize': 'A4',
-                'venta': venta,
-            }
-        )
+        return pdf_venta(venta)

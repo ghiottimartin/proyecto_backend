@@ -280,6 +280,13 @@ class Venta(Auditoria, models.Model):
     def get_id_texto(self):
         return "V" + str(self.id).zfill(5)
 
+    def get_id_texto_limpio(self):
+        """
+            Devuelve el id llenandolo con ceros.
+            @return: str
+        """
+        return str(self.id).zfill(5)
+
     def get_tipo_texto(self):
         """
             Devuelve el tipo de venta legible.
@@ -296,6 +303,14 @@ class Venta(Auditoria, models.Model):
             return "Online"
 
         return""
+
+    def get_nombre(self):
+        """
+            Devuelve el nombre de la venta. Ej: Venta V00001
+            @return: str
+        """
+        id_texto = self.get_id_texto()
+        return "Venta " + id_texto
 
     def __str__(self):
         id_texto = self.get_id_texto()
