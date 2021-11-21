@@ -1,17 +1,21 @@
+from builtins import object
+
 from .models import Pedido, Estado, Venta
 from .serializers import PedidoSerializer, VentaSerializer
+from base import utils
 from base.respuestas import Respuesta
 from base.permisos import TieneRolAdmin
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from base.exportador import pdf_venta
+from django.http import FileResponse
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido, \
     get_venta, validar_crear_venta, crear_venta
+import io
+from reportlab.pdfgen import canvas
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from base import utils
 
 respuesta = Respuesta()
 
@@ -409,4 +413,107 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a exportar.")
         serializer = VentaSerializer(instance=objeto)
         venta = serializer.data
-        return pdf_venta(venta)
+
+        # Creo un buffer de salida
+        buffer = io.BytesIO()
+
+        # Creo pdf
+        pdf = canvas.Canvas(buffer)
+
+        # Defino título de pdf
+        nombre = venta["nombre"]
+        pdf.setTitle(nombre)
+
+        # Defino tamaño de pdf
+        # TODO calcular la altura
+        width = 200
+        height = 400
+        pdf.setPageSize((width, height))
+
+        # Agrego línea id de venta
+        id_venta = str(venta["id_texto_limpio"])
+        pdf.setFont("Helvetica-Bold", 18)
+        pdf.drawString(70, 275, id_venta)
+
+        # Agrego la fecha.
+        pdf.setFont("Helvetica-Bold", 10)
+        fecha_texto = "Fecha: " + venta['fecha_texto']
+        pdf.drawString(80, 250, fecha_texto)
+
+        # Agrego texto cantidad / precio unitario
+        pdf.drawString(5, 210, "CANT ./ PRECIO UNIT.")
+        pdf.drawString(5, 195, "DESCRIPCION")
+        pdf.drawString(150, 195, "IMPORTE")
+
+        altura = 180
+        lineas = venta["lineas"]
+        pdf.setFont("Helvetica", 10)
+        for linea in lineas:
+            cantidad = linea['cantidad']
+            subtotal = linea['precio_texto']
+            cantidad_precio = str(cantidad) + " x " + str(subtotal)
+            pdf.drawString(5, altura, cantidad_precio)
+
+            altura -= 15
+            producto = linea['producto']
+            id_producto = producto['id']
+            nombre = producto['nombre']
+            id_nombre = "(" + str(id_producto) + ")  " + nombre
+            pdf.drawString(5, altura, id_nombre)
+
+            total = str(linea['total_texto'])
+            pdf.drawString(150, altura, total)
+
+            altura -= 15
+
+        total_texto = venta['total_texto']
+        altura_calculada = 180 - len(lineas) * 30 - 10
+        pdf.setFont("Helvetica-Bold", 11)
+        pdf.drawString(105, altura_calculada, "TOTAL: " + total_texto)
+
+        altura_calculada -= 25
+        tipo = venta['tipo']
+        pdf.setFont("Helvetica-Bold", 10)
+        if tipo == Venta.MESA:
+            id_mesa = str(objeto.turno.mesa_id)
+            pdf.drawString(5, altura_calculada, "Mesa: " + id_mesa)
+
+            altura_calculada -= 15
+            id_mozo = str(objeto.turno.mozo_id)
+            pdf.drawString(5, altura_calculada, "Mozo: " + id_mozo)
+
+        if tipo == Venta.ONLINE:
+            id_pedido = str(objeto.pedido_id)
+            pdf.drawString(5, altura_calculada, "Pedido: " + id_pedido)
+
+        if tipo == Venta.ALMACEN:
+            id_vendedor = str(objeto.auditoria_creador_id)
+            pdf.drawString(5, altura_calculada, "Cajero: " + id_vendedor)
+
+        altura_calculada -= 15
+        pdf.drawString(5, altura_calculada, "-----------------------------------------------------------------")
+
+        altura_calculada -= 15
+        pdf.drawString(5, altura_calculada, "Indique su Cond. de I.V.A al mozo,")
+
+        altura_calculada -= 15
+        pdf.drawString(5, altura_calculada, "para la correcta confección")
+
+        altura_calculada -= 15
+        pdf.drawString(5, altura_calculada, "del Ticket/Factura")
+
+        altura_calculada -= 15
+        pdf.drawString(5, altura_calculada, "-----------------------------------------------------------------")
+
+
+        # Cierro y guardo el pdf
+        pdf.showPage()
+        pdf.save()
+
+        # FileResponse sets the Content-Disposition header so that browsers
+        # present the option to save the file.
+        buffer.seek(0)
+
+        # Defino nombre de archivo.
+        file_name = nombre + ".pdf"
+        return FileResponse(buffer, as_attachment=True, filename=file_name)

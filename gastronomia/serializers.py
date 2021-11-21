@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Pedido, PedidoLinea, VentaLinea, Venta
-from producto.serializers import ProductoSerializer, MovimientoSerializer
 from base.signals import get_usuario_logueado
+from producto.serializers import ProductoSerializer, MovimientoSerializer
 import unidecode
 import locale
 
