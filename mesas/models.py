@@ -2,7 +2,7 @@ import datetime
 from django.core.exceptions import ValidationError
 from django.db import models
 from base.models import Auditoria, Usuario
-from gastronomia.models import Venta, VentaLinea
+from gastronomia.models import Venta, VentaLinea, Pedido
 import pandas as pd
 from producto.models import Producto
 from producto.repositorio import get_producto

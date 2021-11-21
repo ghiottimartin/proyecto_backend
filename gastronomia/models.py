@@ -24,15 +24,12 @@ class Estado(models.Model):
 
 class Pedido(Auditoria, models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="pedidos")
+    venta = models.ForeignKey("gastronomia.Venta", on_delete=models.CASCADE, related_name="+", null=True)
     fecha = models.DateTimeField(default=datetime.datetime.now)
     ultimo_estado = models.CharField(max_length=40, default=Estado.ABIERTO)
     total = models.FloatField()
     forzar = models.BooleanField(default=False)
-    tipo = models.CharField(max_length=15)
     observaciones = models.CharField(max_length=255, default="")
-
-    TIPO_ONLINE = 'online'
-    TIPO_MOSTRADOR = 'mostrador'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -128,7 +125,7 @@ class Pedido(Auditoria, models.Model):
         self.save()
 
     # Agrega al pedido un nuevo estado Entregado
-    def entregar_pedido(self):
+    def entregar(self):
         self.agregar_estado(Estado.RECIBIDO)
         self.crear_venta()
         self.save()
@@ -153,6 +150,7 @@ class Pedido(Auditoria, models.Model):
 
         venta.actualizar()
         venta.save()
+        self.venta = venta
 
     # Devuelve el estado en formato legible.
     def get_estado_texto(self, logueado):

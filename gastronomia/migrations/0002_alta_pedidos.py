@@ -42,7 +42,7 @@ def nuevo_pedido(apps, nombre_usuario, fecha, productos, estadoTexto):
     Usuario = apps.get_model('base', 'Usuario')
 
     usuario = Usuario.objects.get(username=nombre_usuario)
-    pedido = Pedido(usuario=usuario, fecha=fecha, tipo='online', ultimo_estado=estadoTexto, total=0,
+    pedido = Pedido(usuario=usuario, fecha=fecha, ultimo_estado=estadoTexto, total=0,
         forzar=0, auditoria_creado_fecha=datetime.datetime.now(),
         auditoria_modificado_fecha=datetime.datetime.now()
     )

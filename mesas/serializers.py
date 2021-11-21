@@ -1,6 +1,6 @@
 from .models import Mesa, Turno, OrdenProducto
 from base.serializers import UsuarioSerializer
-from gastronomia.serializers import VentaSerializer
+from gastronomia.serializers import VentaSerializer, PedidoSerializer
 from producto.serializers import ProductoSerializer
 from rest_framework import serializers
 
@@ -52,6 +52,7 @@ class OrdenProductoSerializer(serializers.ModelSerializer):
 class TurnoSerializer(serializers.ModelSerializer):
     mozo = UsuarioSerializer(read_only=True)
     venta = VentaSerializer(read_only=True)
+    pedido = PedidoSerializer(read_only=True)
     ordenes = OrdenProductoSerializer(read_only=True, many=True)
 
     class Meta:

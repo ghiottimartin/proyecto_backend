@@ -169,13 +169,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         usuario = request.user
         try:
-            tipo = Pedido.TIPO_ONLINE
             datos = request.data
             validar_crear_pedido(datos)
             id = datos["id"]
             lineas = datos["lineas"]
             if id <= 0:
-                pedido = crear_pedido(usuario, lineas, tipo)
+                pedido = crear_pedido(usuario, lineas)
             else:
                 pedido = actualizar_pedido(id, lineas)
             datos = {"pedido": "borrado"}
@@ -215,7 +214,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
                 return respuesta.get_respuesta(exito=False, mensaje="El pedido ya se encuentra en estado entregado.")
             disponible = pedido.comprobar_estado_disponible()
             if disponible:
-                pedido.entregar_pedido()
+                pedido.entregar()
             else:
                 return respuesta.get_respuesta(exito=False, mensaje="No se puede entregar el pedido porque no tiene "
                                                                     "estado disponible.")
