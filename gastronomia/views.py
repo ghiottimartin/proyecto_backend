@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import FileResponse
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido, \
-    get_venta, validar_crear_venta, crear_venta
+    get_venta, validar_crear_venta, crear_venta, get_pdf_comanda
 import io
 from reportlab.pdfgen import canvas
 from rest_framework import viewsets
@@ -411,6 +411,7 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         objeto = get_venta(pk)
         if objeto is None:
             return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a exportar.")
+
         serializer = VentaSerializer(instance=objeto)
         venta = serializer.data
 
@@ -522,3 +523,11 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         # Defino nombre de archivo.
         file_name = nombre + ".pdf"
         return FileResponse(buffer, as_attachment=True, filename=file_name)
+
+    @action(detail=True, methods=['get'])
+    def comanda(self, request, pk=None):
+        venta = get_venta(pk)
+        if venta is None:
+            return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a exportar.")
+
+        return get_pdf_comanda(venta)

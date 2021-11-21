@@ -1,5 +1,8 @@
-from django.core.exceptions import ValidationError
 from .models import Pedido, PedidoLinea, Estado, Venta, VentaLinea
+from django.core.exceptions import ValidationError
+from django.http import FileResponse
+import io
+from reportlab.pdfgen import canvas
 from producto.repositorio import get_producto
 
 
@@ -186,3 +189,7 @@ def crear_linea_venta(venta, item):
     linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio)
     linea.save()
     return linea
+
+
+def get_pdf_comanda(venta):
+    pass

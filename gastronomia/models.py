@@ -248,6 +248,14 @@ class Venta(Auditoria, models.Model):
         anulado = self.anulado
         return anulado is not None
 
+    def comprobar_puede_emitir_comanda(self):
+        """
+            Devuelve true si puede emitar la comanda.
+            @return: bool
+        """
+        tipo = self.tipo
+        return tipo == self.ALMACEN
+
     # Anula la venta generando un movimiento de stock a los productos ingresados.
     def anular(self):
         self.anulado = datetime.datetime.now()

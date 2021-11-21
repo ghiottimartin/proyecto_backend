@@ -67,6 +67,28 @@ class VentaSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
 
+        accion = 'pdf'
+        operaciones.append({
+            'accion': accion,
+            'clase': 'btn btn-sm btn-primary text-primary',
+            'texto': 'Ticket',
+            'icono': 'fas fa-file-pdf',
+            'title': 'Descargar Ticket Venta ' + objeto.get_id_texto(),
+            'key': str(objeto.id) + "-" + accion,
+        })
+
+        puede_comanda = objeto.comprobar_puede_emitir_comanda()
+        if puede_comanda:
+            accion = 'comanda'
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-success text-success',
+                'texto': 'Comanda',
+                'icono': 'fas fa-file-alt',
+                'title': 'Descargar Comanda Venta ' + objeto.get_id_texto(),
+                'key': str(objeto.id) + "-" + accion,
+            })
+
         puede_anular = objeto.comprobar_puede_anular(logueado)
         if puede_anular:
             accion = 'anular'
@@ -78,16 +100,6 @@ class VentaSerializer(serializers.ModelSerializer):
                 'title': 'Anular Venta ' + objeto.get_id_texto(),
                 'key': str(objeto.id) + "-" + accion,
             })
-
-        accion = 'pdf'
-        operaciones.append({
-            'accion': accion,
-            'clase': 'btn btn-sm btn-primary text-primary',
-            'texto': 'Pdf',
-            'icono': 'fas fa-file-pdf',
-            'title': 'Descargar Pdf Venta ' + objeto.get_id_texto(),
-            'key': str(objeto.id) + "-" + accion,
-        })
         return operaciones
 
 
