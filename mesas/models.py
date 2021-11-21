@@ -277,7 +277,7 @@ class Turno(Auditoria, models.Model):
         mesa.save()
 
         usuario = self.auditoria_creador
-        venta = Venta(usuario=usuario, tipo=Venta.MESA)
+        venta = Venta(usuario=usuario, tipo=Venta.MESA, turno=self)
         venta.save()
 
         ordenes = self.ordenes.all()

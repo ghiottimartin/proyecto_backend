@@ -136,7 +136,7 @@ class Pedido(Auditoria, models.Model):
             @return: None
         """
         usuario = self.usuario
-        venta = Venta(usuario=usuario, tipo=Venta.ONLINE)
+        venta = Venta(usuario=usuario, tipo=Venta.ONLINE, pedido=self)
         venta.save()
 
         lineas = self.lineas.all()
@@ -201,6 +201,8 @@ class Venta(Auditoria, models.Model):
     MESA = 'mesa'
 
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="ventas")
+    pedido = models.ForeignKey('gastronomia.Pedido', null=True, on_delete=models.CASCADE, related_name="+")
+    turno = models.ForeignKey('mesas.Turno', null=True, on_delete=models.CASCADE, related_name="+")
     total = models.FloatField(default=0)
     tipo = models.CharField(max_length=30, default=ALMACEN)
     anulado = models.DateTimeField(null=True)
@@ -238,7 +240,8 @@ class Venta(Auditoria, models.Model):
     def comprobar_puede_anular(self, usuario):
         es_admin = usuario.esAdmin
         anulado = self.comprobar_anulada()
-        return es_admin and not anulado
+        tipo = self.tipo
+        return es_admin and not anulado and tipo == self.ALMACEN
 
     # Devuelve true si la venta no está anulada.
     def comprobar_anulada(self):
