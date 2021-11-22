@@ -202,11 +202,14 @@ class Turno(Auditoria, models.Model):
             if producto is None:
                 raise ValidationError("No se ha encontrado el producto a agregar al turno.")
             existe = self.get_orden_por_producto(producto)
+
+            entregado = int(orden["entregado"]) if "entregado" in orden else 0
             if isinstance(existe, OrdenProducto):
                 existe.cantidad = cantidad
+                existe.entregado = entregado
                 existe.save()
             else:
-                orden = OrdenProducto(turno=self, producto=producto, cantidad=cantidad)
+                orden = OrdenProducto(turno=self, producto=producto, cantidad=cantidad, entregado=entregado)
                 orden.save()
 
     def get_ids_productos_anteriores(self):
@@ -382,6 +385,7 @@ class OrdenProducto(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="ordenes")
     estado = models.CharField(max_length=40, default=SOLICITADO)
     cantidad = models.IntegerField()
+    entregado = models.IntegerField(default=0)
 
     def get_total(self):
         """

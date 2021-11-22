@@ -41,6 +41,7 @@ class Migration(migrations.Migration):
                 ('turno', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes', to='mesas.turno')),
                 ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes', to='producto.producto')),
                 ('cantidad', models.IntegerField()),
+                ('entregado', models.IntegerField(default=0)),
                 ('estado', models.CharField(default='solicitado', max_length=40)),
             ],
             options={

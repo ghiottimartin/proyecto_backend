@@ -78,6 +78,7 @@ def comprobar_ordenes_validas(ordenes):
             id_producto = 0
         if id_producto <= 0:
             raise ValidationError("No se ha encontrado el producto.")
+
         cantidad = int(orden["cantidad"]) if "cantidad" in orden else 0
         if not isinstance(cantidad, int):
             raise ValidationError("La cantidad del producto debe tener un valor numérico.")
