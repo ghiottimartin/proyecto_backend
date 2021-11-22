@@ -3,13 +3,14 @@ from .serializers import MesaSerializer, TurnoSerializer
 from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa, get_mesa, comprobar_ordenes_validas
 from base import respuestas
 from base import utils
+from base.permisos import TieneRolAdmin
 from base.repositorio import get_usuario
 from django.db import transaction
+from gastronomia.repositorio import get_pdf_comanda
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from base.permisos import TieneRolAdmin
 
 respuesta = respuestas.Respuesta()
 
@@ -270,3 +271,12 @@ class TurnoViewSet(viewsets.ModelViewSet):
             "registros": cantidad
         }
         return respuesta.get_respuesta(datos=datos, formatear=False)
+
+    @action(detail=True, methods=['get'])
+    def comanda(self, request, pk=None):
+        mesa = get_mesa(pk)
+        if mesa is None:
+            return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado las órdenes del turno a exportar.")
+
+        turno = mesa.turnos.last()
+        return get_pdf_comanda(turno=turno)

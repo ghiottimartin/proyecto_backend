@@ -265,6 +265,19 @@ class Turno(Auditoria, models.Model):
             mensaje = "Debe al menos tener un producto cargado."
         return mensaje
 
+    def get_ordenes_sin_entregar(self):
+        """
+            Devuelve las órdenes que no fueron totalmente entregadas.
+            @return: List
+        """
+        entregar = []
+        ordenes = self.ordenes.all()
+        for orden in ordenes:
+            restante = orden.get_cantidad_restante()
+            if restante > 0:
+                entregar.append(orden)
+        return entregar
+
     def cerrar(self):
         """
             Cierra el turno de la mesa actual, dejándolo en estado cerrado y la mesa en estado disponible. Luego de
@@ -404,3 +417,20 @@ class OrdenProducto(models.Model):
         """
         total = self.get_total()
         return locale.currency(total)
+
+    def get_cantidad_restante(self):
+        """
+            Devuelve la cantidad restante por entregar.
+            @return: int
+        """
+        cantidad = self.cantidad
+        entregado = self.entregado
+        restante = cantidad - entregado
+        return restante
+
+    def get_cantidad_comanda(self):
+        """
+            Devuelve la cantidad a preparar del cocinero para el producto de la orden actual.
+            @return: int
+        """
+        return self.get_cantidad_restante()
