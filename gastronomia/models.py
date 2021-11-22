@@ -97,6 +97,22 @@ class Pedido(Auditoria, models.Model):
         es_vendedor = usuario.esVendedor
         return en_curso and es_vendedor
 
+    def comprobar_puede_emitir_comanda(self):
+        """
+            Devuelve true si se puede imprimir la comanda de los productos del pedido.
+            @return: bool
+        """
+        en_curso = self.comprobar_estado_en_curso()
+        return en_curso
+
+    def get_lineas_comanda(self):
+        """
+            Devuelve las líneas a imprimir en la comanda.
+            @return: List
+        """
+        lineas = self.lineas.all()
+        return lineas
+
     # Actualiza el total del pedido, según los precios y cantidades de las líneas.
     def actualizar_total(self):
         lineas = self.lineas.all()
@@ -177,6 +193,15 @@ class Pedido(Auditoria, models.Model):
     def get_id_texto(self):
         return "P" + str(self.id).zfill(5)
 
+    def get_titulo_comanda(self):
+        """
+            Devuelve el título de la comanda.
+            @return: str
+        """
+        id_texto = self.get_id_texto()
+        titulo = 'Comanda Pedido ' + id_texto
+        return titulo
+
 
 class PedidoLinea(models.Model):
     pedido = models.ForeignKey('gastronomia.Pedido', on_delete=models.CASCADE, related_name="lineas")
@@ -192,6 +217,13 @@ class PedidoLinea(models.Model):
         self.subtotal = precio
         self.total = total
         self.save()
+
+    def get_cantidad_comanda(self):
+        """
+            Devuelve la cantidad a preparar del cocinero para el producto de la línea actual.
+            @return: int
+        """
+        return self.cantidad
 
 
 class Venta(Auditoria, models.Model):
@@ -323,6 +355,23 @@ class Venta(Auditoria, models.Model):
         id_texto = self.get_id_texto()
         return "Venta " + id_texto
 
+    def get_titulo_comanda(self):
+        """
+            Devuelve el título de la comanda.
+            @return: str
+        """
+        id_texto = self.get_id_texto()
+        titulo = 'Comanda Venta ' + id_texto
+        return titulo
+
+    def get_lineas_comanda(self):
+        """
+            Devuelve las líneas a imprimir en la comanda.
+            @return: List
+        """
+        lineas = self.lineas.all()
+        return lineas
+
     def __str__(self):
         id_texto = self.get_id_texto()
         return "Venta " + id_texto
@@ -364,6 +413,13 @@ class VentaLinea(models.Model):
         descripcion = self.venta.__str__() + " anulada"
         producto.actualizar_stock(nueva=nueva, descripcion=descripcion, venta_linea=self)
         producto.save()
+
+    def get_cantidad_comanda(self):
+        """
+            Devuelve la cantidad a preparar del cocinero para el producto de la línea actual.
+            @return: int
+        """
+        return self.cantidad
 
     def __str__(self):
         return "Línea de " + self.venta.__str__()

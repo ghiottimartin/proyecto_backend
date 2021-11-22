@@ -1,3 +1,5 @@
+import datetime
+
 from .models import Pedido, PedidoLinea, Estado, Venta, VentaLinea
 from django.core.exceptions import ValidationError
 from django.http import FileResponse
@@ -184,12 +186,103 @@ def crear_linea_venta(venta, item):
     tiene_stock = producto.comprobar_tiene_stock(cantidad)
     if not tiene_stock:
         stock = producto.stock
-        raise ValidationError("No hay suficiente stock a la venta para el producto '" + nombre + " quedan " + str(stock))
+        raise ValidationError(
+            "No hay suficiente stock a la venta para el producto '" + nombre + " quedan " + str(stock))
     precio = producto.precio_vigente
     linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio)
     linea.save()
     return linea
 
 
-def get_pdf_comanda(venta):
-    pass
+def get_pdf_comanda(venta=None, turno=None, pedido=None):
+    objeto = None
+    distancia_titulo = 0
+    if venta is not None:
+        objeto = venta
+        distancia_titulo = 65
+    if turno is not None:
+        objeto = turno
+        distancia_titulo = 25
+    if pedido is not None:
+        objeto = pedido
+        distancia_titulo = 60
+
+    # Creo un buffer de salida
+    buffer = io.BytesIO()
+
+    # Creo pdf
+    pdf = canvas.Canvas(buffer)
+
+    # Defino título de pdf
+    titulo = objeto.get_titulo_comanda()
+    pdf.setTitle(titulo)
+
+    # Defino tamaño de pdf
+    lineas = objeto.get_lineas_comanda()
+    cantidad = len(lineas)
+    width = 300
+    height = 150 + cantidad * 30
+    pdf.setPageSize((width, height))
+
+    # Agrego línea id de venta
+    pdf.setFont("Helvetica-Bold", 15)
+    height -= 25
+    pdf.drawString(distancia_titulo, height, titulo)
+
+    # Agrego la fecha.
+    pdf.setFont("Helvetica-Bold", 10)
+    fecha_texto = "Fecha: " + datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
+    height -= 25
+    pdf.drawString(90, height, fecha_texto)
+
+    # Agrego texto cantidad / precio unitario
+    height -= 40
+    pdf.drawString(5, height, "CANTIDAD")
+    pdf.drawString(170, height, "PRODUCTO")
+
+    height -= 15
+    pdf.setFont("Helvetica", 10)
+    for linea in lineas:
+        cantidad = linea.get_cantidad_comanda()
+        pdf.drawString(5, height, str(cantidad))
+
+        producto = linea.producto
+        nombre = producto.nombre
+        id_producto = producto.id
+        id_nombre = "(" + str(id_producto) + ")  " + nombre
+        pdf.drawString(140, height, id_nombre)
+
+        height -= 15
+
+    pdf.setFont("Helvetica-Bold", 10)
+    if turno is not None:
+        nro_mesa = turno.mesa.get_numero_texto()
+        height -= 15
+        pdf.drawString(5, height, "Mesa: " + nro_mesa)
+
+        height -= 15
+        mozo = turno.mozo
+        pdf.drawString(5, height, "Mozo: " + mozo.first_name)
+
+    if venta is not None:
+        cajero = venta.auditoria_creador.first_name
+        height -= 15
+        pdf.drawString(5, height, "Cajero: " + cajero)
+        pedido = venta.pedido
+
+    if pedido is not None:
+        height -= 15
+        id_pedido = pedido.get_id_texto()
+        pdf.drawString(5, height, "Pedido: " + id_pedido)
+
+    # Cierro y guardo el pdf
+    pdf.showPage()
+    pdf.save()
+
+    # FileResponse sets the Content-Disposition header so that browsers
+    # present the option to save the file.
+    buffer.seek(0)
+
+    # Defino nombre de archivo.
+    file_name = titulo + ".pdf"
+    return FileResponse(buffer, as_attachment=True, filename=file_name)

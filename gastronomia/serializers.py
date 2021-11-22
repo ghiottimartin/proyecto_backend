@@ -185,6 +185,18 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
 
+        puede_emitir_comanda = objeto.comprobar_puede_emitir_comanda()
+        if puede_emitir_comanda:
+            accion = 'comanda'
+            operaciones.append({
+                'accion': 'comanda',
+                'clase': 'btn btn-sm btn-primary text-primary',
+                'texto': 'Comanda',
+                'icono': 'fas fa-file-alt',
+                'title': 'Descargar Comanda Pedido ' + objeto.get_id_texto(),
+                'key': str(objeto.id) + "-" + accion,
+            })
+
         puede_anular = objeto.comprobar_puede_anular(logueado)
         if puede_anular:
             accion = 'anular'

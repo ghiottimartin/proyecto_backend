@@ -267,6 +267,14 @@ class PedidoViewSet(viewsets.ModelViewSet):
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al actualizar  el pedido.")
 
+    @action(detail=True, methods=['get'])
+    def comanda(self, request, pk=None):
+        pedido = get_pedido(pk)
+        if pedido is None:
+            return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado el pedido.")
+
+        return get_pdf_comanda(pedido=pedido)
+
 
 # Abm de ventas.
 class ABMVentaViewSet(viewsets.ModelViewSet):
@@ -530,4 +538,4 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         if venta is None:
             return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a exportar.")
 
-        return get_pdf_comanda(venta)
+        return get_pdf_comanda(venta=venta)

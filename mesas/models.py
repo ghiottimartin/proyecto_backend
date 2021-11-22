@@ -381,6 +381,24 @@ class Turno(Auditoria, models.Model):
         total = self.get_total()
         return locale.currency(total)
 
+    def get_titulo_comanda(self):
+        """
+            Devuelve el título de la comanda.
+            @return: str
+        """
+        mesa = self.mesa
+        id_texto = mesa.get_numero_texto()
+        titulo = 'Comanda Turno de la Mesa ' + id_texto
+        return titulo
+
+    def get_lineas_comanda(self):
+        """
+            Devuelve las líneas a imprimir en la comanda.
+            @return: List
+        """
+        lineas = self.get_ordenes_sin_entregar()
+        return lineas
+
 
 class OrdenProducto(models.Model):
     """
