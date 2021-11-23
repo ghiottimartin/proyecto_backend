@@ -177,6 +177,14 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         if isinstance(existente, Producto):
             return respuesta.get_respuesta(False, "Ya existe un producto con ese nombre")
 
+        venta_directa = request.data.get('venta_directa')
+        if venta_directa == 'undefined':
+            request.data['venta_directa'] = False
+
+        compra_directa = request.data.get('compra_directa')
+        if compra_directa == 'undefined':
+            request.data['compra_directa'] = False
+
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid(raise_exception=False):
             errores = serializer.get_errores_lista()
