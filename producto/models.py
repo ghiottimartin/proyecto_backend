@@ -113,6 +113,9 @@ class Producto(Auditoria, models.Model):
     # Devuelve el margen de ganancia del producto.
     def get_margen_ganancia(self):
         precio = self.precio_vigente
+        if precio <= 0:
+            return ""
+
         costo = self.costo_vigente
         diferencia = precio - costo
         margen = diferencia * 100 / precio

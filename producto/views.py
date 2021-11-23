@@ -12,7 +12,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .models import Producto, Categoria, Ingreso, MovimientoStock, ReemplazoMercaderia
 from .repositorio import validar_crear_ingreso, crear_ingreso, get_ingreso, validar_crear_reemplazo_mercaderia, \
-    crear_reemplazo_mercaderia, get_reemplazo
+    crear_reemplazo_mercaderia, get_reemplazo, get_errores_crear_producto, get_producto
 from .serializers import ProductoSerializer, CategoriaSerializer, IngresoSerializer, MovimientoSerializer, \
     ReemplazoMercaderiaSerializer
 
@@ -169,21 +169,12 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
 
-        try:
-            existente = Producto.objects.get(nombre=request.data.get('nombre'))
-        except Producto.DoesNotExist:
-            existente = None
-
-        if isinstance(existente, Producto):
-            return respuesta.get_respuesta(False, "Ya existe un producto con ese nombre")
-
-        venta_directa = request.data.get('venta_directa')
-        if venta_directa == 'undefined':
-            request.data['venta_directa'] = False
-
-        compra_directa = request.data.get('compra_directa')
-        if compra_directa == 'undefined':
-            request.data['compra_directa'] = False
+        datos = request.data
+        errores = get_errores_crear_producto(datos)
+        if len(errores) > 0:
+            mensaje = "Se produjeron los siguientes errores: "
+            mensaje += ''.join(errores)
+            return respuesta.get_respuesta(exito=False, mensaje=mensaje)
 
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid(raise_exception=False):
@@ -192,18 +183,21 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         serializer.save()
 
         producto = serializer.instance
-        producto_costo_validos = producto.comprobar_producto_costo_validos()
-        if not producto_costo_validos:
-            return respuesta.get_respuesta(False, "El costo del producto debe ser mayor que el precio del mismo.", None)
 
         producto.agregar_precio()
         producto.agregar_costo()
         producto.actualizar_stock()
+        producto.save()
         return respuesta.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
 
     @transaction.atomic
-    def update(self, request, *args, **kwargs):
+    def update(self, request, pk=None, *args, **kwargs):
         producto = self.get_object()
+        errores = get_errores_crear_producto(request.data, producto)
+        if len(errores) > 0:
+            mensaje = "Se produjeron los siguientes errores: "
+            mensaje += ''.join(errores)
+            return respuesta.get_respuesta(exito=False, mensaje=mensaje)
 
         precio = float(request.data["precio_vigente"])
         producto.agregar_precio(nuevo=precio)
@@ -226,6 +220,10 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         producto_costo_validos = producto.comprobar_producto_costo_validos(costo, precio)
         if not producto_costo_validos:
             return respuesta.get_respuesta(False, "El costo del producto debe ser mayor que el precio del mismo.", None)
+
+        descripcion = request.data.get('descripcion', '')
+        producto.descripcion = descripcion
+        producto.save()
 
         # Si cambia la imagen, borro la anterior.
         if "imagen" in request.data:

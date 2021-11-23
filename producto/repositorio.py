@@ -10,6 +10,18 @@ def get_producto(pk):
         return None
 
 
+def get_producto_nombre(nombre):
+    """
+        Busca un producto por nombre
+        @param nombre: str
+        @return: Producto|None
+    """
+    try:
+        return Producto.objects.get(nombre=nombre)
+    except Producto.DoesNotExist:
+        return None
+
+
 # Busca un ingreso por id.
 def get_ingreso(pk):
     try:
@@ -24,6 +36,56 @@ def get_reemplazo(pk):
         return ReemplazoMercaderia.objects.get(pk=pk)
     except ReemplazoMercaderia.DoesNotExist:
         return None
+
+
+def get_errores_crear_producto(datos, producto=None):
+    errores = []
+
+    categoria = datos["categoria"] if "categoria" in datos else 0
+    if not isinstance(int(categoria), int) or int(categoria) <= 0:
+        errores.append("Debe seleccionar una categoría de productos.")
+
+    nombre = datos["nombre"] if "nombre" in datos else ""
+    if not isinstance(nombre, str) or len(nombre) == 0:
+        errores.append("Debe indicar el nombre del producto.")
+
+    repetido = get_producto_nombre(nombre)
+    if repetido is not None and producto.nombre != nombre:
+        errores.append("El nombre '" + nombre + "' ya existe.")
+
+    compra_directa = datos["compra_directa"] if "compra_directa" in datos else ""
+    if not isinstance(compra_directa, str) or (compra_directa != "true" and compra_directa != "false"):
+        errores.append("Debe indicar si el producto es de compra directa o no.")
+
+    venta_directa = datos["venta_directa"] if "venta_directa" in datos else ""
+    if not isinstance(venta_directa, str) or (venta_directa != "true" and venta_directa != "false"):
+        errores.append("Debe indicar si el producto es de venta directa o no.")
+
+    compra_directa = True if datos["compra_directa"] == "true" else False
+    venta_directa = True if datos["venta_directa"] == "true" else False
+    if compra_directa == False and venta_directa == False:
+        errores.append("El producto debe ser o de compra directa o venta directa.")
+
+    stock = datos["stock"] if "stock" in datos else 0
+    if not isinstance(int(stock), int):
+        errores.append("Debe indicar el stock del producto.")
+
+    stock_seguridad = datos["stock_seguridad"] if "stock_seguridad" in datos else 0
+    if not isinstance(int(stock_seguridad), int):
+        errores.append("Debe indicar la cantidad de alerta de stock del producto.")
+
+    precio_vigente = datos["precio_vigente"] if "precio_vigente" in datos else 0
+    if venta_directa and (not isinstance(float(precio_vigente), float) or float(precio_vigente) <= 0.00):
+        errores.append("Debe indicar el precio del producto.")
+
+    costo_vigente = datos["costo_vigente"] if "costo_vigente" in datos else 0
+    if not isinstance(float(costo_vigente), float) or float(costo_vigente) <= 0.00:
+        errores.append("Debe indicar el costo del producto.")
+
+    if venta_directa and isinstance(float(costo_vigente), float) and isinstance(float(precio_vigente), float) and costo_vigente > precio_vigente:
+        errores.append("El costo del producto debe ser mayor que el precio del mismo.")
+
+    return errores
 
 
 # Valida que los datos del ingreso sean correctos.
