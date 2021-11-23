@@ -70,4 +70,5 @@ class TurnoSerializer(serializers.ModelSerializer):
         ret['estado_clase'] = turno.get_estado_clase()
         ret['color_fondo'] = turno.get_color_fondo()
         ret['total_texto'] = turno.get_total_texto()
+        ret['mesa_numero'] = turno.mesa.get_numero_texto()
         return ret
