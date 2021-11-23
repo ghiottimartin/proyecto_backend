@@ -188,11 +188,14 @@ class Turno(Auditoria, models.Model):
             @return: None
         """
         # Borro las órdenes eliminadas por el usuario.
-        df_productos = pd.DataFrame(ordenes)
-        nuevos_productos = df_productos['producto'].tolist()
-        df_ids_productos = pd.DataFrame(nuevos_productos)
-        nuevos = df_ids_productos['id'].tolist()
-        self.borrar_ordenes_no_existentes(nuevos)
+        if len(ordenes) > 0:
+            df_productos = pd.DataFrame(ordenes)
+            nuevos_productos = df_productos['producto'].tolist()
+            df_ids_productos = pd.DataFrame(nuevos_productos)
+            nuevos = df_ids_productos['id'].tolist()
+            self.borrar_ordenes_no_existentes(nuevos)
+        else:
+            self.ordenes.all().delete()
 
         # Actualizo o creo las órdenes.
         for orden in ordenes:
