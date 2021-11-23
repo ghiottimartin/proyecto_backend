@@ -116,7 +116,7 @@ class Turno(Auditoria, models.Model):
 
     ABIERTO = "abierto"
     CERRADO = "cerrado"
-    CANCELADO = "cancelado"
+    ANULADO = "anulado"
 
     mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE, related_name="turnos")
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name="+", null=True)
@@ -143,13 +143,13 @@ class Turno(Auditoria, models.Model):
         estado = self.estado
         return hora_fin is not None and estado == self.CERRADO
 
-    def comprobar_cancelado(self):
+    def comprobar_anulado(self):
         """
-            Devuelve true si el turno está cancelado.
+            Devuelve true si el turno está anulado.
             @return: bool
         """
         estado = self.estado
-        return estado == self.CANCELADO
+        return estado == self.ANULADO
 
     def comprobar_puede_cerrar(self):
         """
@@ -245,12 +245,12 @@ class Turno(Auditoria, models.Model):
         orden = self.ordenes.filter(producto__id=id_producto).first()
         return orden
 
-    def cancelar(self):
+    def anular(self):
         """
-            Cancela el turno actual.
+            Anula el turno actual.
             @return: None
         """
-        self.estado = self.CANCELADO
+        self.estado = self.ANULADO
         self.hora_fin = datetime.datetime.now()
         self.save()
         mesa = self.mesa
@@ -349,7 +349,7 @@ class Turno(Auditoria, models.Model):
         """
         clase = "font-weight-bold badge"
         estado = self.estado
-        if estado == Turno.CANCELADO:
+        if estado == Turno.ANULADO:
             clase = clase + " badge-danger"
         if estado == Turno.ABIERTO:
             clase = clase + " badge-success"
@@ -365,7 +365,7 @@ class Turno(Auditoria, models.Model):
         estado = self.estado
         if estado == self.ABIERTO:
             return "rgb(40 167 69 / 20%)"
-        if estado == self.CANCELADO:
+        if estado == self.ANULADO:
             return "rgb(220 53 69 / 20%)"
         return "rgb(0 123 255 / 20%)"
 

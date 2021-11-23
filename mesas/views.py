@@ -198,13 +198,13 @@ class TurnoViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(exito=True, mensaje="El turno se actualizó con éxito.")
 
     @action(detail=True, methods=['delete'])
-    def cancelar(self, request, pk=None):
+    def anular(self, request, pk=None):
         turno = self.get_object()
-        cancelado = turno.comprobar_cancelado()
-        if cancelado:
-            return respuesta.get_respuesta(exito=False, mensaje="El turno ya se encuentra cancelado.")
-        turno.cancelar()
-        return respuesta.get_respuesta(exito=True, mensaje="El turno se canceló con éxito.")
+        anulado = turno.comprobar_anulado()
+        if anulado:
+            return respuesta.get_respuesta(exito=False, mensaje="El turno ya se encuentra anulado.")
+        turno.anular()
+        return respuesta.get_respuesta(exito=True, mensaje="El turno se anuló con éxito.")
 
     @action(detail=True, methods=['put'])
     def cerrar(self, request, pk=None):
@@ -226,7 +226,7 @@ class TurnoViewSet(viewsets.ModelViewSet):
 
         # Agrega filtro por estado de turno.
         estado = request.query_params.get('estado', "")
-        if estado is not None and isinstance(estado, str) and (estado == Turno.ABIERTO or estado == Turno.CERRADO or estado == Turno.CANCELADO):
+        if estado is not None and isinstance(estado, str) and (estado == Turno.ABIERTO or estado == Turno.CERRADO or estado == Turno.ANULADO):
             filtros["estado"] = estado
 
         # Agrega filtros por fecha desde y hasta
