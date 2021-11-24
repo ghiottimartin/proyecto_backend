@@ -47,6 +47,7 @@ class Producto(Auditoria, models.Model):
     stock_seguridad = models.IntegerField(default=20)
     compra_directa = models.BooleanField(default=False)
     venta_directa = models.BooleanField(default=True)
+    cantidad_solicitada = models.IntegerField(default=0)
     auditoria_creador = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="productos_creados", null=True)
     auditoria_modificado = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="productos_modificados", null=True)
 
