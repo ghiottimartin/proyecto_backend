@@ -46,6 +46,7 @@ class OrdenProductoSerializer(serializers.ModelSerializer):
     def to_representation(self, orden):
         ret = super().to_representation(orden)
         ret['total_texto'] = orden.get_total_texto()
+        ret['cantidad_anterior'] = orden.cantidad
         return ret
 
 

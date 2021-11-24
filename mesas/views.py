@@ -5,6 +5,7 @@ from base import respuestas
 from base import utils
 from base.permisos import TieneRolAdmin
 from base.repositorio import get_usuario
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from gastronomia.repositorio import get_pdf_comanda
 from rest_framework import viewsets
@@ -185,7 +186,11 @@ class TurnoViewSet(viewsets.ModelViewSet):
 
         ordenes = request.data.get('ordenes')
         comprobar_ordenes_validas(ordenes)
-        turno.agregar_editar_ordenes(ordenes)
+        try:
+            turno.agregar_editar_ordenes(ordenes)
+        except ValidationError as e:
+            return respuesta.get_respuesta(exito=False, mensaje=e.messages)
+
         turno.save()
 
         mozo_buscar = request.data.get('mozo')

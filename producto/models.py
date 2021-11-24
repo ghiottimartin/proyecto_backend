@@ -47,7 +47,6 @@ class Producto(Auditoria, models.Model):
     stock_seguridad = models.IntegerField(default=20)
     compra_directa = models.BooleanField(default=False)
     venta_directa = models.BooleanField(default=True)
-    cantidad_solicitada = models.IntegerField(default=0)
     auditoria_creador = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="productos_creados", null=True)
     auditoria_modificado = models.ForeignKey('base.Usuario', on_delete=models.CASCADE, related_name="productos_modificados", null=True)
 
@@ -129,9 +128,6 @@ class Producto(Auditoria, models.Model):
 
     # Actualiza el stock y sus movimientos en caso de ser necesario.
     def actualizar_stock(self, nueva=0, descripcion="", reemplazo_linea=None, venta_linea=None):
-        if nueva == 0 and reemplazo_linea is None and venta_linea is None:
-            return
-
         # Calculo la cantidad de stock generado por la edición.
         acumulado = 0
         movimientos = MovimientoStock.objects.filter(producto=self)

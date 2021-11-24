@@ -1,12 +1,12 @@
+from base.models import Auditoria, Usuario
 import datetime
 from django.core.exceptions import ValidationError
 from django.db import models
-from base.models import Auditoria, Usuario
 from gastronomia.models import Venta, VentaLinea, Pedido
+import locale
 import pandas as pd
 from producto.models import Producto
 from producto.repositorio import get_producto
-import locale
 
 
 class Mesa(Auditoria, models.Model):
@@ -167,7 +167,7 @@ class Turno(Auditoria, models.Model):
         """
         orden = self.get_orden_por_id_producto(id_producto)
         if orden is not None:
-            orden.delete()
+            orden.borrar()
 
     def borrar_ordenes_no_existentes(self, nuevos):
         """
@@ -185,9 +185,9 @@ class Turno(Auditoria, models.Model):
         """
             Agrega o edita las órdenes del turno.
             @param ordenes: List
-            @return: None
+            @return: List Array de errores
         """
-        # Borro las órdenes eliminadas por el usuario.
+        errores = []
         if len(ordenes) > 0:
             df_productos = pd.DataFrame(ordenes)
             nuevos_productos = df_productos['producto'].tolist()
@@ -195,7 +195,7 @@ class Turno(Auditoria, models.Model):
             nuevos = df_ids_productos['id'].tolist()
             self.borrar_ordenes_no_existentes(nuevos)
         else:
-            self.ordenes.all().delete()
+            self.borrar_ordenes()
 
         # Actualizo o creo las órdenes.
         for orden in ordenes:
@@ -203,17 +203,40 @@ class Turno(Auditoria, models.Model):
             cantidad = orden["cantidad"]
             producto = get_producto(id_producto)
             if producto is None:
-                raise ValidationError("No se ha encontrado el producto a agregar al turno.")
+                errores.append("No se ha encontrado el producto a agregar al turno.")
+
             existe = self.get_orden_por_producto(producto)
 
-            entregado = int(orden["entregado"]) if "entregado" in orden else 0
+            entregado = orden["entregado"] if "entregado" in orden else 0
+            if entregado == "":
+                entregado = 0
             if isinstance(existe, OrdenProducto):
+                cantidad_anterior = existe.cantidad
                 existe.cantidad = cantidad
                 existe.entregado = entregado
+                existe.actualizar_stock_producto(cantidad_nueva=int(cantidad), cantidad_anterior=int(cantidad_anterior), accion="edición")
                 existe.save()
             else:
-                orden = OrdenProducto(turno=self, producto=producto, cantidad=cantidad, entregado=entregado)
+                orden = OrdenProducto(turno=self, producto=producto, cantidad=cantidad)
                 orden.save()
+                error_stock = orden.actualizar_stock_producto(cantidad_nueva=int(cantidad), accion="creación")
+                if len(error_stock) > 0:
+                    orden.delete()
+                errores += error_stock
+
+        if len(errores) > 0:
+            mensaje = "Ha ocurrido un error al guardar el turno."
+            mensaje += ' '.join(errores)
+            raise ValidationError(mensaje)
+
+    def borrar_ordenes(self):
+        """
+            Borra las órdenes y crea movimiento de stock de producto correspondiente.
+            @return: None
+        """
+        ordenes = self.ordenes.all()
+        for orden in ordenes:
+            orden.borrar()
 
     def get_ids_productos_anteriores(self):
         """
@@ -455,3 +478,37 @@ class OrdenProducto(models.Model):
             @return: int
         """
         return self.get_cantidad_restante()
+
+    def borrar(self):
+        """
+            Borra la orden actual, si la cantidad entregada del producto de la orden es mayor a cero se aumenta el
+            stock del producto y se disminuye la cantidad por entregar del producto.
+            @return: None
+        """
+        cantidad = self.cantidad
+        self.actualizar_stock_producto(cantidad_nueva=0, cantidad_anterior=cantidad, accion="borrado")
+        self.delete()
+
+    def actualizar_stock_producto(self, cantidad_nueva=0, cantidad_anterior=0, accion=""):
+        """
+            Actualiza el stock del producto según la cantidad entregada cantidad_anterior y la nueva.
+            @return: None
+        """
+        errores = []
+        if cantidad_nueva == cantidad_anterior:
+            return []
+
+        producto = self.producto
+        stock = producto.stock
+        actualizado = stock + cantidad_anterior - cantidad_nueva
+        if actualizado < 0:
+            errores.append("No hay suficiente stock para el producto " + producto.nombre + ", quedan " + str(stock))
+            return errores
+
+        mesa = self.turno.mesa
+        fecha = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
+        accion_upper = accion.title()
+        descripcion = accion_upper + " de la orden del turno de la mesa " + mesa.get_numero_texto() + " " + fecha
+        producto.actualizar_stock(nueva=actualizado, descripcion=descripcion)
+        producto.save()
+        return errores
