@@ -1,5 +1,3 @@
-from builtins import object, all
-
 from .models import Pedido, Estado, Venta
 from .serializers import PedidoSerializer, VentaSerializer
 from base import utils
@@ -290,14 +288,15 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
             validar_crear_venta(datos)
             lineas = datos["lineas"]
             usuario = request.user
-            venta = crear_venta(usuario, lineas)
-            if venta is not None:
-                serializer = VentaSerializer(instance=venta)
+            resultado = crear_venta(usuario, lineas)
+            if isinstance(resultado, Venta):
+                serializer = VentaSerializer(instance=resultado)
                 datos = serializer.data
+                return respuesta.get_respuesta(True, "", None, datos)
             else:
-                return respuesta.get_respuesta(False, "Hubo un error al crear la venta")
-            venta.crear_movimientos()
-            return respuesta.get_respuesta(True, "", None, datos)
+                mensaje = "Se produjeron los siguientes errores: "
+                mensaje += ''.join(resultado)
+                return respuesta.get_respuesta(exito=False, mensaje=mensaje)
         except ValidationError as e:
             return respuesta.get_respuesta(False, e.messages)
 

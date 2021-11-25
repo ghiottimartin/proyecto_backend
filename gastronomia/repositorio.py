@@ -1,5 +1,4 @@
 import datetime
-
 from .models import Pedido, PedidoLinea, Estado, Venta, VentaLinea
 from django.core.exceptions import ValidationError
 from django.http import FileResponse
@@ -160,38 +159,64 @@ def validar_crear_venta(datos):
                 raise ValidationError("La cantidad del producto debe tener un valor numérico.")
 
 
-# Crea una nueva venta.
 def crear_venta(usuario, lineas):
+    """
+        Crea una nueva venta.
+        @param usuario: Usuario
+        @param lineas: List
+        @return: errores|Venta
+    """
+    errores = []
     venta = Venta(usuario=usuario)
     venta.save()
     for item in lineas:
-        crear_linea_venta(venta, item)
+        errores += crear_linea_venta(venta, item)
+
+    if len(errores) > 0:
+        return errores
+
     venta.actualizar()
+    venta.crear_movimientos()
+    venta.save()
     return venta
 
 
-# Crea una nueva línea de venta.
 def crear_linea_venta(venta, item):
+    """
+        Crea una línea de venta.
+        @param venta: Venta
+        @param item: List
+        @return: List Array con errores
+    """
+    errores = []
+
     id_producto = item["producto"]["id"]
     producto = get_producto(id_producto)
     if producto is None:
         raise ValidationError("No se ha encontrado el producto.")
+
     nombre = producto.nombre
     venta_directa = producto.venta_directa
     if not venta_directa:
-        raise ValidationError("El producto '" + nombre + "' no es de venta directa.")
+        errores.append("El producto '" + nombre + "' no es de venta directa.")
+
     cantidad = item["cantidad"]
     if int(cantidad) == 0:
         return None
+
     tiene_stock = producto.comprobar_tiene_stock(cantidad)
     if not tiene_stock:
         stock = producto.stock
-        raise ValidationError(
-            "No hay suficiente stock a la venta para el producto '" + nombre + " quedan " + str(stock))
+        errores.append("No hay suficiente stock a la venta para el producto '" + nombre + ", quedan " + str(stock) + ". ")
+
+    if len(errores) > 0:
+        return errores
+
     precio = producto.precio_vigente
     linea = VentaLinea(venta=venta, producto=producto, cantidad=cantidad, precio=precio)
     linea.save()
-    return linea
+
+    return errores
 
 
 def get_pdf_comanda(venta=None, turno=None, pedido=None):
