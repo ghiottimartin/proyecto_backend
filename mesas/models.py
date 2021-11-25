@@ -217,7 +217,7 @@ class Turno(Auditoria, models.Model):
                 existe.actualizar_stock_producto(cantidad_nueva=int(cantidad), cantidad_anterior=int(cantidad_anterior), accion="edición")
                 existe.save()
             else:
-                orden = OrdenProducto(turno=self, producto=producto, cantidad=cantidad)
+                orden = OrdenProducto(turno=self, producto=producto, cantidad=cantidad, entregado=entregado)
                 orden.save()
                 error_stock = orden.actualizar_stock_producto(cantidad_nueva=int(cantidad), accion="creación")
                 if len(error_stock) > 0:
