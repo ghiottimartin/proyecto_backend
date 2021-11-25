@@ -203,6 +203,7 @@ class TurnoViewSet(viewsets.ModelViewSet):
         return respuesta.get_respuesta(exito=True, mensaje="El turno se actualizó con éxito.")
 
     @action(detail=True, methods=['delete'])
+    @transaction.atomic
     def anular(self, request, pk=None):
         turno = self.get_object()
         anulado = turno.comprobar_anulado()

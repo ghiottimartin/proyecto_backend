@@ -276,6 +276,12 @@ class Turno(Auditoria, models.Model):
         self.estado = self.ANULADO
         self.hora_fin = datetime.datetime.now()
         self.save()
+
+        ordenes = self.ordenes.all()
+        for orden in ordenes:
+            cantidad = orden.cantidad
+            orden.actualizar_stock_producto(cantidad_nueva=0, cantidad_anterior=cantidad, accion="anulación")
+
         mesa = self.mesa
         mesa.estado = Mesa.DISPONIBLE
         mesa.save()
@@ -494,6 +500,11 @@ class OrdenProducto(models.Model):
             Actualiza el stock del producto según la cantidad entregada cantidad_anterior y la nueva.
             @return: None
         """
+        turno = self.turno
+        anulado = turno.comprobar_anulado()
+        if anulado:
+            return []
+
         errores = []
         if cantidad_nueva == cantidad_anterior:
             return []
