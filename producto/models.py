@@ -434,7 +434,17 @@ class ReemplazoMercaderiaLinea(models.Model):
     def anular(self):
         anterior = self.stock_anterior
         producto = self.producto
-        producto.actualizar_stock(nueva=anterior, reemplazo_linea=self)
+        id_texto = self.get_id_texto()
+        producto.actualizar_stock(nueva=anterior, reemplazo_linea=self, descripcion="Anulación de Reemplazo de "
+                                                                                    "Mercadería " + id_texto)
+
+    def get_id_texto(self):
+        """
+            Devuelve el id en formato de texto del reemplazo.
+            @return: str
+        """
+        reemplazo = self.reemplazo
+        return reemplazo.get_id_texto()
 
     def __str__(self):
         return "Línea de " + self.reemplazo.__str__()
