@@ -42,15 +42,25 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, TieneRolAdmin]
 
     def create(self, request, *args, **kwargs):
+        nombre = request.data.get('nombre')
         try:
-            existente = Categoria.objects.filter(nombre=request.data.get('nombre')).first()
+            existente = Categoria.objects.filter(nombre=nombre).first()
         except Categoria.DoesNotExist:
             existente = None
 
         if isinstance(existente, Categoria):
             return respuesta.get_respuesta(False, "Ya existe una categoría con ese nombre")
 
-        return super().create(request, *args, **kwargs)
+        descripcion = request.data.get('descripcion')
+        categoria = Categoria(nombre=nombre, descripcion=descripcion)
+        categoria.save()
+
+        serializer = CategoriaSerializer(instance=categoria)
+        categoria_json = serializer.data
+        datos = {
+            'categoria': categoria_json
+        }
+        return respuesta.get_respuesta(exito=True, mensaje="La categoría se ha creado con éxito.", datos=datos)
 
     def destroy(self, request, *args, **kwargs):
         categoria = self.get_object()
