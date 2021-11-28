@@ -50,7 +50,8 @@ def get_errores_crear_producto(datos, producto=None):
         errores.append("Debe indicar el nombre del producto.")
 
     repetido = get_producto_nombre(nombre)
-    if repetido is not None and producto.nombre != nombre:
+    editar = producto.nombre if producto is not None else ""
+    if repetido is not None and editar != nombre:
         errores.append("El nombre '" + nombre + "' ya existe.")
 
     compra_directa = datos["compra_directa"] if "compra_directa" in datos else ""
