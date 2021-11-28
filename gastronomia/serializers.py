@@ -108,7 +108,7 @@ class LineaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PedidoLinea
-        fields = ['id', 'cantidad', 'subtotal', 'producto', 'total']
+        fields = '__all__'
 
     # Método que devuelve los datos de la línea.
     def to_representation(self, instance):
