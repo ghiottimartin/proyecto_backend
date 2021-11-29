@@ -194,9 +194,11 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
         producto = serializer.instance
 
+        stock = producto.stock
+
         producto.agregar_precio()
         producto.agregar_costo()
-        producto.actualizar_stock()
+        producto.actualizar_stock(nueva=stock, descripcion="Creación de producto")
         producto.save()
         return respuesta.get_respuesta(True, "Producto creado con éxito", None, serializer.data)
 
