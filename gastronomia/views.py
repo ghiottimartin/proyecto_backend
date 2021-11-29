@@ -197,7 +197,9 @@ class PedidoViewSet(viewsets.ModelViewSet):
         pedido = get_pedido(pk=kwargs["pk"])
         if pedido is None:
             return respuesta.get_respuesta(True, "No se ha encontrado el pedido.")
-        cerrar_pedido(pedido)
+
+        cambio = request.query_params.get('cambio', '')
+        cerrar_pedido(pedido, cambio)
         return respuesta.get_respuesta(True, "Pedido realizado con éxito, se le notificará por email cuando esté listo.")
 
     # Cambia el estado del pedido a entregado. Es decir, el mismo fue recibido por el comensal.

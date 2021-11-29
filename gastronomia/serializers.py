@@ -137,6 +137,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['anulado'] = instance.comprobar_estado_anulado()
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
+        ret['cambio_texto'] = locale.currency(instance.cambio) if instance.cambio > 0 else ''
         ret['estado_texto'] = instance.get_estado_texto(logueado)
         ret['estado_clase'] = instance.get_estado_clase()
         ret['usuario_email'] = instance.usuario.email
@@ -185,7 +186,7 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'key': str(objeto.id) + "-" + accion,
             })
 
-        puede_emitir_comanda = objeto.comprobar_puede_emitir_comanda()
+        puede_emitir_comanda = objeto.comprobar_puede_emitir_comanda(logueado)
         if puede_emitir_comanda:
             accion = 'comanda'
             operaciones.append({

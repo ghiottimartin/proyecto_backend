@@ -29,6 +29,7 @@ class Pedido(Auditoria, models.Model):
     ultimo_estado = models.CharField(max_length=40, default=Estado.ABIERTO)
     total = models.FloatField()
     forzar = models.BooleanField(default=False)
+    cambio = models.FloatField(default=0)
     observaciones = models.CharField(max_length=255, default="")
 
     def __init__(self, *args, **kwargs):
@@ -97,13 +98,14 @@ class Pedido(Auditoria, models.Model):
         es_vendedor = usuario.esVendedor
         return en_curso and es_vendedor
 
-    def comprobar_puede_emitir_comanda(self):
+    def comprobar_puede_emitir_comanda(self, usuario):
         """
             Devuelve true si se puede imprimir la comanda de los productos del pedido.
             @return: bool
         """
         en_curso = self.comprobar_estado_en_curso()
-        return en_curso
+        es_vendedor = usuario.esVendedor
+        return en_curso and es_vendedor
 
     def get_lineas_comanda(self):
         """

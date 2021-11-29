@@ -135,7 +135,8 @@ def get_linea_pedido(id_pedido, id_producto):
         return None
 
 
-def cerrar_pedido(pedido):
+def cerrar_pedido(pedido, cambio):
+    pedido.cambio = cambio
     pedido.agregar_estado(Estado.EN_CURSO)
     pedido.save()
     return pedido
