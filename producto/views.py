@@ -260,6 +260,26 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         super().destroy(self, request, *args, **kwargs)
         return respuesta.get_respuesta(True, "El producto se ha borrado con éxito")
 
+    # Lista los productos aplicando los filtros.
+    @action(detail=False, methods=['get'])
+    def listado_admin(self, request, *args, **kwargs):
+        logueado = request.user
+        if not logueado.esAdmin:
+            return respuesta.get_respuesta(False, "No está autorizado para listar los productos.", 401)
+        productos = self.filtrar_productos(request)
+        if len(productos) > 0:
+            serializer = ProductoSerializer(instance=productos, many=True)
+            productos = serializer.data
+
+        cantidad = self.get_cantidad_registros(request)
+        total = Producto.objects.count()
+        datos = {
+            "total": total,
+            "productos": productos,
+            "registros": cantidad
+        }
+        return respuesta.get_respuesta(datos=datos, formatear=False)
+
 
 # Abm de ingresos.
 class ABMIngresoViewSet(viewsets.ModelViewSet):
