@@ -82,6 +82,14 @@ class Mesa(Auditoria, models.Model):
             Comprueba si la mesa puede editarse, para ello verifica que tenga estado disponible.
             @return: bool
         """
+        disponible = self.comprobar_estado_disponible()
+        return disponible
+
+    def comprobar_estado_disponible(self):
+        """
+            Comprueba si la mesa tiene estado disponible.
+            @return: bool
+        """
         estado = self.estado
         disponible = estado == Mesa.DISPONIBLE
         return disponible

@@ -21,6 +21,7 @@ class MesaSerializer(serializers.ModelSerializer):
         ret['estado_clase'] = mesa.get_estado_clase()
         ret['color_fondo'] = mesa.get_color_fondo()
         ret['puede_editarse'] = mesa.comprobar_puede_editarse()
+        ret['disponible'] = mesa.comprobar_estado_disponible()
         return ret
 
     def get_ultimo_turno(self, objeto):
