@@ -30,3 +30,12 @@ class TieneRolMozo(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return tiene_rol(request, Rol.MOZO)
+
+
+class TieneRolAdminOMozo(permissions.BasePermission):
+    message = 'No tiene rol de mozo para realizar esta acción.'
+
+    def has_permission(self, request, view):
+        mozo = tiene_rol(request, Rol.MOZO)
+        admin = tiene_rol(request, Rol.ADMINISTRADOR)
+        return mozo or admin
