@@ -2,7 +2,7 @@ from .models import Pedido, Estado, Venta
 from .serializers import PedidoSerializer, VentaSerializer
 from base import utils
 from base.respuestas import Respuesta
-from base.permisos import TieneRolAdmin
+from base.permisos import TieneRolAdmin, TieneRolAdminOVendedor
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import FileResponse
@@ -285,7 +285,7 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all()
     serializer_class = VentaSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, TieneRolAdmin]
+    permission_classes = [IsAuthenticated, TieneRolAdminOVendedor]
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):

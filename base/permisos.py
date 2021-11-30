@@ -33,9 +33,18 @@ class TieneRolMozo(permissions.BasePermission):
 
 
 class TieneRolAdminOMozo(permissions.BasePermission):
-    message = 'No tiene rol de mozo para realizar esta acción.'
+    message = 'No tiene rol de mozo o administrador para realizar esta acción.'
 
     def has_permission(self, request, view):
         mozo = tiene_rol(request, Rol.MOZO)
         admin = tiene_rol(request, Rol.ADMINISTRADOR)
         return mozo or admin
+
+
+class TieneRolAdminOVendedor(permissions.BasePermission):
+    message = 'No tiene rol de vendedor o administrador para realizar esta acción.'
+
+    def has_permission(self, request, view):
+        vendedor = tiene_rol(request, Rol.VENEDEDOR)
+        admin = tiene_rol(request, Rol.ADMINISTRADOR)
+        return vendedor or admin
