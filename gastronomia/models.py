@@ -121,7 +121,8 @@ class Pedido(Auditoria, models.Model):
     # Agrega un estado al pedido.
     def agregar_estado(self, estado):
         ultimo = self.estados.order_by('-fecha').filter(estado=estado).first()
-        if ultimo is None:
+        anterior = ultimo.estado if ultimo is not None else ''
+        if ultimo is None or anterior != estado:
             objeto = Estado(estado=estado, pedido=self)
             objeto.save()
             self.ultimo_estado = estado
@@ -129,6 +130,13 @@ class Pedido(Auditoria, models.Model):
         else:
             ultimo.fecha = datetime.datetime.now()
             ultimo.save()
+
+        ultimo = self.estados.order_by('-fecha').filter(estado=estado).first()
+        ultimo_coleccion = ultimo.estado
+        ultimo_estado = self.ultimo_estado
+        if ultimo_estado != ultimo_coleccion:
+            self.ultimo_estado = ultimo_coleccion
+            self.save()
 
     # Borra todos los estados y líneas del pedido.
     def borrar_datos_pedido(self):

@@ -268,7 +268,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
             pedido.agregar_estado(Estado.DISPONIBLE)
             pedido.save()
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha actualizado con éxito.")
-        except:
+        except Exception:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al actualizar  el pedido.")
 
     @action(detail=True, methods=['get'])
