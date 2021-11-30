@@ -199,6 +199,10 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(True, "No se ha encontrado el pedido.")
 
         cambio = request.query_params.get('cambio', '')
+        if cambio != '':
+            cambio = float(cambio)
+        else:
+            cambio = 0
         cerrar_pedido(pedido, cambio)
         return respuesta.get_respuesta(True, "Pedido realizado con éxito, se le notificará por email cuando esté listo.")
 
