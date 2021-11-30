@@ -23,3 +23,10 @@ class TieneRolComensal(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return tiene_rol(request, Rol.COMENSAL)
+
+
+class TieneRolMozo(permissions.BasePermission):
+    message = 'No tiene rol de mozo para realizar esta acción.'
+
+    def has_permission(self, request, view):
+        return tiene_rol(request, Rol.MOZO)

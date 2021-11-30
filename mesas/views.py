@@ -3,7 +3,7 @@ from .serializers import MesaSerializer, TurnoSerializer
 from .repositorio import comprobar_numero_repetido, crear_mesa, actualizar_mesa, get_mesa, comprobar_ordenes_validas
 from base import respuestas
 from base import utils
-from base.permisos import TieneRolAdmin
+from base.permisos import TieneRolAdmin, TieneRolMozo
 from base.repositorio import get_usuario
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -23,7 +23,7 @@ class MesaViewSet(viewsets.ModelViewSet):
     queryset = Mesa.objects.all()
     serializer_class = MesaSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, TieneRolAdmin]
+    permission_classes = [IsAuthenticated, TieneRolAdmin, TieneRolMozo]
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
