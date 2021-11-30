@@ -32,12 +32,6 @@ class Pedido(Auditoria, models.Model):
     cambio = models.FloatField(default=0)
     observaciones = models.CharField(max_length=255, default="")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.save()
-        self.agregar_estado(Estado.ABIERTO)
-
     # Comprueba que el pedido esté vacío, es decir no tenga líneas.
     def comprobar_vacio(self):
         cantidad_lineas = self.lineas.count()
