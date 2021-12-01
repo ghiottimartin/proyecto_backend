@@ -150,7 +150,7 @@ class TurnoViewSet(viewsets.ModelViewSet):
     queryset = Turno.objects.all()
     serializer_class = TurnoSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, TieneRolAdmin]
+    permission_classes = [IsAuthenticated, TieneRolAdminOMozo]
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
