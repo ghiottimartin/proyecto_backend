@@ -47,7 +47,7 @@ class Usuario(Auditoria, AbstractUser):
     fecha_token_reset = models.DateTimeField(null=True)
     operaciones = list()
     borrado = models.BooleanField(default=False)
-    observaciones = models.CharField(max_length=255, default="")
+    observaciones = models.CharField(max_length=255, default="", blank=True)
 
     esMozo = False
     esAdmin = False
