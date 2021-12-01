@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Pedido, PedidoLinea, VentaLinea, Venta
 from base.signals import get_usuario_logueado
 from producto.serializers import ProductoSerializer, MovimientoSerializer
+from base.serializers import UsuarioSerializer
 import unidecode
 import locale
 
@@ -121,6 +122,7 @@ class LineaSerializer(serializers.ModelSerializer):
 
 class PedidoSerializer(serializers.ModelSerializer):
     venta = VentaSerializer(read_only=True)
+    usuario = UsuarioSerializer(read_only=True)
     lineas = LineaSerializer(many=True, read_only=True)
     operaciones = serializers.SerializerMethodField()
 
@@ -142,6 +144,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['estado_clase'] = instance.get_estado_clase()
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = instance.usuario.first_name
+        ret['usuario_direccion'] = instance.usuario.direccion
         ret['mostrar_usuario'] = logueado.esAdmin or logueado.esVendedor
         return ret
 

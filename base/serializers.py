@@ -37,7 +37,7 @@ class UsuarioSerializer(CustomModelSerializer):
     class Meta:
         model = Usuario
         fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password', 'dni', 'operaciones',
-                  'esAdmin', 'esMozo', 'esComensal', 'esVendedor', 'observaciones', 'operaciones_listado']
+                  'esAdmin', 'esMozo', 'esComensal', 'esVendedor', 'observaciones', 'operaciones_listado', 'direccion']
 
     # Método que devuelve los datos del usuario. Quito la contraseña para que no sea mostrada al usuario.
     def to_representation(self, instance):

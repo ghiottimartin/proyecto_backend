@@ -23,6 +23,9 @@ class Estado(models.Model):
 
 
 class Pedido(Auditoria, models.Model):
+    TIPO_RETIRO = 'retiro'
+    TIPO_DELIVERY = 'delivery'
+
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="pedidos")
     venta = models.ForeignKey("gastronomia.Venta", on_delete=models.CASCADE, related_name="+", null=True)
     fecha = models.DateTimeField(default=datetime.datetime.now)
@@ -31,6 +34,8 @@ class Pedido(Auditoria, models.Model):
     forzar = models.BooleanField(default=False)
     cambio = models.FloatField(default=0)
     observaciones = models.CharField(max_length=255, default="")
+    tipo = models.CharField(max_length=30, default=TIPO_RETIRO, blank=True)
+    direccion = models.CharField(max_length=255, default="", blank=True)
 
     # Comprueba que el pedido esté vacío, es decir no tenga líneas.
     def comprobar_vacio(self):
@@ -100,6 +105,23 @@ class Pedido(Auditoria, models.Model):
         en_curso = self.comprobar_estado_en_curso()
         es_vendedor = usuario.esVendedor
         return en_curso and es_vendedor
+
+    def comprobar_tipo_valido(self, tipo):
+        """
+            Devuelve true si el tipo es retiro o deliver.
+            @param tipo: str
+            @return: bool
+        """
+        valido = tipo == self.TIPO_RETIRO or tipo == self.TIPO_DELIVERY
+        return valido
+
+    def comprobar_tipo_delivery(self, tipo):
+        """
+            Devuelve true si el tipo es delivery.
+            @param tipo: str
+            @return: bool
+        """
+        return tipo == self.TIPO_DELIVERY
 
     def get_lineas_comanda(self):
         """

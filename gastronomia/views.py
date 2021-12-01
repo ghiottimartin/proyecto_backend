@@ -192,7 +192,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         super().destroy(request, *args, **kwargs)
         return respuesta.get_respuesta(True, "Pedido borrado con éxito.")
 
-    # Cambia el estado del pedido a en curso.
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
         pedido = get_pedido(pk=kwargs["pk"])
         if pedido is None:
@@ -203,7 +203,19 @@ class PedidoViewSet(viewsets.ModelViewSet):
             cambio = float(cambio)
         else:
             cambio = 0
-        cerrar_pedido(pedido, cambio)
+
+        tipo = request.query_params.get('tipo', '')
+        valido = pedido.comprobar_tipo_valido(tipo)
+        if not valido:
+            return respuesta.get_respuesta(exito=False, mensaje="Debe seleccionar un tipo de pedido: retiro en local "
+                                                                "o delivery.")
+
+        direccion = request.query_params.get('direccion', '')
+        tipo_delivery = pedido.comprobar_tipo_delivery(tipo)
+        if tipo_delivery and (not isinstance(direccion, str) or len(direccion) < 7):
+            return respuesta.get_respuesta(exito=False, mensaje="La dirección debe tener mínimo 7 caracteres.")
+
+        cerrar_pedido(pedido, cambio, tipo, direccion)
         return respuesta.get_respuesta(True, "Pedido realizado con éxito, se le notificará por email cuando esté listo.")
 
     # Cambia el estado del pedido a entregado. Es decir, el mismo fue recibido por el comensal.

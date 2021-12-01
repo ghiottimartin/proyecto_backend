@@ -48,6 +48,7 @@ class Usuario(Auditoria, AbstractUser):
     operaciones = list()
     borrado = models.BooleanField(default=False)
     observaciones = models.CharField(max_length=255, default="", blank=True)
+    direccion = models.CharField(max_length=30, default="", blank=True)
 
     esMozo = False
     esAdmin = False
