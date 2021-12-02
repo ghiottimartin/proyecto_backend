@@ -383,7 +383,37 @@ class Venta(Auditoria, models.Model):
         if tipo == self.ONLINE:
             return "Online"
 
-        return""
+        return ""
+
+    def comprobar_tipo_online(self):
+        """
+            Devuelve true si es una venta tipo online.
+            @return: bool
+        """
+        tipo = self.tipo
+        return tipo == self.ONLINE
+
+    def get_tipo_online_texto(self):
+        """
+            Devuelve el tipo de pedido online que se realizó.
+            @return: str
+        """
+        online = self.comprobar_tipo_online()
+        if not online:
+            return ''
+
+        pedido = self.pedido
+        if pedido is None:
+            return ""
+
+        tipo = pedido.tipo
+        if tipo == Pedido.TIPO_RETIRO:
+            return 'Retiro'
+        if tipo == Pedido.TIPO_DELIVERY:
+            return 'Delivery'
+
+        return ''
+
 
     def get_vuelto_texto(self):
         """

@@ -40,6 +40,7 @@ class VentaSerializer(serializers.ModelSerializer):
         ret['id_texto'] = instance.get_id_texto()
         ret['id_texto_limpio'] = instance.get_id_texto_limpio()
         ret['tipo_venta'] = instance.get_tipo_texto()
+        ret['tipo_venta_online'] = instance.get_tipo_online_texto()
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = unidecode.unidecode(instance.usuario.first_name)
         ret['fecha_texto'] = instance.auditoria_creado_fecha.strftime('%d/%m/%Y %H:%M')

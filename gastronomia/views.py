@@ -473,6 +473,13 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         altura_fecha = altura_id_venta - 25
         pdf.drawString(100, altura_fecha, fecha_texto)
 
+        tipo_venta = venta['tipo_venta']
+        tipo_venta_online = " (" + venta['tipo_venta_online'] + ")" if venta['tipo_venta_online'] != '' else ''
+        tipo_venta_texto = "Tipo: " + tipo_venta + tipo_venta_online
+        altura_fecha -= 15
+
+        pdf.drawString(100, altura_fecha, tipo_venta_texto)
+
         # Agrego texto cantidad / precio unitario
         altura_cantidad = altura_fecha - 40
         altura_descripcion = altura_cantidad - 10
