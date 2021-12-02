@@ -216,7 +216,11 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=False, mensaje="La dirección debe tener mínimo 7 caracteres.")
 
         cerrar_pedido(pedido, cambio, tipo, direccion)
-        return respuesta.get_respuesta(True, "Pedido realizado con éxito, se le notificará por email cuando esté listo.")
+        mensaje = "Pedido realizado con éxito, se le notificará por email cuando esté listo. Tiempo aproximado 30min."
+        if tipo_delivery:
+            mensaje = "Pedido realizado con éxito, se le notificará por email cuando el cadete esté saliendo. Tiempo " \
+                      "aproximado 40min. "
+        return respuesta.get_respuesta(exito=True, mensaje=mensaje)
 
     # Cambia el estado del pedido a entregado. Es decir, el mismo fue recibido por el comensal.
     @action(detail=True, methods=['post'])
