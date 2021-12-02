@@ -169,7 +169,6 @@ class Pedido(Auditoria, models.Model):
     # Agrega al pedido un nuevo estado Entregado
     def entregar(self):
         self.agregar_estado(Estado.RECIBIDO)
-        self.crear_venta()
         self.save()
 
     def crear_venta(self):
@@ -292,14 +291,16 @@ class Venta(Auditoria, models.Model):
     # Devuelve true si el usuario puede visualizar el ingreso.
     def comprobar_puede_visualizar(self, usuario):
         es_admin = usuario.esAdmin
-        return es_admin
+        es_vendedor = usuario.esVendedor
+        return es_admin or es_vendedor
 
     # Devuelve true si el usuario puede anular la venta.
     def comprobar_puede_anular(self, usuario):
         es_admin = usuario.esAdmin
+        es_vendedor = usuario.esVendedor
         anulado = self.comprobar_anulada()
         tipo = self.tipo
-        return es_admin and not anulado and tipo == self.ALMACEN
+        return (es_admin or es_vendedor) and not anulado and tipo == self.ALMACEN
 
     # Devuelve true si la venta no está anulada.
     def comprobar_anulada(self):
@@ -312,7 +313,7 @@ class Venta(Auditoria, models.Model):
             @return: bool
         """
         tipo = self.tipo
-        return tipo == self.ALMACEN
+        return tipo == self.ALMACEN or tipo == self.ONLINE
 
     # Anula la venta generando un movimiento de stock a los productos ingresados.
     def anular(self):
@@ -372,6 +373,19 @@ class Venta(Auditoria, models.Model):
             return "Online"
 
         return""
+
+    def get_cambio_texto(self):
+        """
+            En caso que el la venta proceda de un pedido por delivery indica el cambio de la misma.
+            @return: str
+        """
+        pedido = self.pedido
+        if pedido is None:
+            return ''
+        cambio = pedido.cambio
+        if cambio <= 0:
+            return ''
+        return "$ " + str(cambio)
 
     def get_nombre(self):
         """

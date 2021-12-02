@@ -282,6 +282,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
                 return respuesta.get_respuesta(exito=False, mensaje="No está habilitado para actualziar el pedido.")
 
             pedido.agregar_estado(Estado.DISPONIBLE)
+            pedido.crear_venta()
             pedido.save()
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha actualizado con éxito.")
         except Exception:
@@ -457,7 +458,7 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         # Defino tamaño de pdf
         lineas = venta["lineas"]
         width = 220
-        height = 210 + len(lineas) * 45
+        height = 225 + len(lineas) * 45
         pdf.setPageSize((width, height))
 
         # Agrego línea id de venta
@@ -503,6 +504,12 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         altura_total = altura_lineas - 15
         pdf.setFont("Helvetica-Bold", 11)
         pdf.drawString(105, altura_total, "TOTAL: " + total_texto)
+
+        altura_total -= 15
+        cambio_texto = venta['cambio_texto'] if 'cambio_texto' in venta else ''
+        if len(cambio_texto) > 0:
+            pdf.setFont("Helvetica", 9)
+            pdf.drawString(105, altura_total, "Cambio de: " + cambio_texto)
 
         altura_actual = altura_total
         tipo = venta['tipo']
