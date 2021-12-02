@@ -141,6 +141,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
         ret['total_texto'] = locale.currency(instance.total)
         ret['cambio_texto'] = locale.currency(instance.cambio) if instance.cambio > 0 else ''
+        ret['tipo_texto'] = instance.get_tipo_texto()
         ret['estado_texto'] = instance.get_estado_texto(logueado)
         ret['estado_clase'] = instance.get_estado_clase()
         ret['usuario_email'] = instance.usuario.email

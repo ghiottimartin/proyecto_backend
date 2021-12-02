@@ -193,6 +193,17 @@ class Pedido(Auditoria, models.Model):
         venta.save()
         self.venta = venta
 
+    def get_tipo_texto(self):
+        """
+            Devuelve el tipo de pedido.
+            @return:  str
+        """
+        tipo = self.tipo
+        if tipo == self.TIPO_RETIRO:
+            return "Retirar"
+        if tipo == self.TIPO_DELIVERY:
+            return "Delivery"
+
     # Devuelve el estado en formato legible.
     def get_estado_texto(self, logueado):
         estado = self.ultimo_estado.capitalize()
