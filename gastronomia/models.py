@@ -311,7 +311,13 @@ class Venta(Auditoria, models.Model):
         es_vendedor = usuario.esVendedor
         anulado = self.comprobar_anulada()
         tipo = self.tipo
-        return (es_admin or es_vendedor) and not anulado and tipo == self.ALMACEN
+        pedido = self.pedido
+
+        disponible = False
+        if pedido is not None:
+            disponible = pedido.comprobar_estado_disponible()
+        puede_anular_venta_pedido = tipo == self.ONLINE and disponible
+        return (es_admin or es_vendedor) and not anulado and (tipo == self.ALMACEN or puede_anular_venta_pedido)
 
     # Devuelve true si la venta no está anulada.
     def comprobar_anulada(self):
