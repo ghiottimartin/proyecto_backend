@@ -47,7 +47,7 @@ class VentaSerializer(serializers.ModelSerializer):
         ret['estado_texto'] = instance.get_estado_legible()
         ret['estado_clase'] = instance.get_estado_clase()
         ret['fecha_anulado'] = instance.get_fecha_anulada_texto()
-        ret['cambio_texto'] = instance.get_cambio_texto()
+        ret['vuelto_texto'] = instance.get_vuelto_texto()
         ret['anulada'] = instance.comprobar_anulada()
         ret['nombre'] = instance.get_nombre()
         return ret

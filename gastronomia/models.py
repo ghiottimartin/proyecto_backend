@@ -374,18 +374,24 @@ class Venta(Auditoria, models.Model):
 
         return""
 
-    def get_cambio_texto(self):
+    def get_vuelto_texto(self):
         """
-            En caso que el la venta proceda de un pedido por delivery indica el cambio de la misma.
+            Calcula y devuelve el vuelto según el cambio ingresado del usuario.
             @return: str
         """
         pedido = self.pedido
         if pedido is None:
             return ''
+
         cambio = pedido.cambio
         if cambio <= 0:
             return ''
-        return "$ " + str(cambio)
+
+        total = self.total
+        vuelto = cambio - total
+        if vuelto < 0:
+            return ''
+        return "$ " + str(vuelto)
 
     def get_nombre(self):
         """

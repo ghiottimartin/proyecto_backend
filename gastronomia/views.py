@@ -506,10 +506,10 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         pdf.drawString(105, altura_total, "TOTAL: " + total_texto)
 
         altura_total -= 15
-        cambio_texto = venta['cambio_texto'] if 'cambio_texto' in venta else ''
-        if len(cambio_texto) > 0:
+        vuelto_texto = venta['vuelto_texto'] if 'vuelto_texto' in venta else ''
+        if len(vuelto_texto) > 0:
             pdf.setFont("Helvetica", 9)
-            pdf.drawString(105, altura_total, "Cambio de: " + cambio_texto)
+            pdf.drawString(105, altura_total, "Vuelto: " + vuelto_texto)
 
         altura_actual = altura_total
         tipo = venta['tipo']
