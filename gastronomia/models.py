@@ -193,6 +193,17 @@ class Pedido(Auditoria, models.Model):
         venta.save()
         self.venta = venta
 
+    def get_vuelto_texto(self):
+        cambio = self.cambio
+        if cambio <= 0:
+            return 'No solicitó'
+
+        total = self.total
+        vuelto = cambio - total
+        if vuelto < 0:
+            return 'No solicitó'
+        return "$ " + str(vuelto)
+
     def get_tipo_texto(self):
         """
             Devuelve el tipo de pedido.
@@ -263,7 +274,6 @@ class PedidoLinea(models.Model):
 
 
 class Venta(Auditoria, models.Model):
-
     ALMACEN = 'almacen'
     ONLINE = 'online'
     MESA = 'mesa'
@@ -420,7 +430,6 @@ class Venta(Auditoria, models.Model):
 
         return ''
 
-
     def get_vuelto_texto(self):
         """
             Calcula y devuelve el vuelto según el cambio ingresado del usuario.
@@ -432,12 +441,12 @@ class Venta(Auditoria, models.Model):
 
         cambio = pedido.cambio
         if cambio <= 0:
-            return 'no solicitó'
+            return 'No solicitó'
 
         total = self.total
         vuelto = cambio - total
         if vuelto < 0:
-            return 'no solicitó'
+            return 'No solicitó'
         return "$ " + str(vuelto)
 
     def get_direccion_texto(self):
