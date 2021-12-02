@@ -236,6 +236,25 @@ class Pedido(Auditoria, models.Model):
             return ""
         return clase
 
+    def get_tarjeta_estado_clase(self):
+        """
+            Devuelve la clase css del estado del pedido para la tarjeta responsive.
+            @return:
+        """
+        clase = "font-weight-bold badge"
+        estado = self.ultimo_estado
+        if estado == Estado.ANULADO:
+            clase = clase + " badge-danger"
+        if estado == Estado.RECIBIDO or estado == Estado.ENTREGADO:
+            clase = clase + " badge-success"
+        if estado == Estado.EN_CURSO:
+            clase = clase + " badge-primary"
+        if estado == Estado.DISPONIBLE:
+            clase = clase + " badge-info"
+        if estado == Estado.ABIERTO:
+            clase = clase + " badge-secondary"
+        return clase
+
     # Devuelve el id legible del pedido.
     def get_id_texto(self):
         return "P" + str(self.id).zfill(5)

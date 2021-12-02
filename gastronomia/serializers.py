@@ -147,6 +147,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['tipo_texto'] = instance.get_tipo_texto()
         ret['estado_texto'] = instance.get_estado_texto(logueado)
         ret['estado_clase'] = instance.get_estado_clase()
+        ret['tarjeta_estado_clase'] = instance.get_tarjeta_estado_clase()
         ret['usuario_email'] = instance.usuario.email
         ret['usuario_nombre'] = instance.usuario.first_name
         ret['usuario_direccion'] = instance.usuario.direccion
@@ -164,6 +165,7 @@ class PedidoSerializer(serializers.ModelSerializer):
             operaciones.append({
                 'accion': accion,
                 'clase': 'btn btn-sm btn-info text-info',
+                'clase_responsive': 'bg-info',
                 'texto': 'Ver',
                 'icono': 'fa fa-eye',
                 'title': 'Ver Pedido ' + objeto.get_id_texto(),
@@ -176,6 +178,7 @@ class PedidoSerializer(serializers.ModelSerializer):
             operaciones.append({
                 'accion': accion,
                 'clase': 'btn btn-sm btn-success text-success',
+                'clase_responsive': 'bg-success',
                 'texto': 'Entregar',
                 'icono': 'fa fa-check-circle',
                 'title': 'Entregar Pedido ' + objeto.get_id_texto(),
@@ -188,6 +191,7 @@ class PedidoSerializer(serializers.ModelSerializer):
             operaciones.append({
                 'accion': 'disponible',
                 'clase': 'btn btn-sm btn-success text-success',
+                'clase_responsive': 'bg-success',
                 'texto': 'Disponible',
                 'icono': 'fa fa-check-circle',
                 'title': 'Marcar Pedido ' + objeto.get_id_texto() + " como disponible",
@@ -200,6 +204,7 @@ class PedidoSerializer(serializers.ModelSerializer):
             operaciones.append({
                 'accion': 'comanda',
                 'clase': 'btn btn-sm btn-primary text-primary',
+                'clase_responsive': 'bg-primary',
                 'texto': 'Comanda',
                 'icono': 'fas fa-file-alt',
                 'title': 'Descargar Comanda Pedido ' + objeto.get_id_texto(),
@@ -212,6 +217,7 @@ class PedidoSerializer(serializers.ModelSerializer):
             operaciones.append({
                 'accion': 'anular',
                 'clase': 'btn btn-sm btn-danger text-danger',
+                'clase_responsive': 'bg-danger',
                 'texto': 'Anular',
                 'icono': 'fa fa-window-close',
                 'title': 'Anular Pedido ' + objeto.get_id_texto(),
