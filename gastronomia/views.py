@@ -458,7 +458,7 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         # Defino tamaño de pdf
         lineas = venta["lineas"]
         width = 220
-        height = 225 + len(lineas) * 45
+        height = 240 + len(lineas) * 45
         pdf.setPageSize((width, height))
 
         # Agrego línea id de venta
@@ -510,6 +510,12 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         if len(vuelto_texto) > 0:
             pdf.setFont("Helvetica", 9)
             pdf.drawString(105, altura_total, "Vuelto: " + vuelto_texto)
+
+        altura_total -= 15
+        direccion_texto = venta['direccion_texto'] if 'direccion_texto' in venta else ''
+        if len(direccion_texto) > 0:
+            pdf.setFont("Helvetica", 9)
+            pdf.drawString(105, altura_total, "Dirección: " + direccion_texto)
 
         altura_actual = altura_total
         tipo = venta['tipo']

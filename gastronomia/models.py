@@ -396,13 +396,33 @@ class Venta(Auditoria, models.Model):
 
         cambio = pedido.cambio
         if cambio <= 0:
-            return ''
+            return 'no solicitó'
 
         total = self.total
         vuelto = cambio - total
         if vuelto < 0:
-            return ''
+            return 'no solicitó'
         return "$ " + str(vuelto)
+
+    def get_direccion_texto(self):
+        """
+            Si la venta se generó de un pedido por delivery devuelve la dirección.
+            @return: str
+        """
+        pedido = self.pedido
+        if pedido is None:
+            return ''
+
+        tipo = pedido.tipo
+        tipo_delivery = pedido.comprobar_tipo_delivery(tipo)
+        if not tipo_delivery:
+            return ''
+
+        direccion = pedido.direccion
+        if len(direccion) > 0:
+            return direccion
+
+        return ''
 
     def get_nombre(self):
         """
