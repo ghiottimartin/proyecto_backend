@@ -419,6 +419,8 @@ class ReemplazoMercaderiaLinea(models.Model):
     producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, related_name="reemplazos")
     stock_anterior = models.IntegerField()
     stock_nuevo = models.IntegerField()
+    cantidad_ingreso = models.IntegerField()
+    cantidad_egreso = models.IntegerField()
     reemplazo_completo = models.BooleanField(default=False)
 
     # Crea un movimiento de stock a partir del producto reemplazado.

@@ -145,16 +145,27 @@ def validar_crear_reemplazo_mercaderia(datos):
     if not isinstance(lineas, list):
         raise ValidationError("Debe seleccionar al menos un producto.")
     else:
+        egresos_validos = True
+        ingresos_validos = True
         for linea in lineas:
             try:
                 id_producto = linea["producto"]["id"]
             except:
                 id_producto = 0
             if id_producto <= 0:
-                raise ValidationError("No se ha encontrado el producto.")
-            stock_nuevo = int(linea["stock_nuevo"]) if "stock_nuevo" in linea else 0
-            if not isinstance(stock_nuevo, int) or int(stock_nuevo) < 0:
-                raise ValidationError("El nuevo stock del producto debe tener un valor numérico mayor a cero.")
+                raise ValidationError("El reemplazo no tiene los datos suficientes para ser guardado. No se ha "
+                                      "encontrado el producto de id " + str(id_producto) + ".")
+
+            cantidad_egreso = int(linea["cantidad_egreso"]) if "cantidad_egreso" in linea else 0
+            if not isinstance(cantidad_egreso, int) or int(cantidad_egreso) < 0:
+                egresos_validos = False
+
+            cantidad_egreso = int(linea["cantidad_egreso"]) if "cantidad_egreso" in linea else 0
+            if not isinstance(cantidad_egreso, int) or int(cantidad_egreso) < 0:
+                egresos_validos = False
+
+        if not egresos_validos or not ingresos_validos:
+                raise ValidationError("Las cantidades de ingreso y egreso no pueden ser negativas")
 
 
 # Crea un nuevo reemplazo de mercadería.
@@ -173,16 +184,29 @@ def crear_linea_reemplazo(reemplazo, item):
     producto = get_producto(id_producto)
     if producto is None:
         raise ValidationError("No se ha encontrado el producto.")
+
     stock = producto.stock
     if stock <= 0:
         nombre = producto.nombre
         raise ValidationError("No hay stock del producto '" + nombre + "', por lo que no puede ser reemplazado.")
-    stock_nuevo = item["stock_nuevo"]
-    if int(stock_nuevo) < 0:
+
+    cantidad_egreso = item["cantidad_egreso"]
+    if int(cantidad_egreso) < 0:
         return None
-    reemplazo_completo = False
-    if int(stock_nuevo) == 0:
-        reemplazo_completo = True
-    linea = ReemplazoMercaderiaLinea(reemplazo=reemplazo, producto=producto, stock_nuevo=stock_nuevo, stock_anterior=producto.stock, reemplazo_completo=reemplazo_completo)
+
+    cantidad_ingreso = item["cantidad_ingreso"]
+    if int(cantidad_ingreso) < 0:
+        return None
+
+    stock_nuevo = stock + cantidad_ingreso - cantidad_egreso
+    linea = ReemplazoMercaderiaLinea(
+        reemplazo=reemplazo,
+        producto=producto,
+        stock_nuevo=stock_nuevo,
+        stock_anterior=stock,
+        cantidad_ingreso=cantidad_ingreso,
+        cantidad_egreso=cantidad_egreso,
+        reemplazo_completo=False
+    )
     linea.save()
     return linea
