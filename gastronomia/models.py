@@ -192,6 +192,18 @@ class Pedido(Auditoria, models.Model):
         venta.actualizar()
         venta.save()
         self.venta = venta
+        self.save()
+
+    def anular_venta(self):
+        """
+            Si el pedido tiene venta se anula la misma.
+            @return: None
+        """
+        venta = self.venta
+        if not isinstance(venta, Venta):
+            return
+        venta.anular()
+        venta.save()
 
     def get_vuelto_texto(self):
         cambio = self.cambio

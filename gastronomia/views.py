@@ -262,6 +262,9 @@ class PedidoViewSet(viewsets.ModelViewSet):
             abierto = pedido.comprobar_estado_abierto()
             if not abierto and isinstance(motivo, str) and len(motivo) < 10:
                 return respuesta.get_respuesta(exito=False, mensaje="Debe indicar un motivo de cancelación.")
+
+            pedido.anular_venta()
+
             pedido.observaciones = motivo if motivo != "undefined" else ""
             pedido.agregar_estado(Estado.ANULADO)
             pedido.save()
