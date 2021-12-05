@@ -115,12 +115,14 @@ class Pedido(Auditoria, models.Model):
         valido = tipo == self.TIPO_RETIRO or tipo == self.TIPO_DELIVERY
         return valido
 
-    def comprobar_tipo_delivery(self, tipo):
+    def comprobar_tipo_delivery(self, tipo=None):
         """
             Devuelve true si el tipo es delivery.
             @param tipo: str
             @return: bool
         """
+        if tipo is None:
+            tipo = self.tipo
         return tipo == self.TIPO_DELIVERY
 
     def get_lineas_comanda(self):

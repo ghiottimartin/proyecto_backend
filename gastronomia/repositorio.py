@@ -28,7 +28,8 @@ def get_venta(pk):
 
 # Valida que los datos del pedido sean correctos.
 def validar_crear_pedido(datos):
-    if not isinstance(int(datos["id"]), int) or int(datos["id"] < 0):
+    id = datos["id"] if "id" in datos else 0
+    if not isinstance(int(id), int) or int(id < 0):
         raise ValidationError("El pedido no tiene los datos suficientes para ser guardado.")
     lineas = datos["lineas"] if "lineas" in datos else list()
     if not isinstance(lineas, list):

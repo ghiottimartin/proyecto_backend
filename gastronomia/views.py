@@ -152,19 +152,28 @@ class PedidoViewSet(viewsets.ModelViewSet):
         en_curso = None
         if pedido is None:
             en_curso = get_pedido(pk=None, usuario=usuario, estado=Estado.EN_CURSO)
-        no_hay_abierto = pedido is None
+
+        disponible = None
+        if not en_curso:
+            disponible = get_pedido(pk=None, usuario=usuario, estado=Estado.DISPONIBLE)
+
+        hay_abierto = pedido is not None
+        if hay_abierto:
+            return respuesta.get_respuesta(exito=True, datos=serializer.data)
+
         hay_en_curso = en_curso is not None
-        if no_hay_abierto and hay_en_curso:
-            return respuesta.get_respuesta(exito=True, datos={"en_curso": True})
-
-        disponible = get_pedido(pk=None, usuario=usuario, estado=Estado.DISPONIBLE)
         hay_disponible = disponible is not None
-        if no_hay_abierto and hay_disponible:
-            return respuesta.get_respuesta(exito=True, datos={"disponible": True})
 
-        if no_hay_abierto and not hay_en_curso and not hay_disponible:
-            return respuesta.get_respuesta(False, "")
-        return respuesta.get_respuesta(True, "", None, serializer.data)
+        es_delivery = False
+        if hay_en_curso:
+            es_delivery = en_curso.comprobar_tipo_delivery()
+
+        datos = {
+            "en_curso": hay_en_curso,
+            "delivery": es_delivery,
+            "disponible": hay_disponible,
+        }
+        return respuesta.get_respuesta(exito=True, datos=datos)
 
     # Crea un pedido.
     @transaction.atomic
@@ -173,7 +182,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         try:
             datos = request.data
             validar_crear_pedido(datos)
-            id = datos["id"]
+            id = datos["id"] if "id" in datos else 0
             lineas = datos["lineas"]
             if id <= 0:
                 pedido = crear_pedido(usuario, lineas)
