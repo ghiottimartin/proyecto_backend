@@ -1,4 +1,6 @@
 from django.contrib.auth.hashers import make_password
+from django.conf import settings
+from django.http import FileResponse
 from django.views.static import serve
 from rest_framework import mixins
 from rest_framework import viewsets
@@ -13,6 +15,7 @@ from . import email
 from base.respuestas import Respuesta
 import datetime
 import secrets
+import os
 
 respuesta = Respuesta()
 
@@ -180,6 +183,15 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al buscar los mozos.")
         return respuesta.get_respuesta(exito=True, datos={"mozos": mozos})
+
+    @action(detail=True, methods=['get'])
+    def manual(self, request, pk=0):
+        try:
+            filename = "manual-usuario-v1.0.pdf"
+            filepath = os.path.join(settings.MEDIA_ROOT, filename)
+            return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
+        except FileNotFoundError:
+            return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al descargar el pdf.")
 
 
 
