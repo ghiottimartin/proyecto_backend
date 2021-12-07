@@ -1,5 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.conf import settings
+from django.db import transaction
 from django.http import FileResponse
 from django.views.static import serve
 from rest_framework import mixins
@@ -25,6 +26,7 @@ class RegistroViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     queryset = Usuario.objects.filter(borrado=False)
     serializer_class = UsuarioSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         return crear_usuario(True, request)
 
@@ -216,8 +218,7 @@ def crear_usuario(enviar, request):
         usuario.agregar_rol_comensal()
     usuario.save()
     if enviar:
-        pass
-    #   email.enviar_email_registro(usuario)
+        email.enviar_email_registro(usuario)
     return respuesta.exito()
 
 
@@ -256,7 +257,7 @@ def olvido_password(request):
             usuario.token_reset = secrets.token_hex(16)
             usuario.fecha_token_reset = datetime.datetime.today()
             usuario.save()
-            # email.enviar_email_cambio_password(usuario)
+            email.enviar_email_cambio_password(usuario)
             return respuesta.olvido_password_exito()
         except:
             return respuesta.olvido_password_error_general()
@@ -313,12 +314,11 @@ def buscar_usuario_token_reset(token):
         usuario = Usuario.objects.get(token_reset=token)
         if usuario is not None and usuario.fecha_token_reset is None:
             return usuario
-        naive = usuario.fecha_token_reset.replace(tzinfo=None)
-        delta = datetime.datetime.today() - naive
-        if delta.days > 1:
-            return None
-        return usuario
-    except Usuario.DoesNotExist:
-        return None
-    except Exception as ex:
+        if usuario is not None:
+            naive = usuario.fecha_token_reset.replace(tzinfo=None)
+            delta = datetime.datetime.today() - naive
+            if delta.days > 1:
+                return None
+            return usuario
+    except:
         return None
