@@ -474,7 +474,7 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         # Defino tamaño de pdf
         lineas = venta["lineas"]
         width = 220
-        height = 260 + len(lineas) * 45
+        height = 300 + len(lineas) * 45
         pdf.setPageSize((width, height))
 
         # Agrego línea id de venta
