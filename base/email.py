@@ -29,3 +29,13 @@ def enviar_email_pedido_cerrado(pedido, mensaje):
     html_body = render_to_string("pedido-confirmado.html", {'pedido': pedido, 'usuario': usuario, 'mensaje': mensaje})
     msg.attach_alternative(html_body, "text/html")
     msg.send()
+
+
+def enviar_email_pedido_anulado(pedido):
+    usuario = pedido.usuario
+    subject, from_email, to = 'Panadería Independencia - Pedido anulado', 'sistemadegestion@gmail.com', usuario.email
+    text_content = 'Pedido anulado.'
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
+    html_body = render_to_string("pedido-anulado.html", {'pedido': pedido, 'usuario': usuario})
+    msg.attach_alternative(html_body, "text/html")
+    msg.send()

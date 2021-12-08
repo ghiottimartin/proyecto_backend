@@ -279,6 +279,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
             pedido.observaciones = motivo if motivo != "undefined" else ""
             pedido.agregar_estado(Estado.ANULADO)
             pedido.save()
+            email.enviar_email_pedido_anulado(pedido)
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha anulado con éxito.")
         except:
             return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al anular el pedido.")
