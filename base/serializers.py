@@ -37,7 +37,7 @@ class UsuarioSerializer(CustomModelSerializer):
     class Meta:
         model = Usuario
         fields = ['id', 'username', 'email', 'first_name', 'roles', 'habilitado', 'password', 'dni', 'operaciones',
-                  'esAdmin', 'esMozo', 'esComensal', 'esVendedor', 'observaciones', 'operaciones_listado', 'direccion']
+                  'esAdmin', 'esMozo', 'esComensal', 'esVendedor', 'observaciones', 'operaciones_listado', 'direccion', 'token_email', 'token_reset']
 
     # Método que devuelve los datos del usuario. Quito la contraseña para que no sea mostrada al usuario.
     def to_representation(self, instance):
@@ -47,6 +47,7 @@ class UsuarioSerializer(CustomModelSerializer):
         ret['puede_deshabilitarse'] = instance.habilitado
         ret['puede_habilitarse'] = not instance.habilitado
         ret['habilitado_texto'] = "Activo" if instance.habilitado else "Deshabilitado"
+        ret['url_activacion'] = instance.get_url_activacion()
 
         estado = "text-success" if instance.habilitado else "text-danger"
         ret['habilitado_clase'] = estado + " font-weight-bold"

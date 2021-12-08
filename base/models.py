@@ -64,6 +64,16 @@ class Usuario(Auditoria, AbstractUser):
             self.esVendedor = self.comprobar_tiene_rol(Rol.VENEDEDOR)
             self.operaciones = self.get_operaciones()
 
+    def get_url_activacion(self):
+        """
+            Devuelve la url para activar la cuenta del usuario.
+            @return: str
+        """
+        token = self.token_email
+        if token is None:
+            return ""
+        return "http://localhost:3000/validar-email/" + str(token)
+
     # Agrega el rol comensa al usuario.
     def agregar_rol_comensal(self):
         comensal = get_rol(Rol.COMENSAL)

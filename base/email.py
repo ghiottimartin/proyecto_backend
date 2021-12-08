@@ -1,13 +1,16 @@
+from base.serializers import UsuarioSerializer
 from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 
 def enviar_email_registro(usuario):
     url = "http://localhost:3000/validar-email/" + str(usuario.token_email)
     subject, from_email, to = 'Activación de cuenta', 'sistemadegestion@gmail.com', usuario.email
-    text_content = '¡Bienvenido al Sistema Gastronómica!.'
+    text_content = '¡Bienvenido al Sistema Gastronómico!.'
     html_content = '<p>Para activar su cuenta tiene que ingresar al siguiente <a href=' + str(url) + '>link</a>.</p>'
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-    msg.attach_alternative(html_content, "text/html")
+    html_body = render_to_string("registro.html", {'usuario': usuario})
+    msg.attach_alternative(html_body, "text/html")
     msg.send()
 
 
