@@ -20,5 +20,6 @@ def enviar_email_cambio_password(usuario):
     text_content = '¡Bienvenido al Sistema Gastronómica!.'
     html_content = '<p>Para cambiar su contraseña tiene que ingresar al siguiente <a href=' + str(url) + '>link</a>.</p>'
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-    msg.attach_alternative(html_content, "text/html")
+    html_body = render_to_string("cambio-clave.html", {'usuario': usuario})
+    msg.attach_alternative(html_body, "text/html")
     msg.send()
