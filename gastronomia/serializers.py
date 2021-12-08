@@ -141,10 +141,11 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['id_texto'] = instance.get_id_texto()
         ret['anulado'] = instance.comprobar_estado_anulado()
         ret['fecha_texto'] = instance.fecha.strftime('%d/%m/%Y %H:%M')
-        ret['total_texto'] = locale.currency(instance.total)
+        ret['total_texto'] = instance.get_total_texto()
         ret['vuelto_texto'] = instance.get_vuelto_texto()
-        ret['tiene_vuelto'] = instance.cambio > 0.00
+        ret['tiene_vuelto'] = instance.comprobar_tiene_vuelto()
         ret['tipo_texto'] = instance.get_tipo_texto()
+        ret['tipo_delivery'] = instance.comprobar_tipo_delivery()
         ret['estado_texto'] = instance.get_estado_texto(logueado)
         ret['estado_clase'] = instance.get_estado_clase()
         ret['tarjeta_estado_clase'] = instance.get_tarjeta_estado_clase()

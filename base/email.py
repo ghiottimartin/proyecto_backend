@@ -4,22 +4,28 @@ from django.template.loader import render_to_string
 
 
 def enviar_email_registro(usuario):
-    url = "http://localhost:3000/validar-email/" + str(usuario.token_email)
-    subject, from_email, to = 'Activación de cuenta', 'sistemadegestion@gmail.com', usuario.email
+    subject, from_email, to = 'Panadería Independencia - Activación de cuenta', 'sistemadegestion@gmail.com', usuario.email
     text_content = '¡Bienvenido al Sistema Gastronómico!.'
-    html_content = '<p>Para activar su cuenta tiene que ingresar al siguiente <a href=' + str(url) + '>link</a>.</p>'
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
     html_body = render_to_string("registro.html", {'usuario': usuario})
     msg.attach_alternative(html_body, "text/html")
     msg.send()
 
 
 def enviar_email_cambio_password(usuario):
-    url = "http://localhost:3000/reset-password/" + str(usuario.token_reset)
-    subject, from_email, to = 'Cambiar contraseña', 'sistemadegestion@gmail.com', usuario.email
+    subject, from_email, to = 'Panadería Independencia - Cambiar contraseña', 'sistemadegestion@gmail.com', usuario.email
     text_content = '¡Bienvenido al Sistema Gastronómica!.'
-    html_content = '<p>Para cambiar su contraseña tiene que ingresar al siguiente <a href=' + str(url) + '>link</a>.</p>'
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
     html_body = render_to_string("cambio-clave.html", {'usuario': usuario})
+    msg.attach_alternative(html_body, "text/html")
+    msg.send()
+
+
+def enviar_email_pedido_cerrado(pedido, mensaje):
+    usuario = pedido.usuario
+    subject, from_email, to = 'Panadería Independencia - Pedido confirmado', 'sistemadegestion@gmail.com', usuario.email
+    text_content = 'Pedido confirmado.'
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
+    html_body = render_to_string("pedido-confirmado.html", {'pedido': pedido, 'usuario': usuario, 'mensaje': mensaje})
     msg.attach_alternative(html_body, "text/html")
     msg.send()

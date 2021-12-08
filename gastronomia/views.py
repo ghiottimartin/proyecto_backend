@@ -1,6 +1,7 @@
 from .models import Pedido, Estado, Venta
 from .serializers import PedidoSerializer, VentaSerializer
 from base import utils
+from base import email
 from base.respuestas import Respuesta
 from base.permisos import TieneRolAdmin, TieneRolAdminOVendedor
 from django.core.exceptions import ValidationError
@@ -229,6 +230,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         if tipo_delivery:
             mensaje = "Pedido realizado con éxito, se le notificará por email cuando el cadete esté saliendo. Tiempo " \
                       "aproximado 40min. "
+        email.enviar_email_pedido_cerrado(pedido, mensaje)
         return respuesta.get_respuesta(exito=True, mensaje=mensaje)
 
     # Cambia el estado del pedido a entregado. Es decir, el mismo fue recibido por el comensal.

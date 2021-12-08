@@ -1,6 +1,7 @@
-from django.db import models
 from base.models import Auditoria, Usuario
 import datetime
+from django.db import models
+import locale
 
 
 class Estado(models.Model):
@@ -125,6 +126,14 @@ class Pedido(Auditoria, models.Model):
             tipo = self.tipo
         return tipo == self.TIPO_DELIVERY
 
+    def comprobar_tiene_vuelto(self):
+        """
+            Devuelve true si el usuario solicitó cambio para el pedido.
+            @return: bool
+        """
+        cambio = self.cambio
+        return cambio > 0.00
+
     def get_lineas_comanda(self):
         """
             Devuelve las líneas a imprimir en la comanda.
@@ -217,6 +226,10 @@ class Pedido(Auditoria, models.Model):
         if vuelto < 0:
             return 'No solicitó'
         return "$ " + str(vuelto)
+
+    def get_total_texto(self):
+        total = self.total
+        return locale.currency(total)
 
     def get_tipo_texto(self):
         """
