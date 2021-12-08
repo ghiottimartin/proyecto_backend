@@ -440,7 +440,10 @@ class Venta(Auditoria, models.Model):
             return "Almacén"
 
         if tipo == self.MESA:
-            return "Mesa"
+            turno = self.turno
+            mesa = turno.mesa if turno is not None else None
+            id_mesa = mesa.get_numero_texto() if mesa is not None else ""
+            return "Mesa " + id_mesa
 
         if tipo == self.ONLINE:
             return "Online"
