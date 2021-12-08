@@ -190,11 +190,11 @@ def crear_linea_reemplazo(reemplazo, item):
         nombre = producto.nombre
         raise ValidationError("No hay stock del producto '" + nombre + "', por lo que no puede ser reemplazado.")
 
-    cantidad_egreso = item["cantidad_egreso"]
+    cantidad_egreso = item["cantidad_egreso"] if "cantidad_egreso" in item and item["cantidad_egreso"] != None else 0
     if int(cantidad_egreso) < 0:
         return None
 
-    cantidad_ingreso = item["cantidad_ingreso"]
+    cantidad_ingreso = item["cantidad_ingreso"] if "cantidad_ingreso" in item and item["cantidad_ingreso"] != None else 0
     if int(cantidad_ingreso) < 0:
         return None
 
