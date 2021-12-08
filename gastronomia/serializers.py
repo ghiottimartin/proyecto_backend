@@ -52,6 +52,7 @@ class VentaSerializer(serializers.ModelSerializer):
         ret['direccion_texto'] = instance.get_direccion_texto()
         ret['anulada'] = instance.comprobar_anulada()
         ret['nombre'] = instance.get_nombre()
+        ret['clase_venta_impresa'] = instance.get_clase_venta_impresa()
         return ret
 
     # Devuelve las operaciones disponibles para la venta actual.

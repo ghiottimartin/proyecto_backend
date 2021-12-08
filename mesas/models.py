@@ -132,6 +132,7 @@ class Turno(Auditoria, models.Model):
     estado = models.CharField(max_length=30, default=ABIERTO)
     hora_inicio = models.DateTimeField(default=datetime.datetime.now)
     hora_fin = models.DateTimeField(null=True)
+    venta_impresa = models.BooleanField(default=False)
 
     def comprobar_abierto(self):
         """

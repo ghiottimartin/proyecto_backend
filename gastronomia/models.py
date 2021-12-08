@@ -331,6 +331,18 @@ class Venta(Auditoria, models.Model):
     tipo = models.CharField(max_length=30, default=ALMACEN)
     anulado = models.DateTimeField(null=True)
 
+    def actualizar_impresion_venta(self):
+        """
+            Actualiza el campo boolean de venta impresa a True.
+            @return: None
+        """
+        turno = self.turno
+        if turno is None:
+            return
+
+        turno.venta_impresa = True
+        turno.save()
+
     def actualizar(self):
         self.actualizar_lineas()
         self.actualizar_total()
@@ -387,6 +399,17 @@ class Venta(Auditoria, models.Model):
         """
         tipo = self.tipo
         return tipo == self.ALMACEN or tipo == self.ONLINE
+
+    def comprobar_venta_turno_impresa(self):
+        """
+            Devuelve true si la venta del turno fue impresa.
+            @return: bool
+        """
+        turno = self.turno
+        if turno is None:
+            return True
+        venta_impresa = turno.venta_impresa
+        return venta_impresa
 
     # Anula la venta generando un movimiento de stock a los productos ingresados.
     def anular(self):
@@ -517,6 +540,16 @@ class Venta(Auditoria, models.Model):
             return direccion
 
         return ''
+
+    def get_clase_venta_impresa(self):
+        """
+            Devuelve la clase css por si el pdf de la venta del turno no fue impreso.
+            @return: str
+        """
+        impresa = self.comprobar_venta_turno_impresa()
+        if impresa:
+            return ""
+        return "alert alert-info"
 
     def get_nombre(self):
         """
