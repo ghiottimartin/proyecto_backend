@@ -150,6 +150,7 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
             instance.habilitado = False
             instance.observaciones = motivo
             instance.save()
+            email.enviar_email_usuario_deshabilitado(instance)
             return respuesta.get_respuesta(True, "El usuario ha sido inhabilitado con exito")
 
         puede_borrarse = instance.comprobar_puede_borrarse()
@@ -158,6 +159,7 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
                                                   "relacionado a los datos de la web.")
         instance.borrado = True
         instance.save()
+        email.enviar_email_usuario_deshabilitado(instance)
         return respuesta.get_respuesta(True, "El usuario se ha borrado con éxito")
 
     # Actualiza la contraseña del usuario según la request. Si la cambió se actualiza sino devuelve la actual.

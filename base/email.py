@@ -49,3 +49,12 @@ def enviar_email_pedido_disponible(pedido):
     html_body = render_to_string("pedido-disponible.html", {'pedido': pedido, 'usuario': usuario})
     msg.attach_alternative(html_body, "text/html")
     msg.send()
+
+
+def enviar_email_usuario_deshabilitado(usuario):
+    subject, from_email, to = 'Panadería Independencia - Usuario deshabilitado', 'sistemadegestion@gmail.com', usuario.email
+    text_content = 'Usuario deshabilitado.'
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
+    html_body = render_to_string("usuario-deshabilitado.html", {'usuario': usuario})
+    msg.attach_alternative(html_body, "text/html")
+    msg.send()
