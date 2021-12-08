@@ -39,3 +39,13 @@ def enviar_email_pedido_anulado(pedido):
     html_body = render_to_string("pedido-anulado.html", {'pedido': pedido, 'usuario': usuario})
     msg.attach_alternative(html_body, "text/html")
     msg.send()
+
+
+def enviar_email_pedido_disponible(pedido):
+    usuario = pedido.usuario
+    subject, from_email, to = 'Panadería Independencia - Pedido disponible', 'sistemadegestion@gmail.com', usuario.email
+    text_content = 'Pedido disponible.'
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
+    html_body = render_to_string("pedido-disponible.html", {'pedido': pedido, 'usuario': usuario})
+    msg.attach_alternative(html_body, "text/html")
+    msg.send()
