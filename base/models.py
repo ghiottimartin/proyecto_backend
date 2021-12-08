@@ -136,12 +136,14 @@ class Usuario(Auditoria, AbstractUser):
         operaciones_admin = self.get_operaciones_admin()
         operaciones_vendedor = self.get_operaciones_vendedor()
         generales = [{
+            "id": 1,
             "roles": [Rol.ADMINISTRADOR, Rol.VENEDEDOR],
             "ruta": "/usuarios/listar",
             "titulo": "Usuarios",
             "descripcion": "Permite gestionar los usuarios"
         },
         {
+            "id": 2,
             "roles": [Rol.ADMINISTRADOR, Rol.MOZO],
             "ruta": "/mesas/listar",
             "titulo": "Mesas",
@@ -156,16 +158,19 @@ class Usuario(Auditoria, AbstractUser):
             return list()
 
         operaciones = [{
+            "id": 3,
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/productos/listar/admin",
             "titulo": "Productos",
             "descripcion": "Permite gestionar los productos"
         }, {
+            "id": 4,
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/ingreso-mercaderia/",
             "titulo": "Ingreso",
             "descripcion": "Permite ingresar mercadería"
         }, {
+            "id": 5,
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/reemplazo-mercaderia/",
             "titulo": "Reemplazo de mercadería",
@@ -180,11 +185,13 @@ class Usuario(Auditoria, AbstractUser):
             return list()
 
         operaciones = [{
+            "id": 6,
             "roles": [Rol.VENEDEDOR],
             "ruta": "/pedidos/vendedor",
             "titulo": "Pedidos",
             "descripcion": "Permite gestionar los pedidos online"
         }, {
+            "id": 7,
             "roles": [Rol.VENEDEDOR],
             "ruta": "/venta/listado",
             "titulo": "Venta",
