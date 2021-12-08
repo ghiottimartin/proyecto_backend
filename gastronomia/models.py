@@ -142,6 +142,24 @@ class Pedido(Auditoria, models.Model):
         lineas = self.lineas.all()
         return lineas
 
+    def get_color_fondo(self):
+        """
+            Devuelve el color de fondo del pedido.
+            @return: str
+        """
+        estado = self.ultimo_estado
+        if estado == Estado.ANULADO:
+            return "rgb(220 53 69 / 20%)"
+        if estado == Estado.RECIBIDO or estado == Estado.ENTREGADO:
+            return " rgb(40 167 69 / 20%)"
+        if estado == Estado.EN_CURSO:
+            return "rgb(0 123 255 / 20%)"
+        if estado == Estado.DISPONIBLE:
+            return "rgb(23 162 184 / 20%)"
+        if estado == Estado.ABIERTO:
+            return "rgb(108 117 125 / 20%)"
+        return ""
+
     # Actualiza el total del pedido, según los precios y cantidades de las líneas.
     def actualizar_total(self):
         lineas = self.lineas.all()

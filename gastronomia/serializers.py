@@ -154,6 +154,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['usuario_nombre'] = instance.usuario.first_name
         ret['usuario_direccion'] = instance.usuario.direccion
         ret['mostrar_usuario'] = logueado.esAdmin or logueado.esVendedor
+        ret['color_fondo'] = instance.get_color_fondo()
         return ret
 
     # Devuelve las operaciones de un pedido.
