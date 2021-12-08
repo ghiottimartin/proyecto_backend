@@ -55,6 +55,7 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
             usuario.habilitado = True
             usuario.observaciones = ""
             usuario.save()
+            email.enviar_email_usuario_habilitado(usuario)
             return respuesta.get_respuesta(True, "Usuario habilitado con éxito")
 
         # Actualizo datos del usuario.
