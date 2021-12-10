@@ -51,8 +51,9 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
         if isinstance(existente, Categoria):
             return respuesta.get_respuesta(False, "Ya existe una categoría con ese nombre")
 
-        descripcion = request.data.get('descripcion')
-        categoria = Categoria(nombre=nombre, descripcion=descripcion)
+        descripcion = request.data.get('descripcion', '')
+        descripcion_cortada = descripcion[:250] if len(descripcion) > 250 else descripcion
+        categoria = Categoria(nombre=nombre, descripcion=descripcion_cortada)
         categoria.save()
 
         serializer = CategoriaSerializer(instance=categoria)
