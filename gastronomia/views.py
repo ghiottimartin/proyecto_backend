@@ -276,7 +276,10 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
             pedido.anular_venta()
 
-            pedido.observaciones = motivo if motivo != "undefined" else ""
+            motivo_texto = motivo if motivo != "undefined" else ""
+            motivo_cortado = motivo_texto[:240] if len(motivo_texto) > 240 else motivo_texto
+            pedido.observaciones = motivo_cortado
+
             pedido.agregar_estado(Estado.ANULADO)
             pedido.save()
             email.enviar_email_pedido_anulado(pedido)
