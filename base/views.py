@@ -149,7 +149,9 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         motivo = request.query_params.get('motivo', "")
         if isinstance(motivo, str) and len(motivo) > 0:
             instance.habilitado = False
-            instance.observaciones = motivo
+
+            motivo_cortado = motivo[:240] if len(motivo) > 240 else motivo
+            instance.observaciones = motivo_cortado
             instance.save()
             email.enviar_email_usuario_deshabilitado(instance)
             return respuesta.get_respuesta(True, "El usuario ha sido inhabilitado con exito")
