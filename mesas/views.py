@@ -41,8 +41,9 @@ class MesaViewSet(viewsets.ModelViewSet):
                                                                 "número disponible es el " + str(proximo_disponible))
 
         descripcion = request.data.get('descripcion', '')
+        descripcion_cortada = descripcion[:99] if len(descripcion) > 99 else descripcion
 
-        mesa = crear_mesa(numero, descripcion)
+        mesa = crear_mesa(numero, descripcion_cortada)
         if isinstance(mesa, Mesa):
             return respuesta.get_respuesta(exito=True, mensaje="La mesa se ha creado con éxito.")
         return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al crear la mesa.")
@@ -63,8 +64,9 @@ class MesaViewSet(viewsets.ModelViewSet):
             return respuesta.get_respuesta(exito=False, mensaje="Ya existe una mesa con ese número. El próximo mayor "
                                                                 "número disponible es el " + str(proximo_disponible))
 
-        descripcion = request.data.get('descripcion')
-        actualizar_mesa(mesa=mesa, numero=numero, descripcion=descripcion)
+        descripcion = request.data.get('descripcion', '')
+        descripcion_cortada = descripcion[:99] if len(descripcion) > 99 else descripcion
+        actualizar_mesa(mesa=mesa, numero=numero, descripcion=descripcion_cortada)
         if isinstance(mesa, Mesa):
             return respuesta.get_respuesta(exito=True, mensaje="La mesa se ha editado con éxito.")
         return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al editar la mesa.")
