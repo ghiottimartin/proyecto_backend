@@ -187,18 +187,18 @@ class Usuario(Auditoria, AbstractUser):
     # Devuele las operaciones para el rol vendedor si tiene el rol indicado.
     def get_operaciones_vendedor(self):
         # Si no lo tiene devolvemos una lista vacía.
-        if self.esVendedor is not True:
+        if self.esVendedor is not True and self.esAdmin is not True:
             return list()
 
         operaciones = [{
             "id": 6,
-            "roles": [Rol.VENEDEDOR],
+            "roles": [Rol.VENEDEDOR, Rol.ADMINISTRADOR],
             "ruta": "/pedidos/vendedor",
             "titulo": "Pedidos",
             "descripcion": "Permite gestionar los pedidos online"
         }, {
             "id": 7,
-            "roles": [Rol.VENEDEDOR],
+            "roles": [Rol.VENEDEDOR, Rol.ADMINISTRADOR],
             "ruta": "/venta/listado",
             "titulo": "Venta",
             "descripcion": "Permite gestionar las ventas"
