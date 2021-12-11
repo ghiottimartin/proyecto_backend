@@ -125,7 +125,8 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
         limit = filtros.get("limit")
         filtros.pop("offset")
         filtros.pop("limit")
-        usuarios = Usuario.objects.filter(**filtros).exclude(roles__nombre__contains=Rol.ADMINISTRADOR).order_by('-auditoria_creado_fecha')[offset:limit]
+        usuarios = Usuario.objects.filter(**filtros).exclude(roles__nombre__contains=Rol.ADMINISTRADOR).order_by(
+            '-auditoria_creado_fecha')[offset:limit]
         return usuarios
 
     # Lista los usuarios aplicando los filtros.
@@ -184,7 +185,8 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def mozos(self, request, pk=None):
         try:
-            objetos = Usuario.objects.filter(roles__nombre__contains=Rol.MOZO).exclude(roles__nombre__contains=Rol.ADMINISTRADOR)
+            objetos = Usuario.objects.filter(roles__nombre__contains=Rol.MOZO).exclude(
+                roles__nombre__contains=Rol.ADMINISTRADOR)
             serializer = UsuarioSerializer(instance=objetos, many=True)
             mozos = serializer.data
         except:
@@ -199,7 +201,6 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
             return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
         except FileNotFoundError:
             return respuesta.get_respuesta(exito=False, mensaje="Hubo un error al descargar el pdf.")
-
 
 
 def crear_usuario(enviar, request):
@@ -223,8 +224,7 @@ def crear_usuario(enviar, request):
         usuario.agregar_rol_comensal()
     usuario.habilitado = False
     usuario.save()
-    if enviar:
-        email.enviar_email_registro(usuario)
+    email.enviar_email_registro(usuario)
     return respuesta.exito()
 
 
