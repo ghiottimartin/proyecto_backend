@@ -224,9 +224,21 @@ class Ingreso(Auditoria, models.Model):
 
     # Devuelve true si el usuario puede anular el ingreso.
     def comprobar_puede_anular(self, usuario):
+        errores = []
         es_admin = usuario.esAdmin
+        es_vendedor = usuario.esVendedor
         anulado = self.comprobar_anulado()
-        return es_admin and not anulado
+        if anulado:
+            errores.append('El Ingreso ' + self.get_id_texto() + ' ya se encuentra anulado.')
+        lineas = self.lineas.all()
+        for linea in lineas:
+            negativo = linea.comprobar_anula_stock_negativo()
+            if negativo:
+                producto = linea.producto
+                nombre = producto.nombre
+                errores.append('El stock del producto "' + nombre + '" no puede ser negativo.')
+
+        return len(errores) == 0 and (es_admin or es_vendedor)
 
     # Devuelve true si el usuario puede visualizar movimientos de stock del ingreso.
     def comprobar_puede_ver_movimientos(self, usuario):
@@ -272,7 +284,7 @@ class Ingreso(Auditoria, models.Model):
         anulado = self.comprobar_anulado()
         if anulado:
             return 'Anulado'
-        return 'Activo'
+        return 'Cerrado'
 
     # Devuelve el id legible del ingreso.
     def get_id_texto(self):
@@ -343,6 +355,17 @@ class IngresoLinea(models.Model):
         descripcion = "Ingreso I" + id_texto + " anulado"
         movimiento = MovimientoStock(producto=producto, cantidad=cantidadAnulada, descripcion=descripcion, ingreso_linea=self)
         movimiento.save()
+
+    def comprobar_anula_stock_negativo(self):
+        """
+            Devuelve true si al anular la línea actual el stock del producto queda negativo.
+            @return: bool
+        """
+        cantidad = self.cantidad
+        producto = self.producto
+        stock = producto.stock
+        diferencia = stock - cantidad
+        return diferencia < 0
 
     def __str__(self):
         return "Línea de " + self.ingreso.__str__()

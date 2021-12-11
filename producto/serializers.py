@@ -196,7 +196,7 @@ class IngresoSerializer(serializers.ModelSerializer):
             })
 
         puede_anular = objeto.comprobar_puede_anular(logueado)
-        if False and puede_anular:
+        if puede_anular:
             accion = 'anular'
             operaciones.append({
                 'accion': accion,
