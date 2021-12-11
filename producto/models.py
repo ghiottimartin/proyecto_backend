@@ -426,7 +426,7 @@ class ReemplazoMercaderia(Auditoria, models.Model):
         anulado = self.comprobar_anulado()
         if anulado:
             return 'Anulado'
-        return 'Activo'
+        return 'Cerrado'
 
     # Devuelve el id en formato de texto del reemplazo de mercadería.
     def get_id_texto(self):
