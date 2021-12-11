@@ -33,12 +33,7 @@ class MesaViewSet(viewsets.ModelViewSet):
 
         repetido = comprobar_numero_repetido(numero)
         if repetido:
-            proximo_disponible = "1"
-            ultima = Mesa.objects.order_by('-numero').first()
-            if isinstance(ultima, Mesa):
-                proximo_disponible = str(ultima.numero + 1)
-            return respuesta.get_respuesta(exito=False, mensaje="Ya existe una mesa con ese número. El próximo mayor "
-                                                                "número disponible es el " + str(proximo_disponible))
+            return respuesta.get_respuesta(exito=False, mensaje="Ya existe una mesa con ese número.")
 
         descripcion = request.data.get('descripcion', '')
         descripcion_cortada = descripcion[:99] if len(descripcion) > 99 else descripcion
