@@ -269,7 +269,7 @@ class Ingreso(Auditoria, models.Model):
         if anulado:
             clase += ' text-danger'
         else:
-            clase += ' text-success'
+            clase += ' text-secondary'
         return clase
 
     # Devuelve la fecha de anulación del ingreso. En caso que no haya sido anulado devuelve string vacío.
@@ -411,7 +411,7 @@ class ReemplazoMercaderia(Auditoria, models.Model):
         if anulado:
             clase += ' text-danger'
         else:
-            clase += ' text-success'
+            clase += ' text-secondary'
         return clase
 
     # Devuelve la fecha de anulación del reemplazo de mercadería. En caso que no haya sido anulado devuelve string vacío.
