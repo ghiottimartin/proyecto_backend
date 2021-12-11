@@ -221,6 +221,7 @@ def crear_usuario(enviar, request):
         usuario.actualizar_roles(request.data)
     else:
         usuario.agregar_rol_comensal()
+    usuario.habilitado = False
     usuario.save()
     if enviar:
         email.enviar_email_registro(usuario)
