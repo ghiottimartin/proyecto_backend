@@ -44,6 +44,13 @@ class ABMCategoriaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, TieneRolAdmin]
 
     def create(self, request, *args, **kwargs):
+        """
+            Crea una categoría de producto.
+            @param request:
+            @param args:
+            @param kwargs:
+            @return:
+        """
         nombre = request.data.get('nombre')
         try:
             existente = Categoria.objects.filter(nombre=nombre).first()
@@ -184,7 +191,13 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-
+        """
+        Crea un producto.
+            @param request:
+            @param args:
+            @param kwargs:
+            @return:
+        """
         datos = request.data
         errores = get_errores_crear_producto(datos)
         if len(errores) > 0:
@@ -302,6 +315,13 @@ class ABMIngresoViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        """
+            Crea un ingreso.
+            @param request:
+            @param args:
+            @param kwargs:
+            @return:
+        """
         datos = request.data
         try:
             validar_crear_ingreso(datos)
@@ -530,6 +550,9 @@ class ReemplazoMercaderiViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        """
+            Crea un reemplazo de mercadería.
+        """
         datos = request.data
         try:
             validar_crear_reemplazo_mercaderia(datos)

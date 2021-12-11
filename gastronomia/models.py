@@ -202,8 +202,24 @@ class Pedido(Auditoria, models.Model):
             self.ultimo_estado = ultimo_coleccion
             self.save()
 
-    def actualizar_stock(self):
-        pass
+    def actualizar_stock(self, anteriores):
+        """
+        Actualiza el stock
+        @param anteriores:
+        @return:
+        """
+        for anterior in anteriores:
+            nueva = anterior["id"] == 0
+            id_producto = anterior["producto"]["id"]
+            lineas = self.lineas.all()
+            for linea in lineas:
+                mismo = linea.comprobar_mismo_producto(id_producto)
+                cantidad = linea.cantidad
+                cantidad_anterior = anterior["cantidad"]
+                if mismo and nueva:
+                    linea.actualizar_stock()
+                if mismo and not nueva and cantidad != cantidad_anterior:
+                    linea.actualizar_stock(anterior=cantidad_anterior)
 
     # Borra todos los estados y líneas del pedido.
     def borrar_datos_pedido(self):
@@ -345,6 +361,39 @@ class PedidoLinea(models.Model):
         self.total = total
         self.save()
 
+    def actualizar_stock(self, anterior=None):
+        """
+            Actualiza el stock del producto de la línea.
+            @param anterior: int|None
+            @return: None
+        """
+        pedido = self.pedido
+        id_texto = pedido.get_id_texto()
+        producto = self.producto
+        stock = producto.stock
+        cantidad = self.cantidad
+        if anterior is None:
+            nuevo_stock = stock - cantidad
+            producto.actualizar_stock(nueva=nuevo_stock, descripcion="Creación de línea de Pedido " + id_texto)
+        else:
+            diferencia = cantidad - anterior
+            nuevo_stock = stock - diferencia
+            producto.actualizar_stock(nueva=nuevo_stock, descripcion="Actualización de línea de Pedido " + id_texto)
+
+    def limpiar_stock(self):
+        """
+        Limpia el stock
+        @return:
+        """
+        cantidad = self.cantidad
+        producto = self.producto
+        stock = producto.stock
+        stock_nuevo = stock + cantidad
+        pedido = self.pedido
+        id_texto = pedido.get_id_texto()
+        producto.actualizar_stock(nueva=stock_nuevo, descripcion="Borrado de línea de Pedido " + id_texto)
+        producto.save()
+
     def get_cantidad_comanda(self):
         """
             Devuelve la cantidad a preparar del cocinero para el producto de la línea actual.
@@ -362,6 +411,15 @@ class PedidoLinea(models.Model):
         if idProducto != actual.id:
             return None
         return self.cantidad
+    
+    def comprobar_mismo_producto(self, id_producto):
+        """
+            Comprueba si el id de producto es el mismo que el producto de la línea actual.
+            @param id_producto: int
+            @return: bool
+        """
+        producto = self.producto
+        return producto.id == id_producto
 
 
 class Venta(Auditoria, models.Model):

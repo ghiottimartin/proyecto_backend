@@ -9,6 +9,7 @@ from django.db import transaction
 from django.http import FileResponse
 from gastronomia.repositorio import get_pedido, validar_crear_pedido, crear_pedido, actualizar_pedido, cerrar_pedido, \
     get_venta, validar_crear_venta, crear_venta, get_pdf_comanda
+from gastronomia.serializers import LineaSerializer
 import io
 from reportlab.pdfgen import canvas
 from rest_framework import viewsets
@@ -179,6 +180,13 @@ class PedidoViewSet(viewsets.ModelViewSet):
     # Crea un pedido.
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        """
+            Crea un pedido.
+            @param request:
+            @param args:
+            @param kwargs:
+            @return:
+        """
         usuario = request.user
         try:
             datos = request.data
@@ -190,9 +198,15 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
             id = datos["id"] if "id" in datos else 0
             lineas = datos["lineas"]
+            lineas_anteriores = lineas
+            anteriores = []
             if id <= 0:
                 pedido = crear_pedido(usuario, lineas)
             else:
+                anterior = get_pedido(pk=id)
+                anteriores = anterior.lineas.all()
+                lineas_serializer = LineaSerializer(instance=anteriores, many=True)
+                lineas_anteriores = lineas_serializer.data
                 pedido = actualizar_pedido(id, lineas)
 
             if pedido is not None and not isinstance(pedido, Pedido) and len(pedido) > 0:
@@ -200,11 +214,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
                 mensaje += ''.join(pedido)
                 return respuesta.get_respuesta(exito=True, datos={'errores': mensaje})
 
-            if pedido is not None:
-                pedido.actualizar_stock()
+            if pedido is None:
+                for anterior in anteriores:
+                    anterior.limpiar_stock()
+            else:
+                pedido.actualizar_stock(lineas_anteriores)
                 pedido.save()
-
-            if pedido is not None:
                 serializer = PedidoSerializer(instance=pedido)
                 datos = serializer.data
             return respuesta.get_respuesta(True, "", None, datos)
@@ -213,6 +228,10 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
     # Borra un pedido por id.
     def destroy(self, request, *args, **kwargs):
+        pedido = self.get_object()
+        lineas = pedido.lineas.all()
+        for linea in lineas:
+            linea.limpiar_stock()
         super().destroy(request, *args, **kwargs)
         return respuesta.get_respuesta(True, "Pedido borrado con éxito.")
 
@@ -295,6 +314,10 @@ class PedidoViewSet(viewsets.ModelViewSet):
             pedido.observaciones = motivo_cortado
 
             pedido.agregar_estado(Estado.ANULADO)
+
+            lineas = pedido.lineas.all()
+            for linea in lineas:
+                linea.limpiar_stock()
             pedido.save()
             email.enviar_email_pedido_anulado(pedido)
             return respuesta.get_respuesta(exito=True, mensaje="El pedido se ha anulado con éxito.")
@@ -339,6 +362,13 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        """
+            Crea una venta.
+            @param request:
+            @param args:
+            @param kwargs:
+            @return:
+        """
         datos = request.data
         try:
             validar_crear_venta(datos)
