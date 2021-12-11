@@ -134,6 +134,19 @@ class Pedido(Auditoria, models.Model):
         cambio = self.cambio
         return cambio > 0.00
 
+    def get_cantidad_producto(self, producto):
+        """
+            Busca la cantidad solicitada del producto.
+            @param producto: Producto
+            @return: int|None
+        """
+        lineas = self.lineas.all()
+        for linea in lineas:
+            cantidad = linea.get_cantidad_producto(producto)
+            if cantidad is not None:
+                return cantidad
+        return 0
+
     def get_lineas_comanda(self):
         """
             Devuelve las líneas a imprimir en la comanda.
@@ -337,6 +350,17 @@ class PedidoLinea(models.Model):
             Devuelve la cantidad a preparar del cocinero para el producto de la línea actual.
             @return: int
         """
+        return self.cantidad
+
+    def get_cantidad_producto(self, idProducto):
+        """
+            Devuelve la cantidad solicitada del producto para la línea actual, si el producto no coincide devulve None
+            @param idProducto: Producto
+            @return: int|None
+        """
+        actual = self.producto
+        if idProducto != actual.id:
+            return None
         return self.cantidad
 
 

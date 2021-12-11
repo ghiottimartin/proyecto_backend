@@ -4,6 +4,8 @@ from base.permisos import TieneRolAdmin
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F
+from gastronomia.repositorio import get_pedido
+from gastronomia.models import Estado
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -177,7 +179,7 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, TieneRolAdmin]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     @transaction.atomic
@@ -267,13 +269,19 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
     # Lista los productos aplicando los filtros.
     @action(detail=False, methods=['get'])
     def listado_admin(self, request, *args, **kwargs):
-        logueado = request.user
-        if not logueado.esAdmin:
-            return respuesta.get_respuesta(False, "No está autorizado para listar los productos.", 401)
         productos = filtrar_productos(request)
         if len(productos) > 0:
             serializer = ProductoSerializer(instance=productos, many=True)
             productos = serializer.data
+
+        abierto = request.query_params.get('abierto', '')
+        pedido = None
+        if abierto == 'true':
+            usuario = request.user
+            pedido = get_pedido(usuario=usuario, estado=Estado.ABIERTO)
+        if pedido is not None:
+            for producto in productos:
+                producto['cantidad_pedida'] = pedido.get_cantidad_producto(producto['id'])
 
         cantidad = get_cantidad_registros(request)
         total = Producto.objects.count()

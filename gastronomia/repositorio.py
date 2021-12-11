@@ -143,14 +143,12 @@ def actualizar_lineas_pedido(pedido, lineas):
         nombre = producto.nombre
         if not tiene_stock:
             errores.append("No hay suficiente stock del producto '" + nombre)
-        if len(errores) > 0:
-            return errores
 
         if objeto is not None and objeto.id is not None:
             objeto.actualizar_total()
             objeto.save()
 
-        return errores
+    return errores
 
 
 def get_linea_pedido(id_pedido, id_producto):
