@@ -156,16 +156,19 @@ def validar_crear_reemplazo_mercaderia(datos):
                 raise ValidationError("El reemplazo no tiene los datos suficientes para ser guardado. No se ha "
                                       "encontrado el producto de id " + str(id_producto) + ".")
 
-            cantidad_egreso = int(linea["cantidad_egreso"]) if "cantidad_egreso" in linea else 0
+            if cantidad_ingreso is None:
+                cantidad_ingreso = 0
+            if not isinstance(cantidad_ingreso, int) or int(cantidad_ingreso) < 0:
+                ingresos_validos = False
+
+            cantidad_egreso = linea["cantidad_egreso"] if "cantidad_egreso" in linea else 0
+            if cantidad_egreso is None:
+                cantidad_egreso = 0
             if not isinstance(cantidad_egreso, int) or int(cantidad_egreso) < 0:
                 egresos_validos = False
 
-            cantidad_egreso = int(linea["cantidad_egreso"]) if "cantidad_egreso" in linea else 0
-            if not isinstance(cantidad_egreso, int) or int(cantidad_egreso) < 0:
-                egresos_validos = False
-
-        if not egresos_validos or not ingresos_validos:
-                raise ValidationError("Las cantidades de ingreso y egreso no pueden ser negativas")
+        if egresos_validos == False or ingresos_validos == False:
+            raise ValidationError("Las cantidades de ingreso y egreso no pueden ser negativas")
 
 
 # Crea un nuevo reemplazo de mercadería.
