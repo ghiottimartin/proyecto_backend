@@ -189,6 +189,9 @@ class Pedido(Auditoria, models.Model):
             self.ultimo_estado = ultimo_coleccion
             self.save()
 
+    def actualizar_stock(self):
+        pass
+
     # Borra todos los estados y líneas del pedido.
     def borrar_datos_pedido(self):
         self.estados.all().delete()

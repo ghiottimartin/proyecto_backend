@@ -29,11 +29,14 @@ def get_venta(pk):
 # Valida que los datos del pedido sean correctos.
 def validar_crear_pedido(datos):
     id = datos["id"] if "id" in datos else 0
+    errores = []
     if not isinstance(int(id), int) or int(id < 0):
-        raise ValidationError("El pedido no tiene los datos suficientes para ser guardado.")
+        errores.append("El pedido no tiene los datos suficientes para ser guardado.")
+        return errores
+
     lineas = datos["lineas"] if "lineas" in datos else list()
     if not isinstance(lineas, list):
-        raise ValidationError("Debe seleccionar al menos un producto.")
+        errores.append("Debe seleccionar al menos un producto.")
     else:
         for linea in lineas:
             try:
@@ -41,10 +44,11 @@ def validar_crear_pedido(datos):
             except:
                 id_producto = 0
             if id_producto <= 0:
-                raise ValidationError("No se ha encontrado el producto.")
+                errores.append("No se ha encontrado el producto.")
             cantidad = int(linea["cantidad"]) if "cantidad" in linea else 0
             if not isinstance(cantidad, int):
-                raise ValidationError("La cantidad del producto debe tener un valor numérico.")
+                errores.append("La cantidad del producto debe tener un valor numérico.")
+    return errores
 
 
 def crear_pedido(usuario, lineas):
@@ -54,8 +58,16 @@ def crear_pedido(usuario, lineas):
         return actualizar_pedido(id, lineas)
     pedido = Pedido(usuario=usuario, ultimo_estado=Estado.ABIERTO, total=0)
     pedido.save()
+
+    errores = []
     for item in lineas:
-        crear_linea_pedido(pedido, item)
+        linea = crear_linea_pedido(pedido, item)
+        if not isinstance(linea, PedidoLinea):
+            errores += linea
+
+    if len(errores) > 0:
+        return errores
+
     vacio = pedido.comprobar_vacio()
     if vacio:
         pedido.borrar_datos_pedido()
@@ -66,20 +78,24 @@ def crear_pedido(usuario, lineas):
 
 
 def crear_linea_pedido(pedido, item):
+    errores = []
     id_producto = item["producto"]["id"]
     existente = get_linea_pedido(id_pedido=pedido.id, id_producto=id_producto)
     if existente is not None:
         return existente
     producto = get_producto(item["producto"]["id"])
     if producto is None:
-        raise Exception("No se ha encontrado el producto.")
+        errores.append("No se ha encontrado el producto.")
     cantidad = item["cantidad"]
     if int(cantidad) == 0:
-        return None
+        return []
     tiene_stock = producto.comprobar_tiene_stock(cantidad)
     nombre = producto.nombre
     if not tiene_stock:
-        raise Exception("No hay suficiente stock a la venta para el producto '" + nombre)
+        errores.append("No hay suficiente stock a la venta para el producto '" + nombre)
+
+    if len(errores) > 0:
+        return errores
 
     linea = PedidoLinea(pedido=pedido, producto=producto, cantidad=cantidad)
     linea.actualizar_total()
@@ -89,9 +105,13 @@ def crear_linea_pedido(pedido, item):
 
 def actualizar_pedido(id, lineas):
     pedido = get_pedido(pk=id)
+    errores = []
     if pedido is None:
-        raise ValidationError("No se ha encontrado el pedido.")
-    actualizar_lineas_pedido(pedido, lineas)
+        errores.append("No se ha encontrado el pedido.")
+    errores = actualizar_lineas_pedido(pedido, lineas)
+    if not isinstance(errores, PedidoLinea) and len(errores) > 0:
+        return errores
+
     vacio = pedido.comprobar_vacio()
     if vacio:
         pedido.borrar_datos_pedido()
@@ -102,6 +122,7 @@ def actualizar_pedido(id, lineas):
 
 
 def actualizar_lineas_pedido(pedido, lineas):
+    errores = []
     for linea in lineas:
         id_linea = linea["id"]
         id_pedido = pedido.id
@@ -109,7 +130,7 @@ def actualizar_lineas_pedido(pedido, lineas):
         objeto = get_linea_pedido(id_pedido, id_producto)
         cantidad = linea["cantidad"]
         if objeto is None and id_linea > 0:
-            raise ValidationError("No se ha encontrado al línea del pedido de id " + id_linea)
+            errores.append("No se ha encontrado al línea del pedido de id " + id_linea)
         elif id_linea == 0:
             objeto = crear_linea_pedido(pedido, linea)
         if cantidad == 0 and objeto is not None:
@@ -121,11 +142,15 @@ def actualizar_lineas_pedido(pedido, lineas):
         tiene_stock = producto.comprobar_tiene_stock(cantidad)
         nombre = producto.nombre
         if not tiene_stock:
-            raise ValidationError("No hay suficiente stock a la venta para el producto '" + nombre)
+            errores.append("No hay suficiente stock del producto '" + nombre)
+        if len(errores) > 0:
+            return errores
 
         if objeto is not None and objeto.id is not None:
             objeto.actualizar_total()
             objeto.save()
+
+        return errores
 
 
 def get_linea_pedido(id_pedido, id_producto):

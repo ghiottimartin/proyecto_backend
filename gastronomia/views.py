@@ -182,20 +182,34 @@ class PedidoViewSet(viewsets.ModelViewSet):
         usuario = request.user
         try:
             datos = request.data
-            validar_crear_pedido(datos)
+            errores = validar_crear_pedido(datos)
+            if len(errores) > 0:
+                mensaje = "Se produjeron los siguientes errores: "
+                mensaje += ''.join(errores)
+                return respuesta.get_respuesta(exito=True, mensaje=mensaje)
+
             id = datos["id"] if "id" in datos else 0
             lineas = datos["lineas"]
             if id <= 0:
                 pedido = crear_pedido(usuario, lineas)
             else:
                 pedido = actualizar_pedido(id, lineas)
-            datos = {"pedido": "borrado"}
+
+            if pedido is not None and not isinstance(pedido, Pedido) and len(pedido) > 0:
+                mensaje = "Se produjeron los siguientes errores: "
+                mensaje += ''.join(pedido)
+                return respuesta.get_respuesta(exito=True, datos={'errores': mensaje})
+
+            if pedido is not None:
+                pedido.actualizar_stock()
+                pedido.save()
+
             if pedido is not None:
                 serializer = PedidoSerializer(instance=pedido)
                 datos = serializer.data
             return respuesta.get_respuesta(True, "", None, datos)
         except ValidationError as e:
-            return respuesta.get_respuesta(False, e.messages)
+            return respuesta.get_respuesta(exito=False, mensaje="Ha ocurrido un error al actualizar el pedido")
 
     # Borra un pedido por id.
     def destroy(self, request, *args, **kwargs):
