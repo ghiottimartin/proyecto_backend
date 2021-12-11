@@ -128,7 +128,7 @@ class Turno(Auditoria, models.Model):
 
     mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE, related_name="turnos")
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name="+", null=True)
-    mozo = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="+", null=True)
+    mozo = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name="turnos", null=True)
     estado = models.CharField(max_length=30, default=ABIERTO)
     hora_inicio = models.DateTimeField(default=datetime.datetime.now)
     hora_fin = models.DateTimeField(null=True)

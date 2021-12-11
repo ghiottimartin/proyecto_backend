@@ -132,14 +132,10 @@ class Usuario(Auditoria, AbstractUser):
 
     # Devuelve true si el usuario no ha creado entidades en el sistema.
     def comprobar_puede_borrarse(self):
-        ingresos = self.ingresos.all().count()
-        pedidos = self.pedidos.all().count()
-        productos_creados = self.productos_creados.all().count()
-        productos_modificados = self.productos_modificados.all().count()
-        cat_creadas = self.categorias_creadas.all().count()
-        cat_modificadas = self.categorias_modificadas.all().count()
-        cantidad = ingresos + pedidos + productos_creados + productos_modificados + cat_creadas + cat_modificadas
-        return cantidad == 0
+        return self.ingresos.all().count() == 0 and self.pedidos.all().count() == 0 and self.pedidos.all().count() == 0 \
+               and self.turnos.all().count() == 0 and self.reemplazos.all().count() == 0 \
+               and self.productos_creados.all().count() == 0 and self.productos_modificados.all().count() == 0 \
+               and self.categorias_creadas.all().count() == 0 and self.categorias_modificadas.all().count() == 0
 
     # Devuelve las operaciones del usuario según los roles del mismo.
     def get_operaciones(self):
