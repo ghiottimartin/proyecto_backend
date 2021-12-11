@@ -509,23 +509,19 @@ class OrdenProducto(models.Model):
             Actualiza el stock del producto según la cantidad entregada cantidad_anterior y la nueva.
             @return: None
         """
-        turno = self.turno
-        anulado = turno.comprobar_anulado()
-        if anulado:
-            return []
-
-        errores = []
         if cantidad_nueva == cantidad_anterior:
             return []
 
         producto = self.producto
         stock = producto.stock
         actualizado = stock + cantidad_anterior - cantidad_nueva
+        errores = []
         if actualizado < 0:
             errores.append("No hay suficiente stock para el producto " + producto.nombre + ", quedan " + str(stock))
             return errores
 
-        mesa = self.turno.mesa
+        turno = self.turno
+        mesa = turno.mesa
         fecha = datetime.datetime.now().strftime('%d/%m/%Y %H:%M')
         accion_upper = accion.title()
         descripcion = accion_upper + " de la orden del turno de la mesa " + mesa.get_numero_texto() + " " + fecha
