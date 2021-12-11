@@ -156,6 +156,7 @@ def validar_crear_reemplazo_mercaderia(datos):
                 raise ValidationError("El reemplazo no tiene los datos suficientes para ser guardado. No se ha "
                                       "encontrado el producto de id " + str(id_producto) + ".")
 
+            cantidad_ingreso = linea["cantidad_ingreso"] if "cantidad_ingreso" in linea else 0
             if cantidad_ingreso is None:
                 cantidad_ingreso = 0
             if not isinstance(cantidad_ingreso, int) or int(cantidad_ingreso) < 0:

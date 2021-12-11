@@ -383,9 +383,21 @@ class ReemplazoMercaderia(Auditoria, models.Model):
 
     # Devuelve true si el usuario puede anular el reemplazo de mercadería.
     def comprobar_puede_anular(self, usuario):
+        errores = []
         es_admin = usuario.esAdmin
+        es_vendedor = usuario.esVendedor
         anulado = self.comprobar_anulado()
-        return es_admin and not anulado
+        if anulado:
+            errores.append('El Reemplazo ' + self.get_id_texto() + ' ya se encuentra anulado.')
+        lineas = self.lineas.all()
+        for linea in lineas:
+            negativo = linea.comprobar_anula_stock_negativo()
+            if negativo:
+                producto = linea.producto
+                nombre = producto.nombre
+                errores.append('El stock del producto "' + nombre + '" no puede ser negativo.')
+
+        return len(errores) == 0 and (es_admin or es_vendedor)
 
     # Devuelve true si ingreso no está anulado.
     def comprobar_anulado(self):
@@ -462,6 +474,19 @@ class ReemplazoMercaderiaLinea(models.Model):
         id_texto = self.get_id_texto()
         producto.actualizar_stock(nueva=anterior, reemplazo_linea=self, descripcion="Anulación de Reemplazo de "
                                                                                     "Mercadería " + id_texto)
+
+    def comprobar_anula_stock_negativo(self):
+        """
+            Devuelve true si al anular la línea actual el stock del producto queda negativo.
+            @return: bool
+        """
+        egreso = self.cantidad_egreso
+        ingreso = self.cantidad_ingreso
+        diferencia = ingreso - egreso
+        producto = self.producto
+        stock = producto.stock
+        stock_final = stock + diferencia
+        return stock_final < 0
 
     def get_id_texto(self):
         """
