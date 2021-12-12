@@ -77,7 +77,9 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
 
     # Devuelve los filtros de la query.
     def get_filtros(self, request):
-        filtros = {}
+        filtros = {
+            'borrado': False
+        }
 
         # Agrega filtros por nombre de usuario
         nombre = request.query_params.get('nombre', None)
