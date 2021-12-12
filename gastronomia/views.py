@@ -643,6 +643,5 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
         venta = get_venta(pk)
         if venta is None:
             return respuesta.get_respuesta(exito=False, mensaje="No se ha encontrado la venta a exportar.")
-
-        venta.actualizar_impresion_mesa()
+        
         return get_pdf_comanda(venta=venta)
