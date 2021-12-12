@@ -111,7 +111,7 @@ class Producto(Auditoria, models.Model):
     def comprobar_alerta_stock(self):
         actual = self.stock
         alerta = self.stock_seguridad
-        return actual < alerta
+        return int(actual) < int(alerta)
 
     # Comprueba si hay stock para vender el producto.
     def comprobar_tiene_stock(self, cantidad):
