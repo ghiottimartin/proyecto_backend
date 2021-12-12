@@ -121,7 +121,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
     def listado_vendedor(self, request, pk=None):
         logueado = request.user
         pedidos = []
-        if logueado.esVendedor:
+        if logueado.esVendedor or logueado.esAdmin:
             pedidos = self.filtrar_pedidos(request)
         else:
             return respuesta.get_respuesta(False, "No está autorizado para listar los pedidos vendidos.", 401)
