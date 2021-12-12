@@ -298,7 +298,7 @@ class Pedido(Auditoria, models.Model):
         vuelto = cambio - total
         if vuelto < 0:
             return 'No solicitó'
-        return "$ " + str(vuelto)
+        return "$ " + str(round(vuelto, 2))
 
     def get_total_texto(self):
         total = self.total
@@ -645,7 +645,7 @@ class Venta(Auditoria, models.Model):
         vuelto = cambio - total
         if vuelto < 0:
             return 'No solicitó'
-        return "$ " + str(vuelto)
+        return "$ " + str(round(vuelto, 2))
 
     def get_direccion_texto(self):
         """
