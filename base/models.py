@@ -143,7 +143,7 @@ class Usuario(Auditoria, AbstractUser):
         operaciones_vendedor = self.get_operaciones_vendedor()
         generales = [{
             "id": 1,
-            "titular": Rol.ADMINISTRADOR,
+            "titular": Rol.VENEDEDOR,
             "roles": [Rol.ADMINISTRADOR, Rol.VENEDEDOR],
             "ruta": "/usuarios/listar",
             "titulo": "Usuarios",
