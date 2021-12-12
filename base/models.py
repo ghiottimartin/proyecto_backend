@@ -143,6 +143,7 @@ class Usuario(Auditoria, AbstractUser):
         operaciones_vendedor = self.get_operaciones_vendedor()
         generales = [{
             "id": 1,
+            "titular": Rol.ADMINISTRADOR,
             "roles": [Rol.ADMINISTRADOR, Rol.VENEDEDOR],
             "ruta": "/usuarios/listar",
             "titulo": "Usuarios",
@@ -150,6 +151,7 @@ class Usuario(Auditoria, AbstractUser):
         },
         {
             "id": 2,
+            "titular": Rol.MOZO,
             "roles": [Rol.ADMINISTRADOR, Rol.MOZO],
             "ruta": "/mesas/listar",
             "titulo": "Mesas",
@@ -165,18 +167,21 @@ class Usuario(Auditoria, AbstractUser):
 
         operaciones = [{
             "id": 3,
+            "titular": Rol.ADMINISTRADOR,
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/productos/listar/admin",
             "titulo": "Productos",
             "descripcion": "Permite gestionar los productos"
         }, {
             "id": 4,
+            "titular": Rol.ADMINISTRADOR,
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/ingreso-mercaderia/",
             "titulo": "Ingreso",
             "descripcion": "Permite ingresar mercadería"
         }, {
             "id": 5,
+            "titular": Rol.ADMINISTRADOR,
             "roles": [Rol.ADMINISTRADOR],
             "ruta": "/reemplazo-mercaderia/",
             "titulo": "Reemplazo de mercadería",
@@ -192,12 +197,14 @@ class Usuario(Auditoria, AbstractUser):
 
         operaciones = [{
             "id": 6,
+            "titular": Rol.VENEDEDOR,
             "roles": [Rol.VENEDEDOR, Rol.ADMINISTRADOR],
             "ruta": "/pedidos/vendedor",
             "titulo": "Pedidos",
             "descripcion": "Permite gestionar los pedidos online"
         }, {
             "id": 7,
+            "titular": Rol.VENEDEDOR,
             "roles": [Rol.VENEDEDOR, Rol.ADMINISTRADOR],
             "ruta": "/venta/listado",
             "titulo": "Venta",
