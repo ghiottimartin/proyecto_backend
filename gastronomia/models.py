@@ -551,7 +551,7 @@ class Venta(Auditoria, models.Model):
         if anulado:
             clase += ' text-danger'
         else:
-            clase += ' text-success'
+            clase += ' text-secondary'
         return clase
 
     # Devuelve la fecha de anulación de la venta. En caso que no haya sido anulada devuelve string vacío.
@@ -566,7 +566,7 @@ class Venta(Auditoria, models.Model):
         anulado = self.comprobar_anulada()
         if anulado:
             return 'Anulada'
-        return 'Activa'
+        return 'Cerrada'
 
     # Devuelve el id legible de la venta.
     def get_id_texto(self):
