@@ -1,3 +1,4 @@
+from base.signals import get_usuario_logueado
 from django.contrib.auth.hashers import make_password
 from django.conf import settings
 from django.db import transaction
@@ -121,6 +122,15 @@ class ABMUsuarioViewSet(viewsets.ModelViewSet):
     # Devuelve los usuarios según los filtros de la query
     def filtrar_usuarios(self, request):
         filtros = self.get_filtros(request)
+
+        logueado = get_usuario_logueado()
+        esAdmin = logueado.esAdmin
+        if not esAdmin:
+            rol = filtros["roles__nombre__contains"] if "roles__nombre__contains" in filtros else ""
+            if 'roles__nombre__contains' in filtros:
+                filtros.pop('roles__nombre__contains')
+            filtros["roles__nombre__in"] = [rol, Rol.COMENSAL] if rol != "" else [Rol.COMENSAL]
+
         offset = filtros.get("offset")
         limit = filtros.get("limit")
         filtros.pop("offset")
