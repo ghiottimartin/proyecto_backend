@@ -72,7 +72,7 @@ def get_errores_crear_producto(datos, producto=None):
         errores.append("Debe indicar el stock del producto.")
 
     stock_seguridad = datos["stock_seguridad"] if "stock_seguridad" in datos else 0
-    if not isinstance(int(stock_seguridad), int):
+    if stock_seguridad != '' and stock_seguridad.isnumeric() and not isinstance(int(stock_seguridad), int):
         errores.append("Debe indicar la cantidad de alerta de stock del producto.")
 
     precio_vigente = datos["precio_vigente"] if "precio_vigente" in datos else 0

@@ -245,8 +245,8 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         stock = int(request.data["stock"])
         producto.actualizar_stock(nueva=stock)
 
-        stock_seguridad = int(request.data["stock_seguridad"])
-        producto.stock_seguridad = stock_seguridad
+        stock_seguridad = request.data["stock_seguridad"]
+        producto.stock_seguridad = stock_seguridad if stock_seguridad != '' else 0
 
         producto_costo_validos = producto.comprobar_producto_costo_validos(costo, precio)
         if not producto_costo_validos and venta_directa:
