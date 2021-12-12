@@ -236,10 +236,10 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         costo = float(request.data["costo_vigente"])
         producto.agregar_costo(nuevo=costo)
 
-        compra_directa = bool(request.data["compra_directa"])
+        compra_directa = request.data["compra_directa"] == 'true'
         producto.compra_directa = compra_directa
 
-        venta_directa = bool(request.data["venta_directa"])
+        venta_directa = request.data["venta_directa"] == 'true'
         producto.venta_directa = venta_directa
 
         stock = int(request.data["stock"])
@@ -249,7 +249,7 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         producto.stock_seguridad = stock_seguridad
 
         producto_costo_validos = producto.comprobar_producto_costo_validos(costo, precio)
-        if not producto_costo_validos:
+        if not producto_costo_validos and venta_directa:
             return respuesta.get_respuesta(False, "El costo del producto debe ser mayor que el precio del mismo.", None)
 
         descripcion = request.data.get('descripcion', '')

@@ -89,6 +89,14 @@ class Producto(Auditoria, models.Model):
         valido = precio > costo
         return valido
 
+    def comprobar_es_venta_directa(self):
+        """
+            Devuelve true si el producto es de venta directa.
+            @return: bool
+        """
+        venta_directa = self.venta_directa
+        return venta_directa
+
     # Comprueba que el producto pueda borrarse
     def comprobar_puede_borrarse(self):
         cantidad = Pedido.objects.all().filter(lineas__producto__exact=self).count()
