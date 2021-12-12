@@ -56,8 +56,8 @@ def crear_pedido(usuario, lineas):
     pedido = get_pedido(usuario=usuario, estado=Estado.ABIERTO)
     if pedido is not None:
         id = pedido.id
-        lineas_anteriore = pedido.lineas.all()
-        lineas_serializer = LineaSerializer(instance=lineas_anteriore, many=True)
+        lineas_anteriores = pedido.lineas.all()
+        lineas_serializer = LineaSerializer(instance=lineas_anteriores, many=True)
         lineas_anteriores = lineas_serializer.data
         return actualizar_pedido(id, lineas, lineas_anteriores)
     pedido = Pedido(usuario=usuario, ultimo_estado=Estado.ABIERTO, total=0)

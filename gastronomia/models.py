@@ -2,6 +2,7 @@ from base.models import Auditoria, Usuario
 import datetime
 from django.db import models
 import locale
+from django.apps import apps
 
 
 class Estado(models.Model):
@@ -204,22 +205,44 @@ class Pedido(Auditoria, models.Model):
 
     def actualizar_stock(self, anteriores):
         """
-        Actualiza el stock
-        @param anteriores:
-        @return:
+            Actualiza el stock
+            @param anteriores:
+            @return:
         """
+        lineas = self.lineas.all()
+        for linea in lineas:
+            cantidad = linea.cantidad
+            cantidad_anterior = 0
+            for anterior in anteriores:
+                id_linea = anterior["id"]
+                id_producto_anterior = anterior["producto"]["id"]
+                mismo = linea.comprobar_mismo_producto(id_producto_anterior)
+                if mismo and id_linea != 0:
+                    cantidad_anterior = anterior["cantidad"]
+
+            nueva_cantidad = cantidad - cantidad_anterior
+            if nueva_cantidad != 0:
+                linea.actualizar_stock(anterior=cantidad_anterior)
+
         for anterior in anteriores:
-            nueva = anterior["id"] == 0
-            id_producto = anterior["producto"]["id"]
-            lineas = self.lineas.all()
+            existe = False
+            id_linea = anterior["id"]
             for linea in lineas:
-                mismo = linea.comprobar_mismo_producto(id_producto)
-                cantidad = linea.cantidad
+                id = linea.id
+                if id == id_linea:
+                    existe = True
+            if not existe and id_linea != 0:
+                id_producto = anterior["producto"]["id"]
                 cantidad_anterior = anterior["cantidad"]
-                if mismo and nueva:
-                    linea.actualizar_stock()
-                if mismo and not nueva and cantidad != cantidad_anterior:
-                    linea.actualizar_stock(anterior=cantidad_anterior)
+                Producto = apps.get_model('producto', 'Producto')
+                try:
+                    producto = Producto.objects.get(pk=id_producto)
+                except:
+                    producto = None
+                if producto is not None:
+                    stock = producto.stock
+                    nuevo_stock = stock + cantidad_anterior
+                    producto.actualizar_stock(nueva=nuevo_stock, descripcion="Borrado de línea de Pedido " + self.get_id_texto())
 
     # Borra todos los estados y líneas del pedido.
     def borrar_datos_pedido(self):
@@ -372,7 +395,7 @@ class PedidoLinea(models.Model):
         producto = self.producto
         stock = producto.stock
         cantidad = self.cantidad
-        if anterior is None:
+        if anterior is None or anterior == 0:
             nuevo_stock = stock - cantidad
             producto.actualizar_stock(nueva=nuevo_stock, descripcion="Creación de línea de Pedido " + id_texto)
         else:
