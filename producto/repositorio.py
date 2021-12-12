@@ -83,9 +83,6 @@ def get_errores_crear_producto(datos, producto=None):
     if not isinstance(float(costo_vigente), float) or float(costo_vigente) <= 0.00:
         errores.append("Debe indicar el costo del producto.")
 
-    if venta_directa and isinstance(float(costo_vigente), float) and isinstance(float(precio_vigente), float) and costo_vigente > precio_vigente:
-        errores.append("El costo del producto debe ser mayor que el precio del mismo.")
-
     return errores
 
 
