@@ -1,3 +1,4 @@
+from base.signals import get_usuario_logueado
 from rest_framework import serializers
 from rest_framework.authtoken.views import Token
 from .models import Usuario, Rol
@@ -57,18 +58,22 @@ class UsuarioSerializer(CustomModelSerializer):
     def get_operaciones_listado(self, objeto):
         operaciones = []
 
+        logueado = get_usuario_logueado()
+        esAdmin = logueado.esAdmin
+
         accion = 'editar'
-        operaciones.append({
-            'accion': accion,
-            'clase': 'btn btn-sm btn-success text-success',
-            'texto': 'Editar',
-            'icono': 'fas fa-pencil-alt',
-            'title': 'Editar Usuario ' + objeto.get_id_texto(),
-            'key': str(objeto.id) + "-" + accion,
-        })
+        if esAdmin:
+            operaciones.append({
+                'accion': accion,
+                'clase': 'btn btn-sm btn-success text-success',
+                'texto': 'Editar',
+                'icono': 'fas fa-pencil-alt',
+                'title': 'Editar Usuario ' + objeto.get_id_texto(),
+                'key': str(objeto.id) + "-" + accion,
+            })
 
         puede_borrar = objeto.comprobar_puede_borrarse()
-        if puede_borrar:
+        if puede_borrar and esAdmin:
             accion = 'borrar'
             operaciones.append({
                 'accion': accion,
