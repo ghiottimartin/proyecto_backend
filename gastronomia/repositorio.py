@@ -5,6 +5,7 @@ from django.http import FileResponse
 import io
 from reportlab.pdfgen import canvas
 from producto.repositorio import get_producto
+from gastronomia.serializers import LineaSerializer
 
 
 # Devuelve un pedido por estado.
@@ -55,7 +56,10 @@ def crear_pedido(usuario, lineas):
     pedido = get_pedido(usuario=usuario, estado=Estado.ABIERTO)
     if pedido is not None:
         id = pedido.id
-        return actualizar_pedido(id, lineas)
+        lineas_anteriore = pedido.lineas.all()
+        lineas_serializer = LineaSerializer(instance=lineas_anteriore, many=True)
+        lineas_anteriores = lineas_serializer.data
+        return actualizar_pedido(id, lineas, lineas_anteriores)
     pedido = Pedido(usuario=usuario, ultimo_estado=Estado.ABIERTO, total=0)
     pedido.save()
 
@@ -103,12 +107,12 @@ def crear_linea_pedido(pedido, item):
     return linea
 
 
-def actualizar_pedido(id, lineas):
+def actualizar_pedido(id, lineas, anteriores):
     pedido = get_pedido(pk=id)
     errores = []
     if pedido is None:
         errores.append("No se ha encontrado el pedido.")
-    errores = actualizar_lineas_pedido(pedido, lineas)
+    errores = actualizar_lineas_pedido(pedido, lineas, anteriores)
     if not isinstance(errores, PedidoLinea) and len(errores) > 0:
         return errores
 
@@ -121,7 +125,7 @@ def actualizar_pedido(id, lineas):
     return pedido
 
 
-def actualizar_lineas_pedido(pedido, lineas):
+def actualizar_lineas_pedido(pedido, lineas, anteriores):
     errores = []
     for linea in lineas:
         id_linea = linea["id"]
@@ -138,13 +142,21 @@ def actualizar_lineas_pedido(pedido, lineas):
         elif objeto is not None:
             objeto.cantidad = linea["cantidad"]
 
+        cantidad_anterior = 0
+        for anterior in anteriores:
+            id_producto_anterior = anterior["producto"]["id"]
+            if id_producto == id_producto_anterior:
+                cantidad_anterior = anterior["cantidad"]
+
+        diferencia = cantidad - cantidad_anterior
         producto = objeto.producto
-        tiene_stock = producto.comprobar_tiene_stock(cantidad)
+        tiene_stock = producto.comprobar_tiene_stock(diferencia)
         nombre = producto.nombre
         if not tiene_stock:
+            objeto.cantidad = cantidad_anterior
             errores.append("No hay suficiente stock del producto '" + nombre)
 
-        if objeto is not None and objeto.id is not None:
+        if objeto is not None and objeto.id is not None and len(errores) == 0:
             objeto.actualizar_total()
             objeto.save()
 

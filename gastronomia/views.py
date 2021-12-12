@@ -207,7 +207,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
                 anteriores = anterior.lineas.all()
                 lineas_serializer = LineaSerializer(instance=anteriores, many=True)
                 lineas_anteriores = lineas_serializer.data
-                pedido = actualizar_pedido(id, lineas)
+                pedido = actualizar_pedido(id, lineas, lineas_anteriores)
 
             if pedido is not None and not isinstance(pedido, Pedido) and len(pedido) > 0:
                 mensaje = "Se produjeron los siguientes errores: "
