@@ -212,7 +212,8 @@ class ABMProductoViewSet(viewsets.ModelViewSet):
         serializer.save()
 
         producto = serializer.instance
-
+        stock_seguridad = request.data["stock_seguridad"]
+        producto.stock_seguridad = stock_seguridad if stock_seguridad != '' else 0
         stock = producto.stock
 
         producto.agregar_precio()
