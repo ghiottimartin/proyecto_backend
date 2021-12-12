@@ -720,7 +720,9 @@ class VentaLinea(models.Model):
         cantidad = self.cantidad
         descripcion = self.venta.__str__()
 
-        producto.actualizar_stock(nueva=cantidad, descripcion=descripcion)
+        stock = producto.stock
+        nuevo_stock = stock - cantidad
+        producto.actualizar_stock(nueva=nuevo_stock, descripcion=descripcion)
         producto.save()
 
     def actualizar(self):
