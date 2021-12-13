@@ -675,7 +675,8 @@ class Venta(Auditoria, models.Model):
         vuelto = cambio - total
         if vuelto < 0:
             return 'No solicitó'
-        return "$ " + str(round(vuelto, 2))
+        redondeado = round(vuelto, 2)
+        return locale.currency(redondeado)
 
     def get_direccion_texto(self):
         """

@@ -562,9 +562,8 @@ class ABMVentaViewSet(viewsets.ModelViewSet):
 
             altura_lineas -= 15
             producto = linea['producto']
-            id_producto = producto['id']
             nombre = producto['nombre']
-            id_nombre = "(" + str(id_producto) + ")  " + nombre
+            id_nombre = nombre
             pdf.drawString(5, altura_lineas, id_nombre)
 
             total = str(linea['total_texto'])
