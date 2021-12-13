@@ -155,6 +155,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         ret['usuario_direccion'] = instance.usuario.direccion
         ret['mostrar_usuario'] = logueado.esAdmin or logueado.esVendedor
         ret['color_fondo'] = instance.get_color_fondo()
+        ret['venta_id'] = instance.get_id_venta()
         return ret
 
     # Devuelve las operaciones de un pedido.
@@ -197,6 +198,19 @@ class PedidoSerializer(serializers.ModelSerializer):
                 'clase_responsive': 'bg-success',
                 'texto': 'Disponible',
                 'icono': 'fa fa-check-circle',
+                'title': 'Marcar Pedido ' + objeto.get_id_texto() + " como disponible",
+                'key': str(objeto.id) + "-" + accion,
+            })
+
+        puede_imprimir_venta = objeto.comprobar_puede_imprimir_venta(logueado)
+        if puede_imprimir_venta:
+            accion = 'venta'
+            operaciones.append({
+                'accion': 'venta',
+                'clase': 'btn btn-sm btn-primary text-primary',
+                'clase_responsive': 'bg-primary',
+                'texto': 'Ticket',
+                'icono': 'fas fa-file-pdf',
                 'title': 'Marcar Pedido ' + objeto.get_id_texto() + " como disponible",
                 'key': str(objeto.id) + "-" + accion,
             })

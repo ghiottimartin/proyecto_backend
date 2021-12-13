@@ -108,6 +108,17 @@ class Pedido(Auditoria, models.Model):
         es_vendedor = usuario.esVendedor
         return en_curso and es_vendedor
 
+    def comprobar_puede_imprimir_venta(self, usuario):
+        """
+            Devuelve true si puede imprimir la venta del pedido.
+            @param usuario: Usuario
+            @return: bool
+        """
+        esVendedor = usuario.esVendedor
+        venta = self.venta
+        disponible = self.comprobar_estado_disponible()
+        return venta is not None and disponible and esVendedor
+
     def comprobar_tipo_valido(self, tipo):
         """
             Devuelve true si el tipo es retiro o deliver.
@@ -155,6 +166,16 @@ class Pedido(Auditoria, models.Model):
         """
         lineas = self.lineas.all()
         return lineas
+
+    def get_id_venta(self):
+        """
+            Devuelve el di de la venta si tiene.
+            @return: int
+        """
+        venta = self.venta
+        if venta is not None:
+            return venta.id
+        return 0
 
     def get_color_fondo(self):
         """
