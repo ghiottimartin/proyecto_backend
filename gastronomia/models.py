@@ -114,10 +114,18 @@ class Pedido(Auditoria, models.Model):
             @param usuario: Usuario
             @return: bool
         """
-        esVendedor = usuario.esVendedor
         venta = self.venta
+        if venta is None:
+            return False
+
+        esAdmin = usuario.esAdmin
+        esVendedor = usuario.esVendedor
+        rol_valido = esAdmin or esVendedor
+
         disponible = self.comprobar_estado_disponible()
-        return venta is not None and disponible and esVendedor
+        entregado = self.comprobar_estado_recibido()
+        estado_valido = disponible or entregado
+        return rol_valido and estado_valido
 
     def comprobar_tipo_valido(self, tipo):
         """
