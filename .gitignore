@@ -5,3 +5,5 @@ db_proyecto.sqlite3
 !/media/producto/defecto*
 /proyecto_backend/mysql.cnf
 /proyecto_backend/.env
+*.pyc
+.env
