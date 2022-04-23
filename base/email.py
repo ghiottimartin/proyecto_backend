@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 
 
 def enviar_email_registro(usuario):
+    pass
     subject, from_email, to = 'Panadería Independencia - Activación de cuenta', 'sistemadegestion@gmail.com', usuario.email
     text_content = '¡Bienvenido al Sistema Gastronómico!.'
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
@@ -13,6 +14,7 @@ def enviar_email_registro(usuario):
 
 
 def enviar_email_cambio_password(usuario):
+    pass
     subject, from_email, to = 'Panadería Independencia - Cambiar contraseña', 'sistemadegestion@gmail.com', usuario.email
     text_content = '¡Bienvenido al Sistema Gastronómica!.'
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
@@ -22,6 +24,7 @@ def enviar_email_cambio_password(usuario):
 
 
 def enviar_email_pedido_cerrado(pedido, mensaje):
+    pass
     usuario = pedido.usuario
     subject, from_email, to = 'Panadería Independencia - Pedido confirmado', 'sistemadegestion@gmail.com', usuario.email
     text_content = 'Pedido confirmado.'
@@ -32,6 +35,7 @@ def enviar_email_pedido_cerrado(pedido, mensaje):
 
 
 def enviar_email_pedido_anulado(pedido):
+    pass
     usuario = pedido.usuario
     subject, from_email, to = 'Panadería Independencia - Pedido anulado', 'sistemadegestion@gmail.com', usuario.email
     text_content = 'Pedido anulado.'
@@ -42,6 +46,7 @@ def enviar_email_pedido_anulado(pedido):
 
 
 def enviar_email_pedido_disponible(pedido):
+    pass
     usuario = pedido.usuario
     subject, from_email, to = 'Panadería Independencia - Pedido disponible', 'sistemadegestion@gmail.com', usuario.email
     text_content = 'Pedido disponible.'
@@ -52,6 +57,7 @@ def enviar_email_pedido_disponible(pedido):
 
 
 def enviar_email_usuario_deshabilitado(usuario):
+    pass
     subject, from_email, to = 'Panadería Independencia - Usuario deshabilitado', 'sistemadegestion@gmail.com', usuario.email
     text_content = 'Usuario deshabilitado.'
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
@@ -61,6 +67,7 @@ def enviar_email_usuario_deshabilitado(usuario):
 
 
 def enviar_email_usuario_habilitado(usuario):
+    pass
     subject, from_email, to = 'Panadería Independencia - Usuario habilitado', 'sistemadegestion@gmail.com', usuario.email
     text_content = 'Usuario habilitado.'
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to, "martinghiotti2013@gmail.com"])
