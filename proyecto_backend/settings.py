@@ -115,10 +115,8 @@ WSGI_APPLICATION = 'proyecto_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR, 'proyecto_backend\mysql.cnf'),
-        },
+       'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'proyecto_backend.sqlite3',
     }
 }
 

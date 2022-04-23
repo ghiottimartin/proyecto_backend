@@ -7,3 +7,4 @@ db_proyecto.sqlite3
 /proyecto_backend/.env
 *.pyc
 .env
+proyecto_backend.sqlite3
