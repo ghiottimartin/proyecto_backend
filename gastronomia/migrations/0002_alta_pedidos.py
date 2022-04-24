@@ -5,34 +5,35 @@ from django.db import migrations
 import datetime
 
 def agregar_pedidos(apps, schema_editor):
-    Producto = apps.get_model('producto', 'Producto')
+    pass
+    # Producto = apps.get_model('producto', 'Producto')
 
-    producto1 = Producto.objects.get(nombre='Agua sin gas 0.5L')
-    producto2 = Producto.objects.get(nombre='Cerveza Santa Fe 473ml')
-    producto3 = Producto.objects.get(nombre='Hamburguesa completa')
-    producto4 = Producto.objects.get(nombre='Lomito con papas')
-    producto5 = Producto.objects.get(nombre='Pizza 4 Quesos')
-    producto6 = Producto.objects.get(nombre='Pizza Especial')
+    # producto1 = Producto.objects.get(nombre='Agua sin gas 0.5L')
+    # producto2 = Producto.objects.get(nombre='Cerveza Santa Fe 473ml')
+    # producto3 = Producto.objects.get(nombre='Hamburguesa completa')
+    # producto4 = Producto.objects.get(nombre='Lomito con papas')
+    # producto5 = Producto.objects.get(nombre='Pizza 4 Quesos')
+    # producto6 = Producto.objects.get(nombre='Pizza Especial')
 
-    nuevo_pedido(apps, 'juan', datetime.date(2020, 5, 1), [producto1, producto2], 'recibido')
-    nuevo_pedido(apps, 'juan', datetime.date(2021, 7, 23), [producto2, producto3], 'recibido')
-    nuevo_pedido(apps, 'juan', datetime.date(2021, 7, 23), [producto1, producto2, producto3], 'anulado')
-    nuevo_pedido(apps, 'juan', datetime.date(2021, 3, 21), [producto3, producto4, producto5], 'recibido')
+    # nuevo_pedido(apps, 'juan', datetime.date(2020, 5, 1), [producto1, producto2], 'recibido')
+    # nuevo_pedido(apps, 'juan', datetime.date(2021, 7, 23), [producto2, producto3], 'recibido')
+    # nuevo_pedido(apps, 'juan', datetime.date(2021, 7, 23), [producto1, producto2, producto3], 'anulado')
+    # nuevo_pedido(apps, 'juan', datetime.date(2021, 3, 21), [producto3, producto4, producto5], 'recibido')
 
-    nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 10), [producto5, producto6], 'recibido')
-    nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 11), [producto2, producto4], 'recibido')
-    nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 12), [producto3, producto4, producto5], 'anulado')
-    nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 13), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
+    # nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 10), [producto5, producto6], 'recibido')
+    # nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 11), [producto2, producto4], 'recibido')
+    # nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 12), [producto3, producto4, producto5], 'anulado')
+    # nuevo_pedido(apps, 'pedro', datetime.date(2021, 10, 13), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
 
-    nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 1), [producto5, producto6], 'recibido')
-    nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 5), [producto2, producto4], 'recibido')
-    nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 10), [producto3, producto4, producto5], 'anulado')
-    nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 11), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
+    # nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 1), [producto5, producto6], 'recibido')
+    # nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 5), [producto2, producto4], 'recibido')
+    # nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 10), [producto3, producto4, producto5], 'anulado')
+    # nuevo_pedido(apps, 'comensal', datetime.date(2021, 10, 11), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
 
-    nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 5), [producto5, producto6], 'recibido')
-    nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 7), [producto2, producto4], 'recibido')
-    nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 8), [producto3, producto4, producto5], 'anulado')
-    nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 9), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
+    # nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 5), [producto5, producto6], 'recibido')
+    # nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 7), [producto2, producto4], 'recibido')
+    # nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 8), [producto3, producto4, producto5], 'anulado')
+    # nuevo_pedido(apps, 'lucas', datetime.date(2021, 10, 9), [producto1, producto2, producto3, producto4, producto5, producto6], 'recibido')
 
 
 def nuevo_pedido(apps, nombre_usuario, fecha, productos, estadoTexto):

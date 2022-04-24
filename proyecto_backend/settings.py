@@ -70,7 +70,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://kiosco-pico-2022.herokuapp.com/"
+    "https://kiosco-pico-2022.herokuapp.com"
 ]
 
 AUTHENTICATION_BACKENDS = ['proyecto_backend.auth.EmailBackend']

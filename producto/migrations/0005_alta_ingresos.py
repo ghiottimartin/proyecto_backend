@@ -7,34 +7,35 @@ import datetime
 import random
 
 def agregar_ingresos(apps, schema_editor):
-    Producto = apps.get_model('producto', 'Producto')
+    pass
+    # Producto = apps.get_model('producto', 'Producto')
 
-    producto1 = Producto.objects.get(nombre='Agua sin gas 0.5L')
-    producto2 = Producto.objects.get(nombre='Cerveza Santa Fe 473ml')
-    producto3 = Producto.objects.get(nombre='Hamburguesa completa')
-    producto4 = Producto.objects.get(nombre='Lomito con papas')
-    producto5 = Producto.objects.get(nombre='Pizza 4 Quesos')
-    producto6 = Producto.objects.get(nombre='Pizza Especial')
+    # producto1 = Producto.objects.get(nombre='Agua sin gas 0.5L')
+    # producto2 = Producto.objects.get(nombre='Cerveza Santa Fe 473ml')
+    # producto3 = Producto.objects.get(nombre='Hamburguesa completa')
+    # producto4 = Producto.objects.get(nombre='Lomito con papas')
+    # producto5 = Producto.objects.get(nombre='Pizza 4 Quesos')
+    # producto6 = Producto.objects.get(nombre='Pizza Especial')
 
-    nuevo_ingreso(apps, 'admin', datetime.date(2020, 5, 1), [producto1, producto2])
-    nuevo_ingreso(apps, 'admin', datetime.date(2021, 7, 23), [producto2, producto3])
-    nuevo_ingreso(apps, 'admin', datetime.date(2021, 7, 23), [producto1, producto2, producto3])
-    nuevo_ingreso(apps, 'admin', datetime.date(2021, 3, 21), [producto3, producto4, producto5])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2020, 5, 1), [producto1, producto2])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2021, 7, 23), [producto2, producto3])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2021, 7, 23), [producto1, producto2, producto3])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2021, 3, 21), [producto3, producto4, producto5])
 
-    nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 10), [producto5, producto6])
-    nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 11), [producto2, producto4])
-    nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 12), [producto3, producto4, producto5])
-    nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 13), [producto1, producto2, producto3, producto4, producto5, producto6])
+    # nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 10), [producto5, producto6])
+    # nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 11), [producto2, producto4])
+    # nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 12), [producto3, producto4, producto5])
+    # nuevo_ingreso(apps, 'martin', datetime.date(2021, 10, 13), [producto1, producto2, producto3, producto4, producto5, producto6])
 
-    nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 1), [producto5, producto6])
-    nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 5), [producto2, producto4])
-    nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 10), [producto3, producto4, producto5])
-    nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 11), [producto1, producto2, producto3, producto4, producto5, producto6])
+    # nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 1), [producto5, producto6])
+    # nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 5), [producto2, producto4])
+    # nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 10), [producto3, producto4, producto5])
+    # nuevo_ingreso(apps, 'bernardo', datetime.date(2021, 10, 11), [producto1, producto2, producto3, producto4, producto5, producto6])
 
-    nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 5), [producto5, producto6])
-    nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 7), [producto2, producto4])
-    nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 8), [producto3, producto4, producto5])
-    nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 9), [producto1, producto2, producto3, producto4, producto5, producto6])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 5), [producto5, producto6])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 7), [producto2, producto4])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 8), [producto3, producto4, producto5])
+    # nuevo_ingreso(apps, 'admin', datetime.date(2021, 10, 9), [producto1, producto2, producto3, producto4, producto5, producto6])
 
 
 def nuevo_ingreso(apps, nombre_usuario, fecha, productos):

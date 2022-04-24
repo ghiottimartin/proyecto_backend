@@ -28,146 +28,146 @@ def agregar_usuarios(apps, schema_editor):
     martin.roles.add(rolVendedor)
     martin.save()
 
-    bernardo = Usuario(first_name="Bernardo", dni=11111111, email='bernardopolidoro@gmail.com', username='bernardo',
+    giuliano = Usuario(first_name="Giuliano", dni=11111111, email='giuliano@gmail.com', username='giuliano',
         password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
         habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
         auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
         is_active=1, date_joined=datetime.datetime.now()
     )
-    bernardo.save()
+    giuliano.save()
 
-    bernardo.roles.add(rolRoot)
-    bernardo.roles.add(rolAdmin)
-    bernardo.roles.add(rolMozo)
-    bernardo.roles.add(rolComensal)
-    bernardo.roles.add(rolVendedor)
-    bernardo.save()
+    giuliano.roles.add(rolRoot)
+    giuliano.roles.add(rolAdmin)
+    giuliano.roles.add(rolMozo)
+    giuliano.roles.add(rolComensal)
+    giuliano.roles.add(rolVendedor)
+    giuliano.save()
 
-    root = Usuario(first_name="Root", dni=11111112, email='root@gmail.com', username='root',
-        password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-        habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-        auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-        is_active=1, date_joined=datetime.datetime.now()
-    )
-    root.save()
+    # root = Usuario(first_name="Root", dni=11111112, email='root@gmail.com', username='root',
+    #     password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #     habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #     auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #     is_active=1, date_joined=datetime.datetime.now()
+    # )
+    # root.save()
 
-    root.roles.add(rolRoot, rolAdmin, rolMozo, rolComensal, rolVendedor)
-    root.roles.add(rolRoot)
-    root.roles.add(rolAdmin)
-    root.roles.add(rolMozo)
-    root.roles.add(rolComensal)
-    root.roles.add(rolVendedor)
-    root.save()
+    # root.roles.add(rolRoot, rolAdmin, rolMozo, rolComensal, rolVendedor)
+    # root.roles.add(rolRoot)
+    # root.roles.add(rolAdmin)
+    # root.roles.add(rolMozo)
+    # root.roles.add(rolComensal)
+    # root.roles.add(rolVendedor)
+    # root.save()
 
-    admin = Usuario(first_name="Administrador", dni=11111113, email='admin@gmail.com', username='admin',
-        password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-        habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-        auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-        is_active=1, date_joined=datetime.datetime.now()
-    )
-    admin.save()
+    # admin = Usuario(first_name="Administrador", dni=11111113, email='admin@gmail.com', username='admin',
+    #     password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #     habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #     auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #     is_active=1, date_joined=datetime.datetime.now()
+    # )
+    # admin.save()
 
-    admin.roles.add(rolAdmin)
-    admin.save()
+    # admin.roles.add(rolAdmin)
+    # admin.save()
 
-    vendedor = Usuario(first_name="Vendedor", dni=11111114, email='vendedor@gmail.com', username='vendedor',
-        password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-        habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-        auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-        is_active=1, date_joined=datetime.datetime.now()
-    )
-    vendedor.save()
+    # vendedor = Usuario(first_name="Vendedor", dni=11111114, email='vendedor@gmail.com', username='vendedor',
+    #     password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #     habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #     auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #     is_active=1, date_joined=datetime.datetime.now()
+    # )
+    # vendedor.save()
 
-    vendedor.roles.add(rolVendedor)
-    vendedor.save()
+    # vendedor.roles.add(rolVendedor)
+    # vendedor.save()
 
-    mozo = Usuario(first_name="Mozo", dni=11111115, email='mozo@gmail.com', username='mozo',
-        password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-        habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-        auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-        is_active=1, date_joined=datetime.datetime.now()
-    )
-    mozo.save()
+    # mozo = Usuario(first_name="Mozo", dni=11111115, email='mozo@gmail.com', username='mozo',
+    #     password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #     habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #     auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #     is_active=1, date_joined=datetime.datetime.now()
+    # )
+    # mozo.save()
 
-    mozo.roles.add(rolMozo)
-    mozo.save()
+    # mozo.roles.add(rolMozo)
+    # mozo.save()
 
-    comensal = Usuario(first_name="Comensal", dni=11111116, email='comensal@gmail.com', username='comensal',
-        password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-        habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-        auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-        is_active=1, date_joined=datetime.datetime.now()
-    )
-    comensal.save()
+    # comensal = Usuario(first_name="Comensal", dni=11111116, email='comensal@gmail.com', username='comensal',
+    #     password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #     habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #     auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #     is_active=1, date_joined=datetime.datetime.now()
+    # )
+    # comensal.save()
 
-    comensal.roles.add(rolComensal)
-    comensal.save()
+    # comensal.roles.add(rolComensal)
+    # comensal.save()
 
-    juan = Usuario(first_name="Juan", dni=11111117, email='juan@gmail.com', username='juan',
-                   password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-                   habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-                   auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-                   is_active=1, date_joined=datetime.datetime.now()
-                   )
-    juan.save()
+    # juan = Usuario(first_name="Juan", dni=11111117, email='juan@gmail.com', username='juan',
+    #                password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #                habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #                auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #                is_active=1, date_joined=datetime.datetime.now()
+    #                )
+    # juan.save()
 
-    juan.roles.add(rolComensal)
-    juan.save()
+    # juan.roles.add(rolComensal)
+    # juan.save()
 
-    pedro = Usuario(first_name="Pedro", dni=11111118, email='pedro@gmail.com', username='pedro',
-                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-                    is_active=1, date_joined=datetime.datetime.now()
-                    )
-    pedro.save()
+    # pedro = Usuario(first_name="Pedro", dni=11111118, email='pedro@gmail.com', username='pedro',
+    #                 password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #                 habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #                 auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #                 is_active=1, date_joined=datetime.datetime.now()
+    #                 )
+    # pedro.save()
 
-    pedro.roles.add(rolComensal)
-    pedro.save()
+    # pedro.roles.add(rolComensal)
+    # pedro.save()
 
-    lucas = Usuario(first_name="Lucas", dni=11111119, email='lucas@gmail.com', username='lucas',
-                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-                    is_active=1, date_joined=datetime.datetime.now()
-                    )
-    lucas.save()
+    # lucas = Usuario(first_name="Lucas", dni=11111119, email='lucas@gmail.com', username='lucas',
+    #                 password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #                 habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #                 auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #                 is_active=1, date_joined=datetime.datetime.now()
+    #                 )
+    # lucas.save()
 
-    lucas.roles.add(rolComensal)
-    lucas.save()
+    # lucas.roles.add(rolComensal)
+    # lucas.save()
 
-    mozo1 = Usuario(first_name="Mozo Dani", dni=11111120, email='mozo1@gmail.com', username='mozo1',
-                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-                    is_active=1, date_joined=datetime.datetime.now()
-                    )
-    mozo1.save()
+    # mozo1 = Usuario(first_name="Mozo Dani", dni=11111120, email='mozo1@gmail.com', username='mozo1',
+    #                 password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #                 habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #                 auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #                 is_active=1, date_joined=datetime.datetime.now()
+    #                 )
+    # mozo1.save()
 
-    mozo1.roles.add(rolMozo)
-    mozo1.save()
+    # mozo1.roles.add(rolMozo)
+    # mozo1.save()
 
-    mozo2 = Usuario(first_name="Mozo Juan", dni=11111121, email='mozo2@gmail.com', username='mozo2',
-                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-                    is_active=1, date_joined=datetime.datetime.now()
-                    )
-    mozo2.save()
+    # mozo2 = Usuario(first_name="Mozo Juan", dni=11111121, email='mozo2@gmail.com', username='mozo2',
+    #                 password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #                 habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #                 auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #                 is_active=1, date_joined=datetime.datetime.now()
+    #                 )
+    # mozo2.save()
 
-    mozo2.roles.add(rolMozo)
-    mozo2.save()
+    # mozo2.roles.add(rolMozo)
+    # mozo2.save()
 
-    mozo3 = Usuario(first_name="Mozo Roberto", dni=11111122, email='mozo3@gmail.com', username='mozo3',
-                    password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
-                    habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
-                    auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
-                    is_active=1, date_joined=datetime.datetime.now()
-                    )
-    mozo3.save()
+    # mozo3 = Usuario(first_name="Mozo Roberto", dni=11111122, email='mozo3@gmail.com', username='mozo3',
+    #                 password='pbkdf2_sha256$260000$EKHjtiZesRTeFdCfsnukoT$Xng7WAZL+mUsnZJzn4xeIQ06HfCtXaY1L69Q1TGQ1jU=',
+    #                 habilitado=1, borrado=0, auditoria_creado_fecha=datetime.datetime.now(),
+    #                 auditoria_modificado_fecha=datetime.datetime.now(), is_superuser=1, last_name='', is_staff=1,
+    #                 is_active=1, date_joined=datetime.datetime.now()
+    #                 )
+    # mozo3.save()
 
-    mozo3.roles.add(rolMozo)
-    mozo3.save()
+    # mozo3.roles.add(rolMozo)
+    # mozo3.save()
 
 
 def borrar_usuarios(apps, schema_editor):
